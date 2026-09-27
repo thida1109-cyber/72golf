@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>72ゴルフ 第5版</title>
+
+<style>
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
+  margin: 0;
+  padding: 12px;
+  background: #f4f6f8;
+  color: #222;
+}
+
+.container {
+  max-width: 900px;
+  margin: auto;
+}
+
+h1 {
+  text-align: center;
+  font-size: 28px;
+  margin: 8px 0 20px;
+}
+
+h2 {
+  font-size: 22px;
+  margin-top: 10px;
+}
+
+.card {
+  background: white;
+  border-radius: 14px;
+  padding: 18px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.08);
+}
+
+label {
+  display: block;
+  font-weight: bold;
+  margin-top: 12px;
+  margin-bottom: 5px;
+}
+
+input, select {
+  width: 100%;
+  padding: 12px;
+  font-size: 18px;
+  border: 1px solid #aaa;
+  border-radius: 8px;
+}
+
+button {
+  border: none;
+  border-radius: 10px;
+  padding: 12px 16px;
+  font-size: 17px;
+  font-weight: bold;
+  background: #1976d2;
+  color: white;
+  margin: 4px;
+}
+
+button:active {
+  transform: scale(.97);
+}
+
+.big {
+  font-size: 22px;
+  padding: 14px 20px;
+}
+
+.secondary {
+  background: #666;
+}
+
+.green {
+  background: #198754;
+}
+
+.red {
+  background: #d9534f;
+}
+
+.screen {
+  display: none;
+}
+
+.screen.active {
+  display: block;
+}
+
+.player-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 7px;
+  overflow-x: auto;
+}
+
+.player {
+  min-width: 120px;
+  text-align: center;
+  border: 1px solid #bbb;
+  border-radius: 10px;
+  padding: 8px;
+  background: #fafafa;
+}
+
+.player-name {
+  font-weight: bold;
+  font-size: 16px;
+  min-height: 42px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.score-display {
+  font-size: 28px;
+  font-weight: bold;
+  margin: 8px 0;
+}
+
+.score-buttons {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 4px;
+}
+
+.score-buttons button {
+  margin: 0;
+  padding: 9px 2px;
+  font-size: 15px;
+  background: #555;
+}
+
+.pm {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.pm button {
+  width: 60px;
+  height: 55px;
+  font-size: 30px;
+  padding: 0;
+}
+
+.putt {
+  width: 70px;
+  margin: auto;
+  text-align: center;
+}
+
+.navigation {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 18px;
+}
+
+.hole-info {
+  text-align: center;
+  font-size: 22px;
+  font-weight: bold;
+  margin: 10px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  font-size: 14px;
+}
+
+th, td {
+  border: 1px solid #888;
+  padding: 6px 3px;
+  text-align: center;
+}
+
+th {
+  background: #e9ecef;
+}
+
+.small {
+  font-size: 13px;
+  color: #666;
+}
+
+.center {
+  text-align: center;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<!-- ================= SCREEN 1 ================= -->
+
+<div id="screen1" class="screen active">
+
+<h1>72ゴルフ 第5版</h1>
+
+<div class="card">
+
+<h2>ゴルフ情報</h2>
+
+<label>ゴルフ場名</label>
+<input id="courseName" type="text" placeholder="ゴルフ場名">
+
+<label>日付</label>
+<input id="playDate" type="date">
+
+<label>スタート</label>
+<select id="startOrder">
+<option value="OUT">OUTスタート</option>
+<option value="IN">INスタート</option>
+</select>
+
+<h2>メンバー</h2>
+
+<label>1人目</label>
+<input id="name1" type="text" placeholder="名前">
+
+<label>2人目</label>
+<input id="name2" type="text" placeholder="名前">
+
+<label>3人目</label>
+<input id="name3" type="text" placeholder="名前">
+
+<label>4人目</label>
+<input id="name4" type="text" placeholder="名前">
+
+<div class="center">
+<button class="big green" onclick="startGame()">
+スコア入力へ →
+</button>
+</div>
+
+</div>
+</div>
+
+
+<!-- ================= SCREEN 2 ================= -->
+
+<div id="screen2" class="screen">
+
+<h1>スコア入力</h1>
+
+<div class="card">
+
+<div id="courseTitle" class="center"></div>
+
+<div class="hole-info">
+<span id="holeNumber">1</span> ホール　
+PAR <span id="parValue">4</span>
+</div>
+
+<div class="player-grid">
+
+<!-- PLAYER 1 -->
+<div class="player">
+<div id="pname0" class="player-name"></div>
+<div id="score0" class="score-display">4</div>
+
+<div class="pm">
+<button onclick="changeScore(0,-1)">−</button>
+<button onclick="changeScore(0,1)">＋</button>
+</div>
+
+<div class="score-buttons">
+<button onclick="setScore(0,1)">1</button>
+<button onclick="setScore(0,2)">2</button>
+<button onclick="setScore(0,3)">3</button>
+<button onclick="setScore(0,4)">4</button>
+<button onclick="setScore(0,5)">5</button>
+<button onclick="setScore(0,6)">6</button>
+<button onclick="setScore(0,7)">7</button>
+<button onclick="setScore(0,8)">8</button>
+<button onclick="setScore(0,9)">9</button>
+<button onclick="setScore(0,10)">10</button>
+</div>
+
+<div class="small">PUTT</div>
+<input id="putt0" class="putt" type="number" min="0" max="10" value="2">
+</div>
+
+
+<!-- PLAYER 2 -->
+<div class="player">
+<div id="pname1" class="player-name"></div>
+<div id="score1" class="score-display">4</div>
+
+<div class="pm">
+<button onclick="changeScore(1,-1)">−</button>
+<button onclick="changeScore(1,1)">＋</button>
+</div>
+
+<div class="score-buttons">
+<button onclick="setScore(1,1)">1</button>
+<button onclick="setScore(1,2)">2</button>
+<button onclick="setScore(1,3)">3</button>
+<button onclick="setScore(1,4)">4</button>
+<button onclick="setScore(1,5)">5</button>
+<button onclick="setScore(1,6)">6</button>
+<button onclick="setScore(1,7)">7</button>
+<button onclick="setScore(1,8)">8</button>
+<button onclick="setScore(1,9)">9</button>
+<button onclick="setScore(1,10)">10</button>
+</div>
+</div>
+
+
+<!-- PLAYER 3 -->
+<div class="player">
+<div id="pname2" class="player-name"></div>
+<div id="score2" class="score-display">4</div>
+
+<div class="pm">
+<button onclick="changeScore(2,-1)">−</button>
+<button onclick="changeScore(2,1)">＋</button>
+</div>
+
+<div class="score-buttons">
+<button onclick="setScore(2,1)">1</button>
+<button onclick="setScore(2,2)">2</button>
+<button onclick="setScore(2,3)">3</button>
+<button onclick="setScore(2,4)">4</button>
+<button onclick="setScore(2,5)">5</button>
+<button onclick="setScore(2,6)">6</button>
+<button onclick="setScore(2,7)">7</button>
+<button onclick="setScore(2,8)">8</button>
+<button onclick="setScore(2,9)">9</button>
+<button onclick="setScore(2,10)">10</button>
+</div>
+</div>
+
+
+<!-- PLAYER 4 -->
+<div class="player">
+<div id="pname3" class="player-name"></div>
+<div id="score3" class="score-display">4</div>
+
+<div class="pm">
+<button onclick="changeScore(3,-1)">−</button>
+<button onclick="changeScore(3,1)">＋</button>
+</div>
+
+<div class="score-buttons">
+<button onclick="setScore(3,1)">1</button>
+<button onclick="setScore(3,2)">2</button>
+<button onclick="setScore(3,3)">3</button>
+<button onclick="setScore(3,4)">4</button>
+<button onclick="setScore(3,5)">5</button>
+<button onclick="setScore(3,6)">6</button>
+<button onclick="setScore(3,7)">7</button>
+<button onclick="setScore(3,8)">8</button>
+<button onclick="setScore(3,9)">9</button>
+<button onclick="setScore(3,10)">10</button>
+</div>
+</div>
+
+</div>
+
+<div class="navigation">
+<button class="secondary big" onclick="prevHole()">← 前のホール</button>
+<button class="big" onclick="nextHole()">次のホール →</button>
+</div>
+
+</div>
+
+<div class="center">
+<button class="green" onclick="showResults()">結果一覧</button>
+</div>
+
+</div>
+
+
+<!-- ================= SCREEN 3 ================= -->
+
+<div id="screen3" class="screen">
+
+<h1>72ゴルフ 結果</h1>
+
+<div class="card">
+<div id="resultTitle"></div>
+</div>
+
+<div style="overflow-x:auto;">
+<table id="resultTable"></table>
+</div>
+
+<div class="center">
+<button class="big secondary" onclick="backToInput()">← スコア入力へ戻る</button>
+</div>
+
+</div>
+
+</div>
+
+
+<script>
+
+let names = ["","","",""];
+let hole = 1;
+
+let pars = [
+4,4,3,5,4,3,4,5,4,
+4,4,3,5,4,3,4,5,4
+];
+
+let scores = Array.from(
+  {length:18},
+  () => [4,4,3,5]
+);
+
+let putts = Array.from(
+  {length:18},
+  () => [2,"","",""]
+);
+
+let course = "";
+let playDate = "";
+let startOrder = "OUT";
+
+
+function startGame(){
+
+  course = document.getElementById("courseName").value;
+  playDate = document.getElementById("playDate").value;
+  startOrder = document.getElementById("startOrder").value;
+
+  names = [
+    document.getElementById("name1").value || "1人目",
+    document.getElementById("name2").value || "2人目",
+    document.getElementById("name3").value || "3人目",
+    document.getElementById("name4").value || "4人目"
+  ];
+
+  hole = 1;
+
+  for(let i=0;i<4;i++){
+    document.getElementById("pname"+i).textContent = names[i];
+  }
+
+  document.getElementById("courseTitle").textContent =
+    course + "　" + playDate + "　" + startOrder;
+
+  showHole();
+
+  showScreen(2);
+}
+
+
+function showScreen(n){
+
+  document.querySelectorAll(".screen").forEach(
+    x => x.classList.remove("active")
+  );
+
+  document.getElementById("screen"+n).classList.add("active");
+
+  window.scrollTo(0,0);
+}
+
+
+function showHole(){
+
+  document.getElementById("holeNumber").textContent = hole;
+  document.getElementById("parValue").textContent = pars[hole-1];
+
+  for(let p=0;p<4;p++){
+
+    document.getElementById("score"+p).textContent =
+      scores[hole-1][p];
+
+    if(p === 0){
+
+      document.getElementById("putt0").value =
+        putts[hole-1][0] ?? "";
+    }
+  }
+}
+
+
+function setScore(player,value){
+
+  scores[hole-1][player] = value;
+
+  document.getElementById("score"+player).textContent = value;
+
+  saveData();
+}
+
+
+function changeScore(player,diff){
+
+  let value = scores[hole-1][player] + diff;
+
+  if(value < 1) value = 1;
+  if(value > 20) value = 20;
+
+  setScore(player,value);
+}
+
+
+function saveCurrentPutt(){
+
+  let value = document.getElementById("putt0").value;
+
+  putts[hole-1][0] = value === "" ? "" : Number(value);
+
+  saveData();
+}
+
+
+function nextHole(){
+
+  saveCurrentPutt();
+
+  if(hole < 18){
+
+    hole++;
+    showHole();
+
+  }else{
+
+    showResults();
+  }
+}
+
+
+function prevHole(){
+
+  saveCurrentPutt();
+
+  if(hole > 1){
+
+    hole--;
+    showHole();
+  }
+}
+
+
+function showResults(){
+
+  saveCurrentPutt();
+
+  let html = "";
+
+  html += "<tr><th>Hole</th>";
+
+  for(let p=0;p<4;p++){
+    html += "<th>"+names[p]+"</th>";
+  }
+
+  html += "<th>PAR</th>";
+
+  html += "</tr>";
+
+  for(let h=0;h<18;h++){
+
+    html += "<tr>";
+    html += "<td>"+(h+1)+"</td>";
+
+    for(let p=0;p<4;p++){
+      html += "<td>"+scores[h][p]+"</td>";
+    }
+
+    html += "<td>"+pars[h]+"</td>";
+    html += "</tr>";
+  }
+
+  html += "<tr><th>合計</th>";
+
+  for(let p=0;p<4;p++){
+
+    let total = scores.reduce(
+      (sum,row) => sum + Number(row[p]),0
+    );
+
+    html += "<th>"+total+"</th>";
+  }
+
+  let parTotal = pars.reduce(
+    (sum,x) => sum+x,0
+  );
+
+  html += "<th>"+parTotal+"</th>";
+  html += "</tr>";
+
+  document.getElementById("resultTable").innerHTML = html;
+
+  document.getElementById("resultTitle").innerHTML =
+    "<b>"+course+"</b><br>"+
+    playDate+"　"+startOrder;
+
+  saveData();
+
+  showScreen(3);
+}
+
+
+function backToInput(){
+
+  showHole();
+  showScreen(2);
+}
+
+
+function saveData(){
+
+  const data = {
+    course,
+    playDate,
+    startOrder,
+    names,
+    scores,
+    putts
+  };
+
+  localStorage.setItem(
+    "72golf_v5",
+    JSON.stringify(data)
+  );
+}
+
+
+</script>
+
+</body>
+</html>
