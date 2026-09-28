@@ -88,7 +88,7 @@ button{border:0;border-radius:9px;background:#e9e9e9;font-size:18px;min-height:4
 const KEY="72golf_v4_simple";
 let hole=1;
 let pars=Array(18).fill(4);
-let scores=Array.from({length:4},()=>Array(18).fill(null));
+let scores=Array.from({length:4},()=>Array(18).fill(0));
 
 function $(id){return document.getElementById(id)}
 
@@ -134,12 +134,12 @@ function changePar(delta){
 
 function changeScore(i,delta){
   const h=hole-1;
-  const current=(scores[i][h]==null ? pars[h] : Number(scores[i][h]));\n  scores[i][h]=Math.max(0,Math.min(15,current+delta));
+  scores[i][h]=Math.max(0,Math.min(15,(scores[i][h]||0)+delta));
   updatePlayersOnly();
 }
 
 function roundTotal(i){
-  return scores[i].slice(0,hole).reduce((a,b,j)=>a+(b==null ? pars[j] : (Number(b)||0)),0);
+  return scores[i].slice(0,hole).reduce((a,b)=>a+(Number(b)||0),0);
 }
 
 function update(){
@@ -154,7 +154,7 @@ function updatePlayersOnly(){
   const names=["p1","p2","p3","p4"].map(id=>$(id).value||"名前");
   let html="";
   for(let i=0;i<4;i++){
-    const s=scores[i][hole-1]==null ? pars[hole-1] : scores[i][hole-1];
+    const s=scores[i][hole-1]||0;
     html+=`
       <div class="player-row">
         <div class="name">${escapeHtml(names[i])}</div>
