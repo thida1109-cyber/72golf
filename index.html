@@ -1,211 +1,1045 @@
+```html
 <!DOCTYPE html>
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>72ゴルフ スコア管理</title>
+
 <style>
 *{box-sizing:border-box}
-body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;margin:0;background:#f5f5f5;color:#222}
-.container{max-width:620px;margin:auto;padding:12px}
-h1{text-align:center;font-size:22px;margin:6px 0 12px}
-.card{background:#fff;border-radius:12px;padding:12px;margin-bottom:10px;box-shadow:0 1px 5px rgba(0,0,0,.12)}
-label{font-size:13px;color:#666}
-input[type=text],input[type=date]{width:100%;padding:10px;font-size:16px;border:1px solid #ccc;border-radius:8px;margin:4px 0 8px}
-.hole-row{display:flex;align-items:center;justify-content:space-between;gap:8px}
-.hole-no{font-size:21px;font-weight:700;white-space:nowrap}
-.par-box{display:flex;align-items:center;gap:7px;font-weight:700}
-.par-box strong{min-width:22px;text-align:center}
-.par-edit{margin-top:10px;border-top:1px solid #eee;padding-top:8px}
-.par-edit summary{cursor:pointer;font-size:13px;color:#555;padding:4px 0}
-.par-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:7px}
-.par-item{display:flex;align-items:center;justify-content:space-between;background:#f7f7f7;border-radius:8px;padding:4px 5px}
-.par-item span{font-size:13px;font-weight:600}
-.par-item button{min-height:32px;padding:3px 8px;font-size:16px}
-.par-item b{min-width:18px;text-align:center;font-size:15px}
-button{border:0;border-radius:9px;background:#e9e9e9;font-size:18px;min-height:42px;padding:7px 13px;touch-action:manipulation}
-.nav{display:flex;gap:10px;margin-top:10px}
-.nav button{flex:1;background:#333;color:#fff;font-size:16px}
-.nav button:disabled{background:#bbb}
-.player-head,.player-row{display:grid;grid-template-columns:1.25fr .95fr 42px 72px 42px;align-items:center;gap:5px}
-.player-head{font-size:12px;color:#666;padding:3px 2px 7px}
-.player-row{border-top:1px solid #eee;padding:8px 2px}
-.name{font-size:16px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.total{text-align:center;font-size:16px;font-weight:600}
-.score{text-align:center;font-size:21px;font-weight:700;background:#f2f2f2;border-radius:8px;padding:8px 2px;min-height:42px}
-.pm{padding:4px;font-size:22px;min-height:42px}
-.save{width:100%;background:#333;color:#fff;font-size:17px;margin-top:5px}
-.small{font-size:12px;color:#777}
+
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  margin:0;
+  background:#f5f5f5;
+  color:#222
+}
+
+.container{
+  max-width:620px;
+  margin:auto;
+  padding:12px
+}
+
+h1{
+  text-align:center;
+  font-size:22px;
+  margin:6px 0 12px
+}
+
+.card{
+  background:#fff;
+  border-radius:12px;
+  padding:12px;
+  margin-bottom:10px;
+  box-shadow:0 1px 5px rgba(0,0,0,.12)
+}
+
+label{
+  font-size:13px;
+  color:#666
+}
+
+input[type=text],
+input[type=date]{
+  width:100%;
+  padding:10px;
+  font-size:16px;
+  border:1px solid #ccc;
+  border-radius:8px;
+  margin:4px 0 8px
+}
+
+.hole-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px
+}
+
+.hole-no{
+  font-size:21px;
+  font-weight:700;
+  white-space:nowrap
+}
+
+.par-box{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  font-weight:700
+}
+
+.par-box strong{
+  min-width:22px;
+  text-align:center
+}
+
+.par-edit{
+  margin-top:10px;
+  border-top:1px solid #eee;
+  padding-top:8px
+}
+
+.par-edit summary{
+  cursor:pointer;
+  font-size:13px;
+  color:#555;
+  padding:4px 0
+}
+
+.par-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:6px;
+  margin-top:7px
+}
+
+.par-item{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  background:#f7f7f7;
+  border-radius:8px;
+  padding:4px 5px
+}
+
+.par-item span{
+  font-size:13px;
+  font-weight:600
+}
+
+.par-item button{
+  min-height:32px;
+  padding:3px 8px;
+  font-size:16px
+}
+
+.par-item b{
+  min-width:18px;
+  text-align:center;
+  font-size:15px
+}
+
+button{
+  border:0;
+  border-radius:9px;
+  background:#e9e9e9;
+  font-size:18px;
+  min-height:42px;
+  padding:7px 13px;
+  touch-action:manipulation
+}
+
+.nav{
+  display:flex;
+  gap:10px;
+  margin-top:10px
+}
+
+.nav button{
+  flex:1;
+  background:#333;
+  color:#fff;
+  font-size:16px
+}
+
+.nav button:disabled{
+  background:#bbb
+}
+
+.player-head,
+.player-row{
+  display:grid;
+  grid-template-columns:1.25fr .95fr 42px 72px 42px;
+  align-items:center;
+  gap:5px
+}
+
+.player-head{
+  font-size:12px;
+  color:#666;
+  padding:3px 2px 7px
+}
+
+.player-row{
+  border-top:1px solid #eee;
+  padding:8px 2px
+}
+
+.name{
+  font-size:16px;
+  font-weight:600;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap
+}
+
+.total{
+  text-align:center;
+  font-size:16px;
+  font-weight:600
+}
+
+.score{
+  text-align:center;
+  font-size:21px;
+  font-weight:700;
+  background:#f2f2f2;
+  border-radius:8px;
+  padding:8px 2px;
+  min-height:42px
+}
+
+.pm{
+  padding:4px;
+  font-size:22px;
+  min-height:42px
+}
+
+.save{
+  width:100%;
+  background:#333;
+  color:#fff;
+  font-size:17px;
+  margin-top:5px
+}
+
+.list-btn{
+  width:100%;
+  background:#555;
+  color:#fff;
+  font-size:16px;
+  margin-top:8px
+}
+
+.small{
+  font-size:12px;
+  color:#777
+}
+
+/* スコア一覧 */
+
+.score-list{
+  display:none;
+  overflow-x:auto;
+  margin-top:10px
+}
+
+.score-list.show{
+  display:block
+}
+
+.score-table{
+  border-collapse:collapse;
+  width:100%;
+  min-width:560px;
+  font-size:13px
+}
+
+.score-table th,
+.score-table td{
+  border:1px solid #ddd;
+  padding:7px 5px;
+  text-align:center;
+  white-space:nowrap
+}
+
+.score-table th{
+  background:#f0f0f0;
+  font-weight:700
+}
+
+.score-table .hole-col{
+  width:38px
+}
+
+.score-table .par-row td{
+  font-weight:700;
+  background:#fafafa
+}
+
+.score-table .out-row td,
+.score-table .in-row td,
+.score-table .total-row td{
+  font-weight:700;
+  background:#eee
+}
+
+.score-table .total-row td{
+  font-size:14px
+}
+
 @media(max-width:390px){
- .player-head,.player-row{grid-template-columns:1.15fr .85fr 38px 64px 38px}
- .player-head{font-size:11px}
- button{padding:6px 9px}
+
+ .player-head,
+ .player-row{
+   grid-template-columns:1.15fr .85fr 38px 64px 38px
+ }
+
+ .player-head{
+   font-size:11px
+ }
+
+ button{
+   padding:6px 9px
+ }
 }
 </style>
 </head>
+
 <body>
+
 <div class="container">
+
 <h1>72ゴルフ スコア管理</h1>
 
 <div class="card">
+
 <label>ゴルフ場</label>
 <input id="course" type="text" placeholder="ゴルフ場名">
+
 <label>日付</label>
 <input id="date" type="date">
+
 <label>名前</label>
 <input id="p1" type="text" placeholder="1人目">
 <input id="p2" type="text" placeholder="2人目">
 <input id="p3" type="text" placeholder="3人目">
 <input id="p4" type="text" placeholder="4人目">
+
 </div>
 
+
 <div class="card">
+
 <div class="hole-row">
-  <div class="hole-no">ホール番号　<span id="hole">1</span>H</div>
+
+  <div class="hole-no">
+    ホール番号　<span id="hole">1</span>H
+  </div>
+
   <div class="par-box">
     <span>PAR</span>
     <strong id="par">4</strong>
   </div>
+
 </div>
+
+
 <div class="nav">
-  <button id="prevBtn" onclick="changeHole(-1)">← 前のH</button>
-  <button id="nextBtn" onclick="changeHole(1)">次のH →</button>
+
+  <button id="prevBtn" onclick="changeHole(-1)">
+    ← 前のH
+  </button>
+
+  <button id="nextBtn" onclick="changeHole(1)">
+    次のH →
+  </button>
+
 </div>
+
 
 <details class="par-edit">
-  <summary>コースPARを登録・変更（1～18H）</summary>
-  <div id="parGrid" class="par-grid"></div>
+
+<summary>
+コースPARを登録・変更（1～18H）
+</summary>
+
+<div id="parGrid" class="par-grid"></div>
+
 </details>
+
 </div>
 
+
 <div class="card">
+
 <div class="player-head">
+
   <div>名前</div>
-  <div style="text-align:center">ラウンド合計</div>
+
+  <div style="text-align:center">
+    ラウンド合計
+  </div>
+
   <div></div>
-  <div style="text-align:center">コーススコア</div>
+
+  <div style="text-align:center">
+    コーススコア
+  </div>
+
   <div></div>
-</div>
-<div id="players"></div>
+
 </div>
 
+<div id="players"></div>
+
+</div>
+
+
 <div class="card">
-<button class="save" onclick="saveData()">保存</button>
-<div class="small" id="status" style="text-align:center;margin-top:7px"></div>
+
+<button class="save" onclick="saveData()">
+保存
+</button>
+
+<button class="list-btn" onclick="toggleScoreList()">
+スコア一覧を表示
+</button>
+
+<div class="small" id="status"
+style="text-align:center;margin-top:7px">
 </div>
+
+<div id="scoreList" class="score-list"></div>
+
 </div>
+
+</div>
+
 
 <script>
-const KEY="72golf_v4_simple";
-let hole=1;
-let pars=Array(18).fill(4);
-let scores=Array.from({length:4},()=>Array(18).fill(null));
 
-function $(id){return document.getElementById(id)}
+const KEY="72golf_v4_simple";
+
+let hole=1;
+
+let pars=Array(18).fill(4);
+
+let scores=
+Array.from(
+  {length:4},
+  ()=>Array(18).fill(null)
+);
+
+
+function $(id){
+  return document.getElementById(id);
+}
+
+
+/* =========================
+   データ読み込み
+========================= */
 
 function loadData(){
+
   try{
-    const d=JSON.parse(localStorage.getItem(KEY)||"null");
+
+    const d=
+      JSON.parse(
+        localStorage.getItem(KEY)||"null"
+      );
+
     if(d){
+
       $("course").value=d.course||"";
+
       $("date").value=d.date||"";
-      ["p1","p2","p3","p4"].forEach((id,i)=>$(id).value=(d.players||[])[i]||"");
-      if(Array.isArray(d.pars)) pars=d.pars.slice(0,18);
-      while(pars.length<18) pars.push(4);
-      if(Array.isArray(d.scores)) scores=d.scores;
+
+      ["p1","p2","p3","p4"]
+      .forEach((id,i)=>{
+
+        $(id).value=
+          (d.players||[])[i]||"";
+
+      });
+
+
+      if(Array.isArray(d.pars))
+        pars=d.pars.slice(0,18);
+
+
+      while(pars.length<18)
+        pars.push(4);
+
+
+      if(Array.isArray(d.scores))
+        scores=d.scores;
+
     }
+
   }catch(e){}
+
   update();
+
 }
+
+
+/* =========================
+   保存
+========================= */
 
 function saveData(showStatus=true){
+
   const data={
+
     course:$("course").value,
+
     date:$("date").value,
-    players:["p1","p2","p3","p4"].map(id=>$(id).value),
+
+    players:
+      ["p1","p2","p3","p4"]
+      .map(id=>$(id).value),
+
     pars:pars,
+
     scores:scores
+
   };
-  localStorage.setItem(KEY,JSON.stringify(data));
+
+
+  localStorage.setItem(
+    KEY,
+    JSON.stringify(data)
+  );
+
+
   if(showStatus){
-    $("status").textContent="保存しました";
-    setTimeout(()=>{$("status").textContent=""},1500);
+
+    $("status").textContent=
+      "保存しました";
+
+    setTimeout(()=>{
+      $("status").textContent="";
+    },1500);
+
   }
+
 }
+
+
+/* =========================
+   ホール移動
+========================= */
 
 function changeHole(delta){
+
   const n=hole+delta;
+
   if(n<1||n>18)return;
+
   hole=n;
+
   update();
+
 }
+
+
+/* =========================
+   PAR変更
+========================= */
 
 function changePar(index,delta){
-  pars[index]=Math.max(3,Math.min(6,Number(pars[index]||4)+delta));
+
+  pars[index]=
+    Math.max(
+      3,
+      Math.min(
+        6,
+        Number(pars[index]||4)+delta
+      )
+    );
+
   saveData(false);
+
   update();
+
 }
+
+
+/* =========================
+   PAR一覧
+========================= */
 
 function drawParGrid(){
+
   let html="";
+
   for(let i=0;i<18;i++){
-    html+=`<div class="par-item">
-      <span>${i+1}H</span>
-      <button type="button" onclick="changePar(${i},-1)">－</button>
-      <b>${pars[i]}</b>
-      <button type="button" onclick="changePar(${i},1)">＋</button>
-    </div>`;
+
+    html+=`
+
+      <div class="par-item">
+
+        <span>${i+1}H</span>
+
+        <button type="button"
+        onclick="changePar(${i},-1)">
+        －
+        </button>
+
+        <b>${pars[i]}</b>
+
+        <button type="button"
+        onclick="changePar(${i},1)">
+        ＋
+        </button>
+
+      </div>
+
+    `;
+
   }
+
   $("parGrid").innerHTML=html;
+
 }
+
+
+/* =========================
+   スコア変更
+========================= */
 
 function changeScore(i,delta){
+
   const h=hole-1;
-  const current=(scores[i][h]==null ? pars[h] : Number(scores[i][h]));
-  scores[i][h]=Math.max(0,Math.min(15,current+delta));
+
+  const current=
+    (
+      scores[i][h]==null
+      ? pars[h]
+      : Number(scores[i][h])
+    );
+
+
+  scores[i][h]=
+    Math.max(
+      0,
+      Math.min(
+        15,
+        current+delta
+      )
+    );
+
+
   saveData(false);
+
   updatePlayersOnly();
+
 }
+
+
+/* =========================
+   現在ホールまでの合計
+========================= */
 
 function roundTotal(i){
-  return scores[i].slice(0,hole).reduce((a,b,j)=>a+(b==null ? pars[j] : (Number(b)||0)),0);
+
+  return scores[i]
+    .slice(0,hole)
+    .reduce(
+      (a,b,j)=>
+        a+
+        (
+          b==null
+          ? pars[j]
+          : (Number(b)||0)
+        ),
+      0
+    );
+
 }
+
+
+/* =========================
+   OUT
+========================= */
+
+function outTotal(i){
+
+  let total=0;
+
+  for(let h=0;h<9;h++){
+
+    total+=
+      scores[i][h]==null
+      ? pars[h]
+      : Number(scores[i][h]);
+
+  }
+
+  return total;
+
+}
+
+
+/* =========================
+   IN
+========================= */
+
+function inTotal(i){
+
+  let total=0;
+
+  for(let h=9;h<18;h++){
+
+    total+=
+      scores[i][h]==null
+      ? pars[h]
+      : Number(scores[i][h]);
+
+  }
+
+  return total;
+
+}
+
+
+/* =========================
+   TOTAL
+========================= */
+
+function allTotal(i){
+
+  return outTotal(i)+inTotal(i);
+
+}
+
+
+/* =========================
+   メイン更新
+========================= */
 
 function update(){
+
   $("hole").textContent=hole;
-  $("par").textContent=pars[hole-1];
+
+  $("par").textContent=
+    pars[hole-1];
+
   drawParGrid();
-  $("prevBtn").disabled=hole===1;
-  $("nextBtn").disabled=hole===18;
+
+  $("prevBtn").disabled=
+    hole===1;
+
+  $("nextBtn").disabled=
+    hole===18;
+
   updatePlayersOnly();
+
 }
+
+
+/* =========================
+   プレーヤー表示
+========================= */
 
 function updatePlayersOnly(){
-  const names=["p1","p2","p3","p4"].map(id=>$(id).value||"名前");
+
+  const names=
+    ["p1","p2","p3","p4"]
+    .map(id=>$(id).value||"名前");
+
+
   let html="";
+
+
   for(let i=0;i<4;i++){
-    const s=scores[i][hole-1]==null ? pars[hole-1] : scores[i][hole-1];
+
+    const s=
+      scores[i][hole-1]==null
+      ? pars[hole-1]
+      : scores[i][hole-1];
+
+
     html+=`
+
       <div class="player-row">
-        <div class="name">${escapeHtml(names[i])}</div>
-        <div class="total">${roundTotal(i)}</div>
-        <button class="pm" onclick="changeScore(${i},-1)">－</button>
-        <div class="score">${s}</div>
-        <button class="pm" onclick="changeScore(${i},1)">＋</button>
-      </div>`;
+
+        <div class="name">
+          ${escapeHtml(names[i])}
+        </div>
+
+        <div class="total">
+          ${roundTotal(i)}
+        </div>
+
+        <button class="pm"
+        onclick="changeScore(${i},-1)">
+          －
+        </button>
+
+        <div class="score">
+          ${s}
+        </div>
+
+        <button class="pm"
+        onclick="changeScore(${i},1)">
+          ＋
+        </button>
+
+      </div>
+
+    `;
+
   }
+
+
   $("players").innerHTML=html;
+
 }
+
+
+/* =========================
+   スコア一覧表示
+========================= */
+
+function toggleScoreList(){
+
+  const box=$("scoreList");
+
+  if(box.classList.contains("show")){
+
+    box.classList.remove("show");
+
+    document.querySelector(".list-btn")
+      .textContent="スコア一覧を表示";
+
+  }else{
+
+    drawScoreList();
+
+    box.classList.add("show");
+
+    document.querySelector(".list-btn")
+      .textContent="スコア一覧を閉じる";
+
+  }
+
+}
+
+
+/* =========================
+   スコア一覧作成
+========================= */
+
+function drawScoreList(){
+
+  const names=
+    ["p1","p2","p3","p4"]
+    .map(id=>$(id).value||"名前");
+
+
+  let html=`
+
+    <table class="score-table">
+
+      <tr>
+
+        <th class="hole-col">
+          H
+        </th>
+
+        ${names.map(n=>
+          `<th>${escapeHtml(n)}</th>`
+        ).join("")}
+
+      </tr>
+
+
+      <tr class="par-row">
+
+        <td>PAR</td>
+
+        ${pars.map(p=>
+          `<td>${p}</td>`
+        ).join("")}
+
+      </tr>
+
+  `;
+
+
+  /*
+    1～18H
+  */
+
+  for(let h=0;h<18;h++){
+
+    html+=`
+
+      <tr>
+
+        <th>
+          ${h+1}
+        </th>
+
+    `;
+
+
+    for(let i=0;i<4;i++){
+
+      const s=
+        scores[i][h]==null
+        ? ""
+        : scores[i][h];
+
+
+      html+=`
+
+        <td>
+          ${s}
+        </td>
+
+      `;
+
+    }
+
+
+    html+=`</tr>`;
+
+  }
+
+
+  /*
+    OUT
+  */
+
+  html+=`
+
+    <tr class="out-row">
+
+      <th>OUT</th>
+
+  `;
+
+
+  for(let i=0;i<4;i++){
+
+    html+=`
+      <td>${outTotal(i)}</td>
+    `;
+
+  }
+
+
+  html+=`</tr>`;
+
+
+  /*
+    IN
+  */
+
+  html+=`
+
+    <tr class="in-row">
+
+      <th>IN</th>
+
+  `;
+
+
+  for(let i=0;i<4;i++){
+
+    html+=`
+      <td>${inTotal(i)}</td>
+    `;
+
+  }
+
+
+  html+=`</tr>`;
+
+
+  /*
+    TOTAL
+  */
+
+  html+=`
+
+    <tr class="total-row">
+
+      <th>TOTAL</th>
+
+  `;
+
+
+  for(let i=0;i<4;i++){
+
+    html+=`
+      <td>${allTotal(i)}</td>
+    `;
+
+  }
+
+
+  html+=`
+
+    </tr>
+
+    </table>
+
+  `;
+
+
+  $("scoreList").innerHTML=html;
+
+}
+
+
+/* =========================
+   HTMLエスケープ
+========================= */
 
 function escapeHtml(s){
-  return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
+
+  return String(s).replace(
+    /[&<>"']/g,
+    m=>({
+      "&":"&amp;",
+      "<":"&lt;",
+      ">":"&gt;",
+      '"':"&quot;",
+      "'":"&#039;"
+    }[m])
+  );
+
 }
 
-["course","date","p1","p2","p3","p4"].forEach(id=>{
-  $(id).addEventListener("input",()=>updatePlayersOnly());
+
+/* =========================
+   入力変更
+========================= */
+
+["course","date","p1","p2","p3","p4"]
+.forEach(id=>{
+
+  $(id).addEventListener(
+    "input",
+    ()=>{
+      updatePlayersOnly();
+
+      /*
+        一覧が開いていれば
+        自動更新
+      */
+      if(
+        $("scoreList")
+        .classList
+        .contains("show")
+      ){
+
+        drawScoreList();
+
+      }
+
+    }
+  );
+
 });
 
+
+/* =========================
+   起動
+========================= */
+
 loadData();
+
 </script>
+
 </body>
 </html>
+```
