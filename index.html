@@ -8,610 +8,504 @@
 <title>72ゴルフ スコア管理</title>
 
 <style>
-*{box-sizing:border-box}
-
-body{
-  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-  margin:0;
-  background:#f5f5f5;
-  color:#222
+*{
+  box-sizing:border-box;
 }
 
-.container{
-  max-width:620px;
-  margin:auto;
-  padding:12px
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;
+  margin:0;
+  padding:10px;
+  background:#f5f5f5;
+  color:#222;
 }
 
 h1{
-  text-align:center;
   font-size:22px;
-  margin:6px 0 12px
+  margin:5px 0 12px;
+}
+
+h2{
+  font-size:17px;
+  margin:0 0 10px;
 }
 
 .card{
-  background:#fff;
-  border-radius:12px;
+  background:white;
+  border-radius:10px;
   padding:12px;
   margin-bottom:10px;
-  box-shadow:0 1px 5px rgba(0,0,0,.12)
+  box-shadow:0 1px 4px rgba(0,0,0,.12);
 }
 
 label{
+  display:block;
   font-size:13px;
-  color:#666
+  margin-top:7px;
+  margin-bottom:3px;
 }
 
-input[type=text],
-input[type=date],
+input,
 select{
   width:100%;
-  padding:10px;
+  height:38px;
+  padding:5px 8px;
   font-size:16px;
   border:1px solid #ccc;
-  border-radius:8px;
-  margin:4px 0 8px;
-  background:#fff
+  border-radius:6px;
+  background:white;
 }
 
 button{
   border:0;
-  border-radius:9px;
-  background:#e9e9e9;
-  font-size:18px;
-  min-height:42px;
-  padding:7px 13px;
-  touch-action:manipulation
+  border-radius:7px;
+  padding:9px 13px;
+  font-size:15px;
+  background:#e5e5e5;
+  color:#222;
+  touch-action:manipulation;
 }
 
-/* =========================
-   スコア管理
-========================= */
-
-.management-title{
-  font-size:16px;
-  font-weight:700;
-  margin-bottom:7px
+button:active{
+  opacity:.65;
 }
 
-.new-round{
-  width:100%;
-  background:#333;
-  color:#fff;
-  font-size:16px;
-  margin-top:4px
+.primary{
+  background:#1976d2;
+  color:white;
 }
 
-.round-info{
-  font-size:12px;
-  color:#777;
-  margin-top:6px;
-  text-align:center
-}
-
-/* =========================
-   ホール
-========================= */
-
-.hole-row{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:8px
-}
-
-.hole-no{
-  font-size:21px;
-  font-weight:700;
-  white-space:nowrap
-}
-
-.par-box{
-  display:flex;
-  align-items:center;
-  gap:7px;
-  font-weight:700
-}
-
-.par-box strong{
-  min-width:22px;
-  text-align:center
-}
-
-.nav{
-  display:flex;
-  gap:10px;
-  margin-top:10px
-}
-
-.nav button{
-  flex:1;
-  background:#333;
-  color:#fff;
-  font-size:16px
-}
-
-.nav button:disabled{
-  background:#bbb
-}
-
-/* =========================
-   PAR設定
-========================= */
-
-.par-edit{
-  margin-top:10px;
-  border-top:1px solid #eee;
-  padding-top:8px
-}
-
-.par-edit summary{
-  cursor:pointer;
-  font-size:13px;
-  color:#555;
-  padding:4px 0
-}
-
-.par-grid{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:6px;
-  margin-top:7px
-}
-
-.par-item{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  background:#f7f7f7;
-  border-radius:8px;
-  padding:4px 5px
-}
-
-.par-item span{
-  font-size:13px;
-  font-weight:600
-}
-
-.par-item button{
-  min-height:32px;
-  padding:3px 8px;
-  font-size:16px
-}
-
-.par-item b{
-  min-width:18px;
-  text-align:center;
-  font-size:15px
-}
-
-/* =========================
-   プレーヤー
-========================= */
-
-.player-head,
-.player-row{
-  display:grid;
-  grid-template-columns:1.25fr .95fr 42px 72px 42px;
-  align-items:center;
-  gap:5px
-}
-
-.player-head{
-  font-size:12px;
-  color:#666;
-  padding:3px 2px 7px
-}
-
-.player-row{
-  border-top:1px solid #eee;
-  padding:8px 2px
-}
-
-.name{
-  font-size:16px;
-  font-weight:600;
-  overflow:hidden;
-  text-overflow:ellipsis;
-  white-space:nowrap
-}
-
-.total{
-  text-align:center;
-  font-size:16px;
-  font-weight:600
-}
-
-.score{
-  text-align:center;
-  font-size:21px;
-  font-weight:700;
-  background:#f2f2f2;
-  border-radius:8px;
-  padding:8px 2px;
-  min-height:42px
-}
-
-.pm{
-  padding:4px;
-  font-size:22px;
-  min-height:42px
-}
-
-/* =========================
-   保存
-========================= */
-
-.save{
-  width:100%;
-  background:#333;
-  color:#fff;
-  font-size:17px;
-  margin-top:5px
-}
-
-.list-btn{
-  width:100%;
-  background:#555;
-  color:#fff;
-  font-size:16px;
-  margin-top:8px
+.danger{
+  background:#d9534f;
+  color:white;
 }
 
 .small{
   font-size:12px;
-  color:#777
+  color:#666;
 }
 
-/* =========================
-   スコア一覧
-========================= */
+.row{
+  display:flex;
+  gap:8px;
+}
 
-.score-list{
-  display:none;
+.row > *{
+  flex:1;
+}
+
+.center{
+  text-align:center;
+}
+
+/* スコア管理 */
+.round-manage{
+  display:flex;
+  gap:7px;
+  align-items:center;
+}
+
+.round-manage select{
+  flex:1;
+}
+
+.round-manage button{
+  white-space:nowrap;
+}
+
+/* ホール表示 */
+.hole-box{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:10px;
+}
+
+.hole-number{
+  font-size:25px;
+  font-weight:bold;
+}
+
+.par-display{
+  font-size:19px;
+  font-weight:bold;
+}
+
+/* ホール移動 */
+.navigation{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+}
+
+.navigation button{
+  flex:1;
+}
+
+/* PAR設定 */
+.par-grid{
+  display:grid;
+  grid-template-columns:repeat(6,1fr);
+  gap:5px;
+}
+
+.par-grid label{
+  text-align:center;
+  margin:0;
+  font-size:11px;
+}
+
+.par-grid input{
+  height:32px;
+  font-size:14px;
+  text-align:center;
+  padding:2px;
+}
+
+/* プレイヤー */
+.player-row{
+  display:grid;
+  grid-template-columns:1fr 42px 48px 42px;
+  align-items:center;
+  gap:5px;
+  margin-bottom:8px;
+}
+
+.player-name{
+  font-size:15px;
+  overflow:hidden;
+  white-space:nowrap;
+  text-overflow:ellipsis;
+}
+
+.score-number{
+  text-align:center;
+  font-size:19px;
+  font-weight:bold;
+}
+
+.score-button{
+  width:42px;
+  height:38px;
+  padding:0;
+  font-size:22px;
+}
+
+/* スコア一覧 */
+.score-table-wrap{
   overflow-x:auto;
-  margin-top:10px
-}
-
-.score-list.show{
-  display:block
 }
 
 .score-table{
   border-collapse:collapse;
   width:100%;
-  min-width:390px;
-  font-size:13px
+  min-width:430px;
+  font-size:13px;
 }
 
 .score-table th,
 .score-table td{
-  border:1px solid #ddd;
-  padding:7px 5px;
+  border:1px solid #ccc;
+  padding:5px 3px;
   text-align:center;
-  white-space:nowrap
 }
 
 .score-table th{
-  background:#f0f0f0;
-  font-weight:700
-}
-
-.score-table .par-row td,
-.score-table .par-row th{
-  background:#fafafa;
-  font-weight:700
-}
-
-.score-table .out-row td,
-.score-table .out-row th,
-.score-table .in-row td,
-.score-table .in-row th,
-.score-table .total-row td,
-.score-table .total-row th{
   background:#eee;
-  font-weight:700
+  font-weight:bold;
 }
 
-.score-table .total-row td{
-  font-size:14px
+.score-table .total-row{
+  font-weight:bold;
+  background:#f0f0f0;
 }
 
-@media(max-width:390px){
-
- .player-head,
- .player-row{
-   grid-template-columns:1.15fr .85fr 38px 64px 38px
- }
-
- .player-head{
-   font-size:11px
- }
-
- button{
-   padding:6px 9px
- }
+.score-table .par-row{
+  font-weight:bold;
+  background:#fafafa;
 }
 </style>
 </head>
 
 <body>
 
-<div class="container">
-
 <h1>72ゴルフ スコア管理</h1>
 
-
-<!-- =========================
-     スコア管理
-========================= -->
-
+<!-- スコア管理 -->
 <div class="card">
 
-<div class="management-title">
-スコア管理
-</div>
+  <h2>スコア管理</h2>
 
-<label>保存済みラウンド</label>
+  <label>保存済みラウンド</label>
 
-<select id="roundSelect">
-  <option value="">ラウンドを選択してください</option>
-</select>
+  <div class="round-manage">
+    <select id="roundSelect" onchange="loadSelectedRound()">
+      <option value="">ラウンドを選択</option>
+    </select>
 
-<button class="new-round"
-        onclick="newRound()">
-新しいラウンド
-</button>
+    <button onclick="newRound()">新しいラウンド</button>
+  </div>
 
-<div class="round-info"
-     id="roundInfo">
-</div>
+  <div id="roundInfo" class="small" style="margin-top:7px;"></div>
 
 </div>
 
 
-<!-- =========================
-     ラウンド情報
-========================= -->
-
+<!-- ラウンド情報 -->
 <div class="card">
 
-<label>ゴルフ場</label>
+  <h2>ラウンド情報</h2>
 
-<input id="course"
-       type="text"
-       placeholder="ゴルフ場名">
+  <label>コース名</label>
+  <input
+    type="text"
+    id="course"
+    placeholder="コース名"
+    oninput="autoSave()"
+  >
 
-<label>日付</label>
+  <label>日付</label>
+  <input
+    type="date"
+    id="date"
+    onchange="autoSave()"
+  >
 
-<input id="date"
-       type="date">
+  <div class="row">
 
-<label>名前</label>
+    <div>
+      <label>プレイヤー1</label>
+      <input
+        type="text"
+        id="p1"
+        placeholder="名前"
+        oninput="autoSave()"
+      >
+    </div>
 
-<input id="p1"
-       type="text"
-       placeholder="1人目">
+    <div>
+      <label>プレイヤー2</label>
+      <input
+        type="text"
+        id="p2"
+        placeholder="名前"
+        oninput="autoSave()"
+      >
+    </div>
 
-<input id="p2"
-       type="text"
-       placeholder="2人目">
+  </div>
 
-<input id="p3"
-       type="text"
-       placeholder="3人目">
+  <div class="row">
 
-<input id="p4"
-       type="text"
-       placeholder="4人目">
+    <div>
+      <label>プレイヤー3</label>
+      <input
+        type="text"
+        id="p3"
+        placeholder="名前"
+        oninput="autoSave()"
+      >
+    </div>
+
+    <div>
+      <label>プレイヤー4</label>
+      <input
+        type="text"
+        id="p4"
+        placeholder="名前"
+        oninput="autoSave()"
+      >
+    </div>
+
+  </div>
 
 </div>
 
 
-<!-- =========================
-     ホール
-========================= -->
-
+<!-- 現在のホール -->
 <div class="card">
 
-<div class="hole-row">
+  <div class="hole-box">
 
-<div class="hole-no">
-ホール番号　
-<span id="hole">1</span>H
-</div>
+    <div>
+      <div class="small">現在のホール</div>
+      <div id="holeDisplay" class="hole-number">1H</div>
+    </div>
 
-<div class="par-box">
-<span>PAR</span>
-<strong id="par">4</strong>
-</div>
+    <div class="center">
+      <div class="small">PAR</div>
+      <div id="parDisplay" class="par-display">4</div>
+    </div>
 
-</div>
+  </div>
 
 
-<div class="nav">
+  <!-- ホール移動 -->
+  <div class="navigation">
 
-<button id="prevBtn"
-        onclick="changeHole(-1)">
-← 前のH
-</button>
+    <button onclick="prevHole()">◀ 前のホール</button>
 
-<button id="nextBtn"
-        onclick="changeHole(1)">
-次のH →
-</button>
+    <button onclick="nextHole()">次のホール ▶</button>
+
+  </div>
 
 </div>
 
 
-<details class="par-edit">
-
-<summary>
-コースPARを登録・変更（1～18H）
-</summary>
-
-<div id="parGrid"
-     class="par-grid">
-</div>
-
-</details>
-
-</div>
-
-
-<!-- =========================
-     スコア入力
-========================= -->
-
+<!-- PAR設定 -->
 <div class="card">
 
-<div class="player-head">
+  <h2>PAR設定</h2>
 
-<div>名前</div>
+  <div class="small" style="margin-bottom:7px;">
+    コースのPARをホールごとに設定してください
+  </div>
 
-<div style="text-align:center">
-ラウンド合計
-</div>
-
-<div></div>
-
-<div style="text-align:center">
-コーススコア
-</div>
-
-<div></div>
-
-</div>
-
-<div id="players"></div>
+  <div id="parGrid" class="par-grid"></div>
 
 </div>
 
 
-<!-- =========================
-     保存・一覧
-========================= -->
-
+<!-- スコア入力 -->
 <div class="card">
 
-<button class="save"
-        onclick="saveCurrentRound(true)">
-保存
-</button>
+  <h2>スコア入力</h2>
 
-<button class="list-btn"
-        onclick="toggleScoreList()">
-スコア一覧を表示
-</button>
+  <div id="players"></div>
 
-<div class="small"
-     id="status"
-     style="text-align:center;margin-top:7px">
-</div>
-
-<div id="scoreList"
-     class="score-list">
-</div>
+  <div class="small">
+    ※ ＋／－を押さなくても、スコア一覧では各ホールのPARがスコアとして表示されます。
+  </div>
 
 </div>
+
+
+<!-- 保存・一覧 -->
+<div class="card">
+
+  <div class="row">
+
+    <button class="primary" onclick="saveCurrentRound()">
+      保存
+    </button>
+
+    <button onclick="showScoreList()">
+      スコア一覧を表示
+    </button>
+
+  </div>
+
+</div>
+
+
+<!-- スコア一覧 -->
+<div class="card" id="scoreListCard" style="display:none;">
+
+  <h2>スコア一覧</h2>
+
+  <div class="score-table-wrap">
+    <table class="score-table">
+
+      <thead id="scoreTableHead"></thead>
+
+      <tbody id="scoreTableBody"></tbody>
+
+    </table>
+  </div>
 
 </div>
 
 
 <script>
 
-/* ==================================================
+/* ==========================================
    基本設定
-================================================== */
+========================================== */
 
-const STORAGE_KEY="72golf_rounds_v6";
+const STORAGE_KEY = "72golf_rounds_v6";
 
-let rounds={};
+let rounds = {};
 
-let currentRoundId=null;
+let currentRoundId = null;
 
-let hole=1;
+let currentHole = 0;
 
-let pars=Array(18).fill(4);
+let pars = Array(18).fill(4);
 
-let scores=
-Array.from(
+let scores = Array.from(
   {length:4},
-  ()=>Array(18).fill(null)
+  () => Array(18).fill(null)
 );
 
 
-/* ==================================================
-   共通
-================================================== */
+/* ==========================================
+   初期処理
+========================================== */
 
-function $(id){
-  return document.getElementById(id);
-}
+window.onload = function(){
+
+  loadRounds();
+
+  createParInputs();
+
+  createPlayerRows();
+
+  if(Object.keys(rounds).length > 0){
+
+    const ids = Object.keys(rounds);
+
+    ids.sort(function(a,b){
+
+      const da = rounds[a].date || "";
+      const db = rounds[b].date || "";
+
+      return db.localeCompare(da);
+
+    });
+
+    loadRound(ids[0]);
+
+  }else{
+
+    startBlankRound();
+
+  }
+
+  updateDisplay();
+
+};
 
 
-function todayString(){
-
-  const d=new Date();
-
-  const y=d.getFullYear();
-
-  const m=
-    String(d.getMonth()+1).padStart(2,"0");
-
-  const day=
-    String(d.getDate()).padStart(2,"0");
-
-  return `${y}-${m}-${day}`;
-
-}
-
-
-function makeRoundId(){
-
-  return Date.now().toString();
-
-}
-
-
-/* ==================================================
-   ラウンドデータ読み込み
-================================================== */
+/* ==========================================
+   保存データ読み込み
+========================================== */
 
 function loadRounds(){
 
   try{
 
-    const data=
-      JSON.parse(
-        localStorage.getItem(STORAGE_KEY)||"{}"
-      );
+    const saved = localStorage.getItem(STORAGE_KEY);
 
-    if(
-      data &&
-      typeof data==="object"
-    ){
+    if(saved){
 
-      rounds=data;
-
-    }else{
-
-      rounds={};
+      rounds = JSON.parse(saved);
 
     }
 
   }catch(e){
 
-    rounds={};
+    rounds = {};
 
   }
+
+  updateRoundSelect();
 
 }
 
 
-/* ==================================================
-   ラウンド全体保存
-================================================== */
+/* ==========================================
+   保存データ全体を保存
+========================================== */
 
 function saveRounds(){
 
@@ -623,62 +517,215 @@ function saveRounds(){
 }
 
 
-/* ==================================================
-   現在データ
-================================================== */
+/* ==========================================
+   ラウンド選択欄
+========================================== */
 
-function getCurrentData(){
+function updateRoundSelect(){
 
-  return {
+  const select =
+    document.getElementById("roundSelect");
 
-    course:$("course").value,
+  select.innerHTML =
+    '<option value="">ラウンドを選択</option>';
 
-    date:$("date").value,
+  const ids = Object.keys(rounds);
 
-    players:
-      ["p1","p2","p3","p4"]
-      .map(id=>$(id).value),
+  ids.sort(function(a,b){
 
-    pars:
-      pars.slice(0,18),
+    const da =
+      (rounds[a].date || "") +
+      "_" +
+      (rounds[a].savedAt || "");
 
-    scores:
-      scores.map(
-        arr=>arr.slice(0,18)
-      ),
+    const db =
+      (rounds[b].date || "") +
+      "_" +
+      (rounds[b].savedAt || "");
 
-    updatedAt:
-      new Date().toISOString()
+    return db.localeCompare(da);
 
-  };
+  });
+
+
+  ids.forEach(function(id){
+
+    const r = rounds[id];
+
+    const option =
+      document.createElement("option");
+
+    option.value = id;
+
+    let text = "";
+
+    if(r.date){
+      text += r.date;
+    }
+
+    if(r.course){
+      text += "  " + r.course;
+    }
+
+    if(!text){
+      text = "新規ラウンド";
+    }
+
+    option.textContent = text;
+
+    select.appendChild(option);
+
+  });
+
+
+  if(currentRoundId &&
+     rounds[currentRoundId]){
+
+    select.value = currentRoundId;
+
+  }
 
 }
 
 
-/* ==================================================
-   現在ラウンド保存
-================================================== */
+/* ==========================================
+   新規ラウンド
+========================================== */
 
-function saveCurrentRound(showStatus=false){
+function newRound(){
 
-  if(!$("date").value){
+  /*
+    現在のラウンドを保存
+    ↓
+    新しいIDを作成
+    ↓
+    完全に新しいデータを作る
+  */
 
-    $("date").value=
-      todayString();
+  if(currentRoundId){
+
+    saveCurrentRound();
 
   }
 
+
+  currentRoundId =
+    Date.now().toString();
+
+
+  currentHole = 0;
+
+  pars = Array(18).fill(4);
+
+  scores = Array.from(
+    {length:4},
+    () => Array(18).fill(null)
+  );
+
+
+  document.getElementById("course").value = "";
+
+  document.getElementById("date").value =
+    new Date().toISOString().slice(0,10);
+
+  document.getElementById("p1").value = "";
+
+  document.getElementById("p2").value = "";
+
+  document.getElementById("p3").value = "";
+
+  document.getElementById("p4").value = "";
+
+
+  saveCurrentRound();
+
+  createParInputs();
+
+  createPlayerRows();
+
+  updateDisplay();
+
+  updateRoundSelect();
+
+  document.getElementById("scoreListCard").style.display =
+    "none";
+
+}
+
+
+/* ==========================================
+   空のラウンド開始
+========================================== */
+
+function startBlankRound(){
+
+  currentRoundId =
+    Date.now().toString();
+
+  currentHole = 0;
+
+  pars = Array(18).fill(4);
+
+  scores = Array.from(
+    {length:4},
+    () => Array(18).fill(null)
+  );
+
+
+  document.getElementById("date").value =
+    new Date().toISOString().slice(0,10);
+
+  saveCurrentRound();
+
+}
+
+
+/* ==========================================
+   現在のラウンドを保存
+========================================== */
+
+function saveCurrentRound(){
 
   if(!currentRoundId){
-
-    currentRoundId=
-      makeRoundId();
-
+    currentRoundId =
+      Date.now().toString();
   }
 
 
-  rounds[currentRoundId]=
-    getCurrentData();
+  rounds[currentRoundId] = {
+
+    course:
+      document.getElementById("course").value,
+
+    date:
+      document.getElementById("date").value,
+
+    players:[
+      document.getElementById("p1").value,
+      document.getElementById("p2").value,
+      document.getElementById("p3").value,
+      document.getElementById("p4").value
+    ],
+
+    pars:
+      [...pars],
+
+    scores:
+      scores.map(function(row){
+        return [...row];
+      }),
+
+    /*
+      最後に見ていたホールを保存
+      これにより続きから再開できます
+    */
+    lastHole:
+      currentHole,
+
+    savedAt:
+      new Date().toISOString()
+
+  };
 
 
   saveRounds();
@@ -687,704 +734,706 @@ function saveCurrentRound(showStatus=false){
 
   updateRoundInfo();
 
+}
 
-  if(showStatus){
 
-    $("status").textContent=
-      "保存しました";
+/* ==========================================
+   自動保存
+========================================== */
 
-    setTimeout(()=>{
+function autoSave(){
 
-      $("status").textContent="";
-
-    },1500);
-
+  if(!currentRoundId){
+    return;
   }
+
+  saveCurrentRound();
 
 }
 
 
-/* ==================================================
+/* ==========================================
+   保存ラウンド読み込み
+========================================== */
+
+function loadSelectedRound(){
+
+  const id =
+    document.getElementById("roundSelect").value;
+
+  if(!id){
+    return;
+  }
+
+  loadRound(id);
+
+}
+
+
+/* ==========================================
    ラウンド読み込み
-================================================== */
+========================================== */
 
 function loadRound(id){
 
-  const d=rounds[id];
+  const r = rounds[id];
 
-  if(!d)return;
-
-
-  currentRoundId=id;
-
-
-  $("course").value=
-    d.course||"";
-
-  $("date").value=
-    d.date||"";
-
-
-  ["p1","p2","p3","p4"]
-  .forEach((id2,i)=>{
-
-    $(id2).value=
-      (d.players||[])[i]||"";
-
-  });
-
-
-  if(Array.isArray(d.pars)){
-
-    pars=
-      d.pars.slice(0,18);
-
-  }else{
-
-    pars=
-      Array(18).fill(4);
-
+  if(!r){
+    return;
   }
 
 
-  while(pars.length<18)
-    pars.push(4);
+  currentRoundId = id;
 
 
-  if(Array.isArray(d.scores)){
+  document.getElementById("course").value =
+    r.course || "";
 
-    scores=
-      d.scores.map(arr=>{
+  document.getElementById("date").value =
+    r.date || "";
 
-        const a=
-          Array.isArray(arr)
-          ? arr.slice(0,18)
-          : [];
 
-        while(a.length<18)
-          a.push(null);
+  const players =
+    r.players || ["","","",""];
 
-        return a;
+  document.getElementById("p1").value =
+    players[0] || "";
 
-      });
+  document.getElementById("p2").value =
+    players[1] || "";
 
-  }else{
+  document.getElementById("p3").value =
+    players[2] || "";
 
-    scores=
-      Array.from(
-        {length:4},
-        ()=>Array(18).fill(null)
-      );
+  document.getElementById("p4").value =
+    players[3] || "";
 
+
+  pars =
+    Array.isArray(r.pars)
+      ? [...r.pars]
+      : Array(18).fill(4);
+
+
+  scores =
+    Array.isArray(r.scores)
+      ? r.scores.map(function(row){
+
+          const result =
+            Array(18).fill(null);
+
+          if(Array.isArray(row)){
+
+            for(let i=0;i<18;i++){
+
+              result[i] =
+                row[i] ?? null;
+
+            }
+
+          }
+
+          return result;
+
+        })
+      : Array.from(
+          {length:4},
+          () => Array(18).fill(null)
+        );
+
+
+  /*
+    保存時の最後のホールから再開
+  */
+
+  currentHole =
+    Number.isInteger(r.lastHole)
+      ? r.lastHole
+      : 0;
+
+
+  if(currentHole < 0){
+    currentHole = 0;
+  }
+
+  if(currentHole > 17){
+    currentHole = 17;
   }
 
 
-  while(scores.length<4){
+  createParInputs();
 
-    scores.push(
-      Array(18).fill(null)
-    );
+  createPlayerRows();
 
-  }
-
-
-  hole=1;
-
-
-  update();
+  updateDisplay();
 
   updateRoundSelect();
 
   updateRoundInfo();
 
-}
-
-
-/* ==================================================
-   新しいラウンド
-================================================== */
-
-function newRound(){
-
-  /*
-    現在のラウンドを保存して残す
-  */
-
-  if(currentRoundId){
-
-    saveCurrentRound(false);
-
-  }
-
-
-  /*
-    新しいラウンド
-  */
-
-  currentRoundId=
-    makeRoundId();
-
-  hole=1;
-
-  pars=
-    Array(18).fill(4);
-
-  scores=
-    Array.from(
-      {length:4},
-      ()=>Array(18).fill(null)
-    );
-
-
-  $("course").value="";
-
-  $("date").value=
-    todayString();
-
-
-  ["p1","p2","p3","p4"]
-  .forEach(id=>{
-    $(id).value="";
-  });
-
-
-  saveCurrentRound(false);
-
-  update();
-
-  updateRoundSelect();
-
-  updateRoundInfo();
-
-
-  $("status").textContent=
-    "新しいラウンドを開始しました";
-
-
-  setTimeout(()=>{
-
-    $("status").textContent="";
-
-  },1800);
+  document.getElementById("scoreListCard").style.display =
+    "none";
 
 }
 
 
-/* ==================================================
-   ラウンド選択
-================================================== */
-
-function updateRoundSelect(){
-
-  const select=
-    $("roundSelect");
-
-
-  select.innerHTML=
-    `<option value="">
-      ラウンドを選択してください
-     </option>`;
-
-
-  const ids=
-    Object.keys(rounds)
-    .sort((a,b)=>{
-
-      const da=
-        rounds[a].date||"";
-
-      const db=
-        rounds[b].date||"";
-
-      return db.localeCompare(da);
-
-    });
-
-
-  ids.forEach(id=>{
-
-    const d=
-      rounds[id];
-
-
-    const option=
-      document.createElement("option");
-
-
-    option.value=id;
-
-
-    option.textContent=
-      `${d.date||"日付未設定"}　${d.course||"ゴルフ場未設定"}`;
-
-
-    if(id===currentRoundId){
-
-      option.selected=true;
-
-    }
-
-
-    select.appendChild(option);
-
-  });
-
-}
-
-
-$("roundSelect").addEventListener(
-  "change",
-  function(){
-
-    if(this.value){
-
-      loadRound(this.value);
-
-    }
-
-  }
-);
-
-
-/* ==================================================
-   ラウンド情報
-================================================== */
+/* ==========================================
+   ラウンド情報表示
+========================================== */
 
 function updateRoundInfo(){
 
-  if(!currentRoundId){
+  const r =
+    rounds[currentRoundId];
 
-    $("roundInfo").textContent="";
+  const info =
+    document.getElementById("roundInfo");
 
+  if(!r){
+    info.textContent = "";
     return;
+  }
+
+
+  let text = "";
+
+  if(r.course){
+    text += r.course;
+  }
+
+  if(r.date){
+
+    if(text){
+      text += " / ";
+    }
+
+    text += r.date;
 
   }
 
 
-  const d=
-    rounds[currentRoundId];
-
-
-  if(!d)return;
-
-
-  $("roundInfo").textContent=
-    "現在のラウンド："+
-    (d.date||"")+
-    "　"+
-    (d.course||"");
+  info.textContent =
+    text || "新規ラウンド";
 
 }
 
 
-/* ==================================================
-   ホール移動
-================================================== */
+/* ==========================================
+   PAR入力欄作成
+========================================== */
 
-function changeHole(delta){
+function createParInputs(){
 
-  /*
-    現在の入力を保存
-  */
+  const grid =
+    document.getElementById("parGrid");
 
-  saveCurrentRound(false);
-
-
-  const n=
-    hole+delta;
-
-
-  if(n<1||n>18)return;
-
-
-  hole=n;
-
-
-  update();
-
-}
-
-
-/* ==================================================
-   PAR変更
-================================================== */
-
-function changePar(index,delta){
-
-  pars[index]=
-    Math.max(
-      3,
-      Math.min(
-        6,
-        Number(pars[index]||4)+delta
-      )
-    );
-
-
-  saveCurrentRound(false);
-
-  update();
-
-}
-
-
-/* ==================================================
-   PAR一覧
-================================================== */
-
-function drawParGrid(){
-
-  let html="";
+  grid.innerHTML = "";
 
 
   for(let i=0;i<18;i++){
 
-    html+=`
-
-      <div class="par-item">
-
-        <span>${i+1}H</span>
-
-        <button type="button"
-          onclick="changePar(${i},-1)">
-          －
-        </button>
-
-        <b>${pars[i]}</b>
-
-        <button type="button"
-          onclick="changePar(${i},1)">
-          ＋
-        </button>
-
-      </div>
-
-    `;
-
-  }
+    const wrapper =
+      document.createElement("div");
 
 
-  $("parGrid").innerHTML=
-    html;
+    const label =
+      document.createElement("label");
 
-}
-
-
-/* ==================================================
-   スコア変更
-================================================== */
-
-function changeScore(i,delta){
-
-  const h=
-    hole-1;
+    label.textContent =
+      (i+1) + "H";
 
 
-  let current=
-    scores[i][h];
+    const input =
+      document.createElement("input");
 
+    input.type = "number";
 
-  /*
-    初回はPARから開始
-  */
+    input.min = "3";
 
-  if(
-    current===null ||
-    current===undefined
-  ){
+    input.max = "6";
 
-    current=
-      Number(pars[h]);
+    input.value =
+      pars[i];
 
-  }else{
+    input.addEventListener(
+      "change",
+      function(){
 
-    current=
-      Number(current);
+        let value =
+          parseInt(this.value,10);
 
-  }
+        if(isNaN(value)){
+          value = 4;
+        }
 
+        if(value < 3){
+          value = 3;
+        }
 
-  const newScore=
-    Math.max(
-      1,
-      Math.min(
-        15,
-        current+delta
-      )
+        if(value > 6){
+          value = 6;
+        }
+
+        pars[i] = value;
+
+        this.value = value;
+
+        saveCurrentRound();
+
+        updateDisplay();
+
+      }
     );
 
 
-  scores[i][h]=
-    newScore;
+    wrapper.appendChild(label);
 
+    wrapper.appendChild(input);
 
-  /*
-    即時保存
-  */
-
-  saveCurrentRound(false);
-
-
-  updatePlayersOnly();
-
-
-  if(
-    $("scoreList")
-    .classList
-    .contains("show")
-  ){
-
-    drawScoreList();
+    grid.appendChild(wrapper);
 
   }
 
 }
 
 
-/* ==================================================
-   ラウンド合計
-================================================== */
+/* ==========================================
+   プレイヤー行作成
+========================================== */
 
-function roundTotal(i){
+function createPlayerRows(){
 
-  return scores[i]
-    .slice(0,hole)
-    .reduce(
-      (a,b,j)=>{
+  const container =
+    document.getElementById("players");
 
-        return a+
-          (
-            b==null
-            ? pars[j]
-            : Number(b)
-          );
-
-      },
-      0
-    );
-
-}
+  container.innerHTML = "";
 
 
-/* ==================================================
-   OUT
-================================================== */
+  const names = [
 
-function outTotal(i){
+    document.getElementById("p1").value || "Aさん",
 
-  let total=0;
+    document.getElementById("p2").value || "Bさん",
 
+    document.getElementById("p3").value || "Cさん",
 
-  for(let h=0;h<9;h++){
+    document.getElementById("p4").value || "Dさん"
 
-    total+=
-      scores[i][h]==null
-      ? pars[h]
-      : Number(scores[i][h]);
-
-  }
-
-
-  return total;
-
-}
-
-
-/* ==================================================
-   IN
-================================================== */
-
-function inTotal(i){
-
-  let total=0;
-
-
-  for(let h=9;h<18;h++){
-
-    total+=
-      scores[i][h]==null
-      ? pars[h]
-      : Number(scores[i][h]);
-
-  }
-
-
-  return total;
-
-}
-
-
-/* ==================================================
-   TOTAL
-================================================== */
-
-function allTotal(i){
-
-  return
-    outTotal(i)+
-    inTotal(i);
-
-}
-
-
-/* ==================================================
-   画面更新
-================================================== */
-
-function update(){
-
-  $("hole").textContent=
-    hole;
-
-  $("par").textContent=
-    pars[hole-1];
-
-
-  drawParGrid();
-
-
-  $("prevBtn").disabled=
-    hole===1;
-
-  $("nextBtn").disabled=
-    hole===18;
-
-
-  updatePlayersOnly();
-
-}
-
-
-/* ==================================================
-   プレーヤー表示
-================================================== */
-
-function updatePlayersOnly(){
-
-  const names=
-    ["p1","p2","p3","p4"]
-    .map(
-      id=>$(id).value||"名前"
-    );
-
-
-  let html="";
+  ];
 
 
   for(let i=0;i<4;i++){
 
-    const s=
-      scores[i][hole-1]==null
-      ? pars[hole-1]
-      : scores[i][hole-1];
+    const row =
+      document.createElement("div");
+
+    row.className =
+      "player-row";
 
 
-    html+=`
+    const name =
+      document.createElement("div");
 
-      <div class="player-row">
+    name.className =
+      "player-name";
 
-        <div class="name">
-          ${escapeHtml(names[i])}
-        </div>
+    name.textContent =
+      names[i];
 
-        <div class="total">
-          ${roundTotal(i)}
-        </div>
 
-        <button class="pm"
-          onclick="changeScore(${i},-1)">
-          －
-        </button>
+    const minus =
+      document.createElement("button");
 
-        <div class="score">
-          ${s}
-        </div>
+    minus.className =
+      "score-button";
 
-        <button class="pm"
-          onclick="changeScore(${i},1)">
-          ＋
-        </button>
+    minus.textContent =
+      "−";
 
-      </div>
+    minus.onclick = function(){
 
-    `;
+      changeScore(i,-1);
+
+    };
+
+
+    const score =
+      document.createElement("div");
+
+    score.className =
+      "score-number";
+
+    score.id =
+      "score-" + i;
+
+
+    const plus =
+      document.createElement("button");
+
+    plus.className =
+      "score-button";
+
+    plus.textContent =
+      "+";
+
+    plus.onclick = function(){
+
+      changeScore(i,1);
+
+    };
+
+
+    row.appendChild(name);
+
+    row.appendChild(minus);
+
+    row.appendChild(score);
+
+    row.appendChild(plus);
+
+    container.appendChild(row);
 
   }
 
 
-  $("players").innerHTML=
-    html;
+  updatePlayerScores();
 
 }
 
 
-/* ==================================================
-   スコア一覧
-================================================== */
+/* ==========================================
+   スコア変更
+========================================== */
 
-function toggleScoreList(){
+function changeScore(player,delta){
 
-  const box=
-    $("scoreList");
-
-
-  if(
-    box.classList.contains("show")
-  ){
-
-    box.classList.remove("show");
-
-    document.querySelector(".list-btn")
-      .textContent=
-      "スコア一覧を表示";
-
-  }else{
-
-    drawScoreList();
-
-    box.classList.add("show");
-
-    document.querySelector(".list-btn")
-      .textContent=
-      "スコア一覧を閉じる";
-
-  }
-
-}
-
-
-/* ==================================================
-   スコア一覧作成
-================================================== */
-
-function drawScoreList(){
-
-  const names=
-    ["p1","p2","p3","p4"]
-    .map(
-      id=>$(id).value||"名前"
-    );
+  let value =
+    scores[player][currentHole];
 
 
   /*
-    縦型スコアカード
-
-    H | PAR | A | B | C | D
+    まだスコアを変更していない場合は
+    そのホールのPARを基準にする
   */
 
-  let html=`
+  if(value === null ||
+     value === undefined){
 
-    <table class="score-table">
+    value =
+      pars[currentHole];
 
-      <tr>
-        <th>H</th>
-        <th>PAR</th>
-        ${names.map(n=>
-          `<th>${escapeHtml(n)}</th>`
-        ).join("")}
-      </tr>
+  }
 
-  `;
+
+  value += delta;
+
+
+  if(value < 1){
+    value = 1;
+  }
+
+  if(value > 15){
+    value = 15;
+  }
+
+
+  scores[player][currentHole] =
+    value;
+
+
+  saveCurrentRound();
+
+  updatePlayerScores();
+
+}
+
+
+/* ==========================================
+   現在ホールのスコア表示
+========================================== */
+
+function updatePlayerScores(){
+
+  for(let i=0;i<4;i++){
+
+    const element =
+      document.getElementById("score-" + i);
+
+    if(!element){
+      continue;
+    }
+
+
+    let value =
+      scores[i][currentHole];
+
+
+    /*
+      ここが重要。
+
+      スコアをまだ変更していなくても
+      PARを表示する。
+    */
+
+    if(value === null ||
+       value === undefined){
+
+      value =
+        pars[currentHole];
+
+    }
+
+
+    element.textContent =
+      value;
+
+  }
+
+}
+
+
+/* ==========================================
+   ホール表示更新
+========================================== */
+
+function updateDisplay(){
+
+  document.getElementById("holeDisplay").textContent =
+    (currentHole + 1) + "H";
+
+
+  document.getElementById("parDisplay").textContent =
+    pars[currentHole];
+
+
+  updatePlayerScores();
+
+  updateRoundInfo();
+
+}
+
+
+/* ==========================================
+   前のホール
+========================================== */
+
+function prevHole(){
+
+  if(currentHole > 0){
+
+    currentHole--;
+
+    saveCurrentRound();
+
+    updateDisplay();
+
+  }
+
+}
+
+
+/* ==========================================
+   次のホール
+========================================== */
+
+function nextHole(){
+
+  if(currentHole < 17){
+
+    currentHole++;
+
+    saveCurrentRound();
+
+    updateDisplay();
+
+  }
+
+}
+
+
+/* ==========================================
+   スコア取得
+
+   未入力の場合はPARを返す
+========================================== */
+
+function getScore(player,hole){
+
+  const value =
+    scores[player][hole];
+
+  if(value === null ||
+     value === undefined){
+
+    return pars[hole];
+
+  }
+
+  return value;
+
+}
+
+
+/* ==========================================
+   OUT
+========================================== */
+
+function getOut(player){
+
+  let total = 0;
+
+  for(let h=0;h<9;h++){
+
+    total +=
+      getScore(player,h);
+
+  }
+
+  return total;
+
+}
+
+
+/* ==========================================
+   IN
+========================================== */
+
+function getIn(player){
+
+  let total = 0;
+
+  for(let h=9;h<18;h++){
+
+    total +=
+      getScore(player,h);
+
+  }
+
+  return total;
+
+}
+
+
+/* ==========================================
+   TOTAL
+========================================== */
+
+function getTotal(player){
+
+  return getOut(player) +
+         getIn(player);
+
+}
+
+
+/* ==========================================
+   PAR OUT
+========================================== */
+
+function getParOut(){
+
+  let total = 0;
+
+  for(let h=0;h<9;h++){
+
+    total +=
+      pars[h];
+
+  }
+
+  return total;
+
+}
+
+
+/* ==========================================
+   PAR IN
+========================================== */
+
+function getParIn(){
+
+  let total = 0;
+
+  for(let h=9;h<18;h++){
+
+    total +=
+      pars[h];
+
+  }
+
+  return total;
+
+}
+
+
+/* ==========================================
+   PAR TOTAL
+========================================== */
+
+function getParTotal(){
+
+  return getParOut() +
+         getParIn();
+
+}
+
+
+/* ==========================================
+   スコア一覧表示
+========================================== */
+
+function showScoreList(){
+
+  const card =
+    document.getElementById("scoreListCard");
+
+  card.style.display = "block";
+
+
+  const head =
+    document.getElementById("scoreTableHead");
+
+  const body =
+    document.getElementById("scoreTableBody");
+
+
+  head.innerHTML = "";
+
+  body.innerHTML = "";
+
+
+  /*
+    ヘッダー
+  */
+
+  const header =
+    document.createElement("tr");
+
+
+  const headers = [
+    "H",
+    "PAR",
+    document.getElementById("p1").value || "Aさん",
+    document.getElementById("p2").value || "Bさん",
+    document.getElementById("p3").value || "Cさん",
+    document.getElementById("p4").value || "Dさん"
+  ];
+
+
+  headers.forEach(function(text){
+
+    const th =
+      document.createElement("th");
+
+    th.textContent =
+      text;
+
+    header.appendChild(th);
+
+  });
+
+
+  head.appendChild(header);
 
 
   /*
@@ -1393,37 +1442,56 @@ function drawScoreList(){
 
   for(let h=0;h<18;h++){
 
-    html+=`
-
-      <tr>
-
-        <th>${h+1}</th>
-
-        <td>${pars[h]}</td>
-
-    `;
+    const tr =
+      document.createElement("tr");
 
 
-    for(let i=0;i<4;i++){
+    /*
+      ホール番号
+    */
 
-      const s=
-        scores[i][h]==null
-        ? ""
-        : scores[i][h];
+    let td =
+      document.createElement("td");
+
+    td.textContent =
+      (h+1);
+
+    tr.appendChild(td);
 
 
-      html+=`
-        <td>${s}</td>
-      `;
+    /*
+      PAR
+    */
+
+    td =
+      document.createElement("td");
+
+    td.textContent =
+      pars[h];
+
+    tr.appendChild(td);
+
+
+    /*
+      各プレイヤー
+
+      未入力でもPARを表示
+    */
+
+    for(let p=0;p<4;p++){
+
+      td =
+        document.createElement("td");
+
+      td.textContent =
+        getScore(p,h);
+
+      tr.appendChild(td);
 
     }
 
 
-    html+=`
-
-      </tr>
-
-    `;
+    body.appendChild(tr);
 
   }
 
@@ -1432,206 +1500,165 @@ function drawScoreList(){
     OUT
   */
 
-  html+=`
+  let tr =
+    document.createElement("tr");
 
-    <tr class="out-row">
-
-      <th colspan="2">OUT</th>
-
-  `;
+  tr.className =
+    "total-row";
 
 
-  for(let i=0;i<4;i++){
+  td =
+    document.createElement("td");
 
-    html+=`
-      <td>${outTotal(i)}</td>
-    `;
+  td.textContent =
+    "OUT";
+
+  tr.appendChild(td);
+
+
+  td =
+    document.createElement("td");
+
+  td.textContent =
+    getParOut();
+
+  tr.appendChild(td);
+
+
+  for(let p=0;p<4;p++){
+
+    td =
+      document.createElement("td");
+
+    td.textContent =
+      getOut(p);
+
+    tr.appendChild(td);
 
   }
 
 
-  html+=`
-
-    </tr>
-
-  `;
+  body.appendChild(tr);
 
 
   /*
     IN
   */
 
-  html+=`
+  tr =
+    document.createElement("tr");
 
-    <tr class="in-row">
-
-      <th colspan="2">IN</th>
-
-  `;
+  tr.className =
+    "total-row";
 
 
-  for(let i=0;i<4;i++){
+  td =
+    document.createElement("td");
 
-    html+=`
-      <td>${inTotal(i)}</td>
-    `;
+  td.textContent =
+    "IN";
+
+  tr.appendChild(td);
+
+
+  td =
+    document.createElement("td");
+
+  td.textContent =
+    getParIn();
+
+  tr.appendChild(td);
+
+
+  for(let p=0;p<4;p++){
+
+    td =
+      document.createElement("td");
+
+    td.textContent =
+      getIn(p);
+
+    tr.appendChild(td);
 
   }
 
 
-  html+=`
-
-    </tr>
-
-  `;
+  body.appendChild(tr);
 
 
   /*
     TOTAL
   */
 
-  html+=`
+  tr =
+    document.createElement("tr");
 
-    <tr class="total-row">
-
-      <th colspan="2">TOTAL</th>
-
-  `;
+  tr.className =
+    "total-row";
 
 
-  for(let i=0;i<4;i++){
+  td =
+    document.createElement("td");
 
-    html+=`
-      <td>${allTotal(i)}</td>
-    `;
+  td.textContent =
+    "TOTAL";
+
+  tr.appendChild(td);
+
+
+  td =
+    document.createElement("td");
+
+  td.textContent =
+    getParTotal();
+
+  tr.appendChild(td);
+
+
+  for(let p=0;p<4;p++){
+
+    td =
+      document.createElement("td");
+
+    td.textContent =
+      getTotal(p);
+
+    tr.appendChild(td);
 
   }
 
 
-  html+=`
+  body.appendChild(tr);
 
-    </tr>
-
-    </table>
-
-  `;
-
-
-  $("scoreList").innerHTML=
-    html;
-
-}
-
-
-/* ==================================================
-   入力変更
-================================================== */
-
-["course","date","p1","p2","p3","p4"]
-.forEach(id=>{
-
-  $(id).addEventListener(
-    "input",
-    ()=>{
-
-      /*
-        入力内容も自動保存
-      */
-
-      saveCurrentRound(false);
-
-
-      updatePlayersOnly();
-
-
-      if(
-        $("scoreList")
-        .classList
-        .contains("show")
-      ){
-
-        drawScoreList();
-
-      }
-
-    }
-  );
-
-});
-
-
-/* ==================================================
-   HTMLエスケープ
-================================================== */
-
-function escapeHtml(s){
-
-  return String(s).replace(
-    /[&<>"']/g,
-    m=>({
-      "&":"&amp;",
-      "<":"&lt;",
-      ">":"&gt;",
-      '"':"&quot;",
-      "'":"&#039;"
-    }[m])
-  );
-
-}
-
-
-/* ==================================================
-   起動
-================================================== */
-
-loadRounds();
-
-
-const ids=
-  Object.keys(rounds);
-
-
-if(ids.length>0){
 
   /*
-    最後に使用したラウンドを開く
+    一覧までスクロール
   */
 
-  const latest=
-    ids.sort(
-      (a,b)=>
-        Number(b)-Number(a)
-    )[0];
-
-
-  loadRound(latest);
-
-}else{
-
-  currentRoundId=
-    makeRoundId();
-
-  hole=1;
-
-  pars=
-    Array(18).fill(4);
-
-  scores=
-    Array.from(
-      {length:4},
-      ()=>Array(18).fill(null)
-    );
-
-
-  $("date").value=
-    todayString();
-
-
-  saveCurrentRound(false);
-
-  update();
+  card.scrollIntoView({
+    behavior:"smooth",
+    block:"start"
+  });
 
 }
+
+
+/* ==========================================
+   プレイヤー名変更時の表示更新
+========================================== */
+
+["p1","p2","p3","p4"].forEach(function(id){
+
+  document.getElementById(id)
+    .addEventListener("change",function(){
+
+      createPlayerRows();
+
+      saveCurrentRound();
+
+    });
+
+});
 
 </script>
 
