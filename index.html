@@ -4,6 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
 <title>72ゴルフ スコア管理</title>
 
 <style>
@@ -42,14 +43,58 @@ label{
 }
 
 input[type=text],
-input[type=date]{
+input[type=date],
+select{
   width:100%;
   padding:10px;
   font-size:16px;
   border:1px solid #ccc;
   border-radius:8px;
-  margin:4px 0 8px
+  margin:4px 0 8px;
+  background:#fff
 }
+
+button{
+  border:0;
+  border-radius:9px;
+  background:#e9e9e9;
+  font-size:18px;
+  min-height:42px;
+  padding:7px 13px;
+  touch-action:manipulation
+}
+
+/* ラウンド管理 */
+
+.round-buttons{
+  display:flex;
+  gap:8px;
+  margin-top:5px
+}
+
+.round-buttons button{
+  flex:1;
+  font-size:15px
+}
+
+.new-round{
+  background:#333;
+  color:#fff
+}
+
+.reset-round{
+  background:#eee;
+  color:#222
+}
+
+.round-info{
+  font-size:12px;
+  color:#777;
+  margin-top:5px;
+  text-align:center
+}
+
+/* ホール */
 
 .hole-row{
   display:flex;
@@ -75,6 +120,25 @@ input[type=date]{
   min-width:22px;
   text-align:center
 }
+
+.nav{
+  display:flex;
+  gap:10px;
+  margin-top:10px
+}
+
+.nav button{
+  flex:1;
+  background:#333;
+  color:#fff;
+  font-size:16px
+}
+
+.nav button:disabled{
+  background:#bbb
+}
+
+/* PAR設定 */
 
 .par-edit{
   margin-top:10px;
@@ -122,32 +186,7 @@ input[type=date]{
   font-size:15px
 }
 
-button{
-  border:0;
-  border-radius:9px;
-  background:#e9e9e9;
-  font-size:18px;
-  min-height:42px;
-  padding:7px 13px;
-  touch-action:manipulation
-}
-
-.nav{
-  display:flex;
-  gap:10px;
-  margin-top:10px
-}
-
-.nav button{
-  flex:1;
-  background:#333;
-  color:#fff;
-  font-size:16px
-}
-
-.nav button:disabled{
-  background:#bbb
-}
+/* プレーヤー */
 
 .player-head,
 .player-row{
@@ -197,6 +236,8 @@ button{
   font-size:22px;
   min-height:42px
 }
+
+/* 保存 */
 
 .save{
   width:100%;
@@ -251,10 +292,6 @@ button{
   font-weight:700
 }
 
-.score-table .hole-col{
-  width:38px
-}
-
 .score-table .par-row td{
   font-weight:700;
   background:#fafafa
@@ -268,6 +305,43 @@ button{
 }
 
 .score-table .total-row td{
+  font-size:14px
+}
+
+/* 保存ラウンド一覧 */
+
+.saved-rounds{
+  display:none;
+  margin-top:10px
+}
+
+.saved-rounds.show{
+  display:block
+}
+
+.saved-round-item{
+  border:1px solid #ddd;
+  border-radius:8px;
+  padding:9px;
+  margin-top:6px;
+  background:#fafafa
+}
+
+.saved-round-title{
+  font-weight:700;
+  font-size:14px
+}
+
+.saved-round-detail{
+  font-size:12px;
+  color:#777;
+  margin-top:3px
+}
+
+.saved-round-item button{
+  width:100%;
+  margin-top:6px;
+  min-height:36px;
   font-size:14px
 }
 
@@ -295,29 +369,84 @@ button{
 
 <h1>72ゴルフ スコア管理</h1>
 
+
+<!-- =========================
+     保存ラウンド
+========================= -->
+
 <div class="card">
 
-<label>ゴルフ場</label>
-<input id="course" type="text" placeholder="ゴルフ場名">
+<label>保存済みラウンド</label>
 
-<label>日付</label>
-<input id="date" type="date">
+<select id="roundSelect">
+  <option value="">ラウンドを選択してください</option>
+</select>
 
-<label>名前</label>
-<input id="p1" type="text" placeholder="1人目">
-<input id="p2" type="text" placeholder="2人目">
-<input id="p3" type="text" placeholder="3人目">
-<input id="p4" type="text" placeholder="4人目">
+<div class="round-buttons">
+
+  <button class="new-round"
+          onclick="newRound()">
+    新しいラウンド
+  </button>
+
+  <button class="reset-round"
+          onclick="resetCurrentRound()">
+    リセット
+  </button>
 
 </div>
 
+<div class="round-info" id="roundInfo"></div>
+
+</div>
+
+
+<!-- =========================
+     ラウンド情報
+========================= -->
+
+<div class="card">
+
+<label>ゴルフ場</label>
+<input id="course"
+       type="text"
+       placeholder="ゴルフ場名">
+
+<label>日付</label>
+<input id="date"
+       type="date">
+
+<label>名前</label>
+<input id="p1"
+       type="text"
+       placeholder="1人目">
+
+<input id="p2"
+       type="text"
+       placeholder="2人目">
+
+<input id="p3"
+       type="text"
+       placeholder="3人目">
+
+<input id="p4"
+       type="text"
+       placeholder="4人目">
+
+</div>
+
+
+<!-- =========================
+     ホール
+========================= -->
 
 <div class="card">
 
 <div class="hole-row">
 
   <div class="hole-no">
-    ホール番号　<span id="hole">1</span>H
+    ホール番号　
+    <span id="hole">1</span>H
   </div>
 
   <div class="par-box">
@@ -330,11 +459,13 @@ button{
 
 <div class="nav">
 
-  <button id="prevBtn" onclick="changeHole(-1)">
+  <button id="prevBtn"
+          onclick="changeHole(-1)">
     ← 前のH
   </button>
 
-  <button id="nextBtn" onclick="changeHole(1)">
+  <button id="nextBtn"
+          onclick="changeHole(1)">
     次のH →
   </button>
 
@@ -347,12 +478,18 @@ button{
 コースPARを登録・変更（1～18H）
 </summary>
 
-<div id="parGrid" class="par-grid"></div>
+<div id="parGrid"
+     class="par-grid">
+</div>
 
 </details>
 
 </div>
 
+
+<!-- =========================
+     スコア入力
+========================= -->
 
 <div class="card">
 
@@ -379,102 +516,162 @@ button{
 </div>
 
 
+<!-- =========================
+     保存・一覧
+========================= -->
+
 <div class="card">
 
-<button class="save" onclick="saveData()">
-保存
+<button class="save"
+        onclick="saveCurrentRound(true)">
+  保存
 </button>
 
-<button class="list-btn" onclick="toggleScoreList()">
-スコア一覧を表示
+<button class="list-btn"
+        onclick="toggleScoreList()">
+  スコア一覧を表示
 </button>
 
-<div class="small" id="status"
-style="text-align:center;margin-top:7px">
+<div class="small"
+     id="status"
+     style="text-align:center;margin-top:7px">
 </div>
 
-<div id="scoreList" class="score-list"></div>
+<div id="scoreList"
+     class="score-list">
+</div>
 
 </div>
+
+
+<!-- =========================
+     保存済みラウンド一覧
+========================= -->
+
+<div class="card">
+
+<button class="list-btn"
+        onclick="toggleSavedRounds()">
+  保存済みラウンドを表示
+</button>
+
+<div id="savedRounds"
+     class="saved-rounds">
+</div>
+
+</div>
+
 
 </div>
 
 
 <script>
 
-const KEY="72golf_v4_simple";
+/* ==================================================
+   基本設定
+================================================== */
+
+const STORAGE_KEY="72golf_rounds_v5";
+
+let rounds={};
+
+let currentRoundId=null;
 
 let hole=1;
 
 let pars=Array(18).fill(4);
 
 let scores=
-Array.from(
-  {length:4},
-  ()=>Array(18).fill(null)
-);
+  Array.from(
+    {length:4},
+    ()=>Array(18).fill(null)
+  );
 
+
+/* ==================================================
+   共通
+================================================== */
 
 function $(id){
   return document.getElementById(id);
 }
 
 
-/* =========================
-   データ読み込み
-========================= */
+function todayString(){
 
-function loadData(){
+  const d=new Date();
 
-  try{
+  const y=d.getFullYear();
 
-    const d=
-      JSON.parse(
-        localStorage.getItem(KEY)||"null"
-      );
+  const m=String(d.getMonth()+1).padStart(2,"0");
 
-    if(d){
+  const day=String(d.getDate()).padStart(2,"0");
 
-      $("course").value=d.course||"";
-
-      $("date").value=d.date||"";
-
-      ["p1","p2","p3","p4"]
-      .forEach((id,i)=>{
-
-        $(id).value=
-          (d.players||[])[i]||"";
-
-      });
-
-
-      if(Array.isArray(d.pars))
-        pars=d.pars.slice(0,18);
-
-
-      while(pars.length<18)
-        pars.push(4);
-
-
-      if(Array.isArray(d.scores))
-        scores=d.scores;
-
-    }
-
-  }catch(e){}
-
-  update();
+  return `${y}-${m}-${day}`;
 
 }
 
 
-/* =========================
-   保存
-========================= */
+function makeRoundId(){
 
-function saveData(showStatus=true){
+  return Date.now().toString();
 
-  const data={
+}
+
+
+/* ==================================================
+   全ラウンド読み込み
+================================================== */
+
+function loadRounds(){
+
+  try{
+
+    const data=
+      JSON.parse(
+        localStorage.getItem(STORAGE_KEY)||"{}"
+      );
+
+    if(data && typeof data==="object"){
+
+      rounds=data;
+
+    }else{
+
+      rounds={};
+
+    }
+
+  }catch(e){
+
+    rounds={};
+
+  }
+
+}
+
+
+/* ==================================================
+   全ラウンド保存
+================================================== */
+
+function saveRounds(){
+
+  localStorage.setItem(
+    STORAGE_KEY,
+    JSON.stringify(rounds)
+  );
+
+}
+
+
+/* ==================================================
+   現在の画面データを取得
+================================================== */
+
+function getCurrentData(){
+
+  return {
 
     course:$("course").value,
 
@@ -484,17 +681,60 @@ function saveData(showStatus=true){
       ["p1","p2","p3","p4"]
       .map(id=>$(id).value),
 
-    pars:pars,
+    pars:pars.slice(0,18),
 
-    scores:scores
+    scores:
+      scores.map(
+        arr=>arr.slice(0,18)
+      )
 
   };
 
+}
 
-  localStorage.setItem(
-    KEY,
-    JSON.stringify(data)
-  );
+
+/* ==================================================
+   現在のラウンドを保存
+================================================== */
+
+function saveCurrentRound(showStatus=false){
+
+  /*
+    日付が空の場合は今日の日付
+  */
+
+  if(!$("date").value){
+
+    $("date").value=todayString();
+
+  }
+
+
+  /*
+    まだラウンドIDがなければ作成
+  */
+
+  if(!currentRoundId){
+
+    currentRoundId=makeRoundId();
+
+  }
+
+
+  const data=getCurrentData();
+
+  data.updatedAt=
+    new Date().toISOString();
+
+
+  rounds[currentRoundId]=data;
+
+
+  saveRounds();
+
+  updateRoundSelect();
+
+  updateRoundInfo();
 
 
   if(showStatus){
@@ -503,7 +743,9 @@ function saveData(showStatus=true){
       "保存しました";
 
     setTimeout(()=>{
+
       $("status").textContent="";
+
     },1500);
 
   }
@@ -511,26 +753,379 @@ function saveData(showStatus=true){
 }
 
 
-/* =========================
+/* ==================================================
+   ラウンド読み込み
+================================================== */
+
+function loadRound(id){
+
+  const d=rounds[id];
+
+  if(!d)return;
+
+
+  currentRoundId=id;
+
+
+  $("course").value=
+    d.course||"";
+
+
+  $("date").value=
+    d.date||"";
+
+
+  ["p1","p2","p3","p4"]
+  .forEach((id2,i)=>{
+
+    $(id2).value=
+      (d.players||[])[i]||"";
+
+  });
+
+
+  if(Array.isArray(d.pars)){
+
+    pars=d.pars.slice(0,18);
+
+  }else{
+
+    pars=Array(18).fill(4);
+
+  }
+
+
+  while(pars.length<18)
+    pars.push(4);
+
+
+  if(Array.isArray(d.scores)){
+
+    scores=
+      d.scores.map(arr=>{
+
+        const a=
+          Array.isArray(arr)
+          ? arr.slice(0,18)
+          : [];
+
+        while(a.length<18)
+          a.push(null);
+
+        return a;
+
+      });
+
+  }else{
+
+    scores=
+      Array.from(
+        {length:4},
+        ()=>Array(18).fill(null)
+      );
+
+  }
+
+
+  while(scores.length<4){
+
+    scores.push(
+      Array(18).fill(null)
+    );
+
+  }
+
+
+  hole=1;
+
+
+  update();
+
+  updateRoundSelect();
+
+  updateRoundInfo();
+
+}
+
+
+/* ==================================================
+   新しいラウンド
+================================================== */
+
+function newRound(){
+
+  /*
+    現在のラウンドは保存して残す
+  */
+
+  if(
+    currentRoundId &&
+    (
+      $("course").value ||
+      $("date").value ||
+      scores.some(
+        a=>a.some(
+          x=>x!==null
+        )
+      )
+    )
+  ){
+
+    saveCurrentRound(false);
+
+  }
+
+
+  /*
+    新規ラウンド
+  */
+
+  currentRoundId=makeRoundId();
+
+  hole=1;
+
+  pars=Array(18).fill(4);
+
+  scores=
+    Array.from(
+      {length:4},
+      ()=>Array(18).fill(null)
+    );
+
+
+  $("course").value="";
+
+  $("date").value=todayString();
+
+  ["p1","p2","p3","p4"]
+  .forEach(id=>{
+    $(id).value="";
+  });
+
+
+  update();
+
+  updateRoundSelect();
+
+  updateRoundInfo();
+
+  $("status").textContent=
+    "新しいラウンドを開始しました";
+
+  setTimeout(()=>{
+
+    $("status").textContent="";
+
+  },1800);
+
+}
+
+
+/* ==================================================
+   現在のラウンドだけリセット
+================================================== */
+
+function resetCurrentRound(){
+
+  if(!currentRoundId){
+
+    newRound();
+
+    return;
+
+  }
+
+
+  if(
+    !confirm(
+      "現在のラウンドのスコア・PAR・参加者情報をリセットします。\n\n保存済みの他のラウンドには影響しません。"
+    )
+  ){
+
+    return;
+
+  }
+
+
+  pars=Array(18).fill(4);
+
+  scores=
+    Array.from(
+      {length:4},
+      ()=>Array(18).fill(null)
+    );
+
+
+  hole=1;
+
+
+  /*
+    ゴルフ場・日付・名前は残す
+  */
+
+  saveCurrentRound(false);
+
+  update();
+
+  $("status").textContent=
+    "現在のラウンドをリセットしました";
+
+  setTimeout(()=>{
+
+    $("status").textContent="";
+
+  },1800);
+
+}
+
+
+/* ==================================================
+   ラウンド選択
+================================================== */
+
+function updateRoundSelect(){
+
+  const select=
+    $("roundSelect");
+
+
+  select.innerHTML=
+    `<option value="">
+      ラウンドを選択してください
+     </option>`;
+
+
+  const ids=
+    Object.keys(rounds)
+    .sort((a,b)=>{
+
+      const da=
+        rounds[a].date||"";
+
+      const db=
+        rounds[b].date||"";
+
+      return db.localeCompare(da);
+
+    });
+
+
+  ids.forEach(id=>{
+
+    const d=rounds[id];
+
+
+    const option=
+      document.createElement("option");
+
+
+    option.value=id;
+
+
+    const date=
+      d.date||"日付未設定";
+
+
+    const course=
+      d.course||"ゴルフ場未設定";
+
+
+    option.textContent=
+      `${date}　${course}`;
+
+
+    if(id===currentRoundId)
+      option.selected=true;
+
+
+    select.appendChild(option);
+
+  });
+
+}
+
+
+$("roundSelect").addEventListener(
+  "change",
+  function(){
+
+    if(this.value){
+
+      loadRound(this.value);
+
+    }
+
+  }
+);
+
+
+/* ==================================================
+   ラウンド情報
+================================================== */
+
+function updateRoundInfo(){
+
+  if(!currentRoundId){
+
+    $("roundInfo").textContent="";
+
+    return;
+
+  }
+
+
+  const d=
+    rounds[currentRoundId];
+
+
+  if(!d){
+
+    $("roundInfo").textContent="";
+
+    return;
+
+  }
+
+
+  $("roundInfo").textContent=
+    "現在のラウンド："+
+    (d.date||"日付未設定")+
+    "　"+
+    (d.course||"ゴルフ場未設定");
+
+}
+
+
+/* ==================================================
    ホール移動
-========================= */
+================================================== */
 
 function changeHole(delta){
 
+  /*
+    移動前に自動保存
+  */
+
+  saveCurrentRound(false);
+
+
   const n=hole+delta;
+
 
   if(n<1||n>18)return;
 
+
   hole=n;
+
 
   update();
 
 }
 
 
-/* =========================
+/* ==================================================
    PAR変更
-========================= */
+================================================== */
 
 function changePar(index,delta){
 
@@ -543,20 +1138,26 @@ function changePar(index,delta){
       )
     );
 
-  saveData(false);
+
+  /*
+    PAR変更も即保存
+  */
+
+  saveCurrentRound(false);
 
   update();
 
 }
 
 
-/* =========================
+/* ==================================================
    PAR一覧
-========================= */
+================================================== */
 
 function drawParGrid(){
 
   let html="";
+
 
   for(let i=0;i<18;i++){
 
@@ -567,15 +1168,15 @@ function drawParGrid(){
         <span>${i+1}H</span>
 
         <button type="button"
-        onclick="changePar(${i},-1)">
-        －
+          onclick="changePar(${i},-1)">
+          －
         </button>
 
         <b>${pars[i]}</b>
 
         <button type="button"
-        onclick="changePar(${i},1)">
-        ＋
+          onclick="changePar(${i},1)">
+          ＋
         </button>
 
       </div>
@@ -584,25 +1185,25 @@ function drawParGrid(){
 
   }
 
+
   $("parGrid").innerHTML=html;
 
 }
 
 
-/* =========================
+/* ==================================================
    スコア変更
-========================= */
+================================================== */
 
 function changeScore(i,delta){
 
   const h=hole-1;
 
+
   const current=
-    (
-      scores[i][h]==null
-      ? pars[h]
-      : Number(scores[i][h])
-    );
+    scores[i][h]==null
+    ? pars[h]
+    : Number(scores[i][h]);
 
 
   scores[i][h]=
@@ -615,16 +1216,36 @@ function changeScore(i,delta){
     );
 
 
-  saveData(false);
+  /*
+    スコア変更時に自動保存
+  */
+
+  saveCurrentRound(false);
+
 
   updatePlayersOnly();
+
+
+  /*
+    スコア一覧が開いていたら更新
+  */
+
+  if(
+    $("scoreList")
+    .classList
+    .contains("show")
+  ){
+
+    drawScoreList();
+
+  }
 
 }
 
 
-/* =========================
-   現在ホールまでの合計
-========================= */
+/* ==================================================
+   ラウンド合計
+================================================== */
 
 function roundTotal(i){
 
@@ -636,7 +1257,7 @@ function roundTotal(i){
         (
           b==null
           ? pars[j]
-          : (Number(b)||0)
+          : Number(b)
         ),
       0
     );
@@ -644,13 +1265,14 @@ function roundTotal(i){
 }
 
 
-/* =========================
+/* ==================================================
    OUT
-========================= */
+================================================== */
 
 function outTotal(i){
 
   let total=0;
+
 
   for(let h=0;h<9;h++){
 
@@ -661,18 +1283,20 @@ function outTotal(i){
 
   }
 
+
   return total;
 
 }
 
 
-/* =========================
+/* ==================================================
    IN
-========================= */
+================================================== */
 
 function inTotal(i){
 
   let total=0;
+
 
   for(let h=9;h<18;h++){
 
@@ -683,14 +1307,15 @@ function inTotal(i){
 
   }
 
+
   return total;
 
 }
 
 
-/* =========================
+/* ==================================================
    TOTAL
-========================= */
+================================================== */
 
 function allTotal(i){
 
@@ -699,9 +1324,9 @@ function allTotal(i){
 }
 
 
-/* =========================
-   メイン更新
-========================= */
+/* ==================================================
+   画面更新
+================================================== */
 
 function update(){
 
@@ -710,22 +1335,26 @@ function update(){
   $("par").textContent=
     pars[hole-1];
 
+
   drawParGrid();
+
 
   $("prevBtn").disabled=
     hole===1;
 
+
   $("nextBtn").disabled=
     hole===18;
+
 
   updatePlayersOnly();
 
 }
 
 
-/* =========================
+/* ==================================================
    プレーヤー表示
-========================= */
+================================================== */
 
 function updatePlayersOnly(){
 
@@ -758,7 +1387,7 @@ function updatePlayersOnly(){
         </div>
 
         <button class="pm"
-        onclick="changeScore(${i},-1)">
+          onclick="changeScore(${i},-1)">
           －
         </button>
 
@@ -767,7 +1396,7 @@ function updatePlayersOnly(){
         </div>
 
         <button class="pm"
-        onclick="changeScore(${i},1)">
+          onclick="changeScore(${i},1)">
           ＋
         </button>
 
@@ -783,20 +1412,25 @@ function updatePlayersOnly(){
 }
 
 
-/* =========================
+/* ==================================================
    スコア一覧表示
-========================= */
+================================================== */
 
 function toggleScoreList(){
 
-  const box=$("scoreList");
+  const box=
+    $("scoreList");
 
-  if(box.classList.contains("show")){
+
+  if(
+    box.classList.contains("show")
+  ){
 
     box.classList.remove("show");
 
-    document.querySelector(".list-btn")
-      .textContent="スコア一覧を表示";
+    document.querySelectorAll(".list-btn")[0]
+      .textContent=
+      "スコア一覧を表示";
 
   }else{
 
@@ -804,17 +1438,18 @@ function toggleScoreList(){
 
     box.classList.add("show");
 
-    document.querySelector(".list-btn")
-      .textContent="スコア一覧を閉じる";
+    document.querySelectorAll(".list-btn")[0]
+      .textContent=
+      "スコア一覧を閉じる";
 
   }
 
 }
 
 
-/* =========================
-   スコア一覧作成
-========================= */
+/* ==================================================
+   スコア一覧
+================================================== */
 
 function drawScoreList(){
 
@@ -829,9 +1464,7 @@ function drawScoreList(){
 
       <tr>
 
-        <th class="hole-col">
-          H
-        </th>
+        <th>H</th>
 
         ${names.map(n=>
           `<th>${escapeHtml(n)}</th>`
@@ -853,19 +1486,13 @@ function drawScoreList(){
   `;
 
 
-  /*
-    1～18H
-  */
-
   for(let h=0;h<18;h++){
 
     html+=`
 
       <tr>
 
-        <th>
-          ${h+1}
-        </th>
+        <th>${h+1}</th>
 
     `;
 
@@ -879,11 +1506,7 @@ function drawScoreList(){
 
 
       html+=`
-
-        <td>
-          ${s}
-        </td>
-
+        <td>${s}</td>
       `;
 
     }
@@ -893,10 +1516,6 @@ function drawScoreList(){
 
   }
 
-
-  /*
-    OUT
-  */
 
   html+=`
 
@@ -916,14 +1535,9 @@ function drawScoreList(){
   }
 
 
-  html+=`</tr>`;
-
-
-  /*
-    IN
-  */
-
   html+=`
+
+    </tr>
 
     <tr class="in-row">
 
@@ -941,14 +1555,9 @@ function drawScoreList(){
   }
 
 
-  html+=`</tr>`;
-
-
-  /*
-    TOTAL
-  */
-
   html+=`
+
+    </tr>
 
     <tr class="total-row">
 
@@ -980,9 +1589,156 @@ function drawScoreList(){
 }
 
 
-/* =========================
+/* ==================================================
+   保存済みラウンド一覧
+================================================== */
+
+function toggleSavedRounds(){
+
+  const box=
+    $("savedRounds");
+
+
+  if(
+    box.classList.contains("show")
+  ){
+
+    box.classList.remove("show");
+
+    document.querySelectorAll(".list-btn")[1]
+      .textContent=
+      "保存済みラウンドを表示";
+
+  }else{
+
+    drawSavedRounds();
+
+    box.classList.add("show");
+
+    document.querySelectorAll(".list-btn")[1]
+      .textContent=
+      "保存済みラウンドを閉じる";
+
+  }
+
+}
+
+
+/* ==================================================
+   保存済みラウンド表示
+================================================== */
+
+function drawSavedRounds(){
+
+  const ids=
+    Object.keys(rounds)
+    .sort((a,b)=>{
+
+      return (
+        (rounds[b].date||"")
+        .localeCompare(
+          rounds[a].date||""
+        )
+      );
+
+    });
+
+
+  if(ids.length===0){
+
+    $("savedRounds").innerHTML=
+      '<div class="small">保存されたラウンドはありません。</div>';
+
+    return;
+
+  }
+
+
+  let html="";
+
+
+  ids.forEach(id=>{
+
+    const d=rounds[id];
+
+
+    const names=
+      (d.players||[])
+      .filter(n=>n)
+      .join("・");
+
+
+    html+=`
+
+      <div class="saved-round-item">
+
+        <div class="saved-round-title">
+          ${escapeHtml(d.date||"日付未設定")}
+         　
+          ${escapeHtml(d.course||"ゴルフ場未設定")}
+        </div>
+
+        <div class="saved-round-detail">
+          ${escapeHtml(names||"参加者未登録")}
+        </div>
+
+        <button
+          onclick="loadRound('${id}')">
+          このラウンドを開く
+        </button>
+
+      </div>
+
+    `;
+
+  });
+
+
+  $("savedRounds").innerHTML=html;
+
+}
+
+
+/* ==================================================
+   入力変更
+================================================== */
+
+["course","date","p1","p2","p3","p4"]
+.forEach(id=>{
+
+  $(id).addEventListener(
+    "input",
+    ()=>{
+
+      /*
+        入力変更も自動保存
+      */
+
+      saveCurrentRound(false);
+
+
+      updatePlayersOnly();
+
+
+      if(
+        $("scoreList")
+        .classList
+        .contains("show")
+      ){
+
+        drawScoreList();
+
+      }
+
+    }
+  );
+
+});
+
+
+/* ==================================================
    HTMLエスケープ
-========================= */
+================================================== */
 
 function escapeHtml(s){
 
@@ -1000,43 +1756,60 @@ function escapeHtml(s){
 }
 
 
-/* =========================
-   入力変更
-========================= */
-
-["course","date","p1","p2","p3","p4"]
-.forEach(id=>{
-
-  $(id).addEventListener(
-    "input",
-    ()=>{
-      updatePlayersOnly();
-
-      /*
-        一覧が開いていれば
-        自動更新
-      */
-      if(
-        $("scoreList")
-        .classList
-        .contains("show")
-      ){
-
-        drawScoreList();
-
-      }
-
-    }
-  );
-
-});
-
-
-/* =========================
+/* ==================================================
    起動
-========================= */
+================================================== */
 
-loadData();
+loadRounds();
+
+
+/*
+  保存データがまだない場合
+  新規ラウンドを作成
+*/
+
+const ids=Object.keys(rounds);
+
+
+if(ids.length>0){
+
+  /*
+    最後に更新したラウンドを開く
+  */
+
+  const latest=
+    ids.sort(
+      (a,b)=>
+        Number(b)-Number(a)
+    )[0];
+
+
+  loadRound(latest);
+
+}else{
+
+  currentRoundId=makeRoundId();
+
+  hole=1;
+
+  pars=Array(18).fill(4);
+
+  scores=
+    Array.from(
+      {length:4},
+      ()=>Array(18).fill(null)
+    );
+
+
+  $("date").value=
+    todayString();
+
+
+  saveCurrentRound(false);
+
+  update();
+
+}
 
 </script>
 
