@@ -15,6 +15,14 @@ input[type=text],input[type=date]{width:100%;padding:10px;font-size:16px;border:
 .hole-row{display:flex;align-items:center;justify-content:space-between;gap:8px}
 .hole-no{font-size:21px;font-weight:700;white-space:nowrap}
 .par-box{display:flex;align-items:center;gap:7px;font-weight:700}
+.par-box strong{min-width:22px;text-align:center}
+.par-edit{margin-top:10px;border-top:1px solid #eee;padding-top:8px}
+.par-edit summary{cursor:pointer;font-size:13px;color:#555;padding:4px 0}
+.par-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:7px}
+.par-item{display:flex;align-items:center;justify-content:space-between;background:#f7f7f7;border-radius:8px;padding:4px 5px}
+.par-item span{font-size:13px;font-weight:600}
+.par-item button{min-height:32px;padding:3px 8px;font-size:16px}
+.par-item b{min-width:18px;text-align:center;font-size:15px}
 button{border:0;border-radius:9px;background:#e9e9e9;font-size:18px;min-height:42px;padding:7px 13px;touch-action:manipulation}
 .nav{display:flex;gap:10px;margin-top:10px}
 .nav button{flex:1;background:#333;color:#fff;font-size:16px}
@@ -56,15 +64,18 @@ button{border:0;border-radius:9px;background:#e9e9e9;font-size:18px;min-height:4
   <div class="hole-no">ホール番号　<span id="hole">1</span>H</div>
   <div class="par-box">
     <span>PAR</span>
-    <button onclick="changePar(-1)">－</button>
     <strong id="par">4</strong>
-    <button onclick="changePar(1)">＋</button>
   </div>
 </div>
 <div class="nav">
   <button id="prevBtn" onclick="changeHole(-1)">← 前のH</button>
   <button id="nextBtn" onclick="changeHole(1)">次のH →</button>
 </div>
+
+<details class="par-edit">
+  <summary>コースPARを登録・変更（1～18H）</summary>
+  <div id="parGrid" class="par-grid"></div>
+</details>
 </div>
 
 <div class="card">
@@ -88,7 +99,7 @@ button{border:0;border-radius:9px;background:#e9e9e9;font-size:18px;min-height:4
 const KEY="72golf_v4_simple";
 let hole=1;
 let pars=Array(18).fill(4);
-let scores=Array.from({length:4},()=>Array(18).fill(0));
+let scores=Array.from({length:4},()=>Array(18).fill(null));
 
 function $(id){return document.getElementById(id)}
 
@@ -107,7 +118,7 @@ function loadData(){
   update();
 }
 
-function saveData(){
+function saveData(showStatus=true){
   const data={
     course:$("course").value,
     date:$("date").value,
@@ -116,8 +127,10 @@ function saveData(){
     scores:scores
   };
   localStorage.setItem(KEY,JSON.stringify(data));
-  $("status").textContent="保存しました";
-  setTimeout(()=>{$("status").textContent=""},1500);
+  if(showStatus){
+    $("status").textContent="保存しました";
+    setTimeout(()=>{$("status").textContent=""},1500);
+  }
 }
 
 function changeHole(delta){
@@ -127,24 +140,41 @@ function changeHole(delta){
   update();
 }
 
-function changePar(delta){
-  pars[hole-1]=Math.max(3,Math.min(6,pars[hole-1]+delta));
+function changePar(index,delta){
+  pars[index]=Math.max(3,Math.min(6,Number(pars[index]||4)+delta));
+  saveData(false);
   update();
+}
+
+function drawParGrid(){
+  let html="";
+  for(let i=0;i<18;i++){
+    html+=`<div class="par-item">
+      <span>${i+1}H</span>
+      <button type="button" onclick="changePar(${i},-1)">－</button>
+      <b>${pars[i]}</b>
+      <button type="button" onclick="changePar(${i},1)">＋</button>
+    </div>`;
+  }
+  $("parGrid").innerHTML=html;
 }
 
 function changeScore(i,delta){
   const h=hole-1;
-  scores[i][h]=Math.max(0,Math.min(15,(scores[i][h]||0)+delta));
+  const current=(scores[i][h]==null ? pars[h] : Number(scores[i][h]));
+  scores[i][h]=Math.max(0,Math.min(15,current+delta));
+  saveData(false);
   updatePlayersOnly();
 }
 
 function roundTotal(i){
-  return scores[i].slice(0,hole).reduce((a,b)=>a+(Number(b)||0),0);
+  return scores[i].slice(0,hole).reduce((a,b,j)=>a+(b==null ? pars[j] : (Number(b)||0)),0);
 }
 
 function update(){
   $("hole").textContent=hole;
   $("par").textContent=pars[hole-1];
+  drawParGrid();
   $("prevBtn").disabled=hole===1;
   $("nextBtn").disabled=hole===18;
   updatePlayersOnly();
@@ -154,7 +184,7 @@ function updatePlayersOnly(){
   const names=["p1","p2","p3","p4"].map(id=>$(id).value||"名前");
   let html="";
   for(let i=0;i<4;i++){
-    const s=scores[i][hole-1]||0;
+    const s=scores[i][hole-1]==null ? pars[hole-1] : scores[i][hole-1];
     html+=`
       <div class="player-row">
         <div class="name">${escapeHtml(names[i])}</div>
