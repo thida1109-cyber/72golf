@@ -8,190 +8,230 @@
 <title>72ゴルフ スコア管理</title>
 
 <style>
-*{
-  box-sizing:border-box;
-}
+*{box-sizing:border-box}
 
 body{
   font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;
   margin:0;
-  padding:10px;
+  padding:8px;
   background:#f5f5f5;
   color:#222;
 }
 
 h1{
-  font-size:22px;
-  margin:5px 0 12px;
-}
-
-h2{
-  font-size:17px;
-  margin:0 0 10px;
+  font-size:21px;
+  margin:3px 0 8px;
 }
 
 .card{
-  background:white;
-  border-radius:10px;
-  padding:12px;
-  margin-bottom:10px;
-  box-shadow:0 1px 4px rgba(0,0,0,.12);
+  background:#fff;
+  border-radius:8px;
+  padding:9px;
+  margin-bottom:8px;
+  box-shadow:0 1px 3px rgba(0,0,0,.12);
+}
+
+h2{
+  font-size:16px;
+  margin:0 0 7px;
 }
 
 label{
-  display:block;
-  font-size:13px;
-  margin-top:7px;
-  margin-bottom:3px;
+  font-size:12px;
 }
 
-input,
-select{
-  width:100%;
-  height:38px;
-  padding:5px 8px;
-  font-size:16px;
+input,select{
+  font-size:15px;
+  height:34px;
   border:1px solid #ccc;
-  border-radius:6px;
-  background:white;
+  border-radius:5px;
+  padding:3px 6px;
+  background:#fff;
 }
 
 button{
   border:0;
-  border-radius:7px;
-  padding:9px 13px;
+  border-radius:6px;
+  background:#e6e6e6;
   font-size:15px;
-  background:#e5e5e5;
-  color:#222;
+  padding:7px 10px;
   touch-action:manipulation;
 }
 
 button:active{
-  opacity:.65;
+  opacity:.6;
 }
 
 .primary{
   background:#1976d2;
-  color:white;
-}
-
-.danger{
-  background:#d9534f;
-  color:white;
+  color:#fff;
 }
 
 .small{
-  font-size:12px;
+  font-size:11px;
   color:#666;
 }
 
-.row{
-  display:flex;
-  gap:8px;
-}
-
-.row > *{
-  flex:1;
-}
-
-.center{
-  text-align:center;
-}
-
 /* スコア管理 */
-.round-manage{
+.manage-row{
   display:flex;
-  gap:7px;
-  align-items:center;
+  gap:6px;
 }
 
-.round-manage select{
+.manage-row select{
   flex:1;
+  min-width:0;
 }
 
-.round-manage button{
+.manage-row button{
   white-space:nowrap;
 }
 
-/* ホール表示 */
-.hole-box{
+/* ラウンド情報 */
+.info-grid{
+  display:grid;
+  grid-template-columns:1fr 130px;
+  gap:6px;
+}
+
+.info-grid input{
+  width:100%;
+}
+
+.players-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:5px;
+  margin-top:5px;
+}
+
+.players-grid input{
+  width:100%;
+}
+
+/* ホール */
+.hole-area{
   display:flex;
   justify-content:space-between;
   align-items:center;
-  margin-bottom:10px;
 }
 
-.hole-number{
-  font-size:25px;
+.hole-title{
+  font-size:24px;
   font-weight:bold;
 }
 
-.par-display{
-  font-size:19px;
+.par-title{
+  font-size:18px;
   font-weight:bold;
 }
 
-/* ホール移動 */
 .navigation{
   display:flex;
-  justify-content:space-between;
-  gap:10px;
+  gap:7px;
+  margin-top:8px;
 }
 
 .navigation button{
   flex:1;
 }
 
-/* PAR設定 */
-.par-grid{
-  display:grid;
-  grid-template-columns:repeat(6,1fr);
+/* 折り畳みPAR */
+details summary{
+  cursor:pointer;
+  font-size:15px;
+  font-weight:bold;
+  padding:2px 0;
+}
+
+.par-list{
+  margin-top:8px;
+}
+
+.par-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  border-bottom:1px solid #eee;
+  padding:4px 0;
+}
+
+.par-hole{
+  width:45px;
+  font-size:13px;
+}
+
+.par-value{
+  width:35px;
+  text-align:center;
+  font-weight:bold;
+  font-size:16px;
+}
+
+.par-buttons{
+  display:flex;
   gap:5px;
 }
 
-.par-grid label{
-  text-align:center;
-  margin:0;
-  font-size:11px;
-}
-
-.par-grid input{
+.par-buttons button{
+  width:38px;
   height:32px;
-  font-size:14px;
-  text-align:center;
-  padding:2px;
+  padding:0;
+  font-size:19px;
 }
 
-/* プレイヤー */
+/* スコア */
+.score-header{
+  display:grid;
+  grid-template-columns:1fr 70px;
+  font-size:12px;
+  color:#666;
+  margin-bottom:3px;
+}
+
 .player-row{
   display:grid;
-  grid-template-columns:1fr 42px 48px 42px;
+  grid-template-columns:minmax(80px,1fr) 40px 55px 40px 55px;
   align-items:center;
-  gap:5px;
-  margin-bottom:8px;
+  gap:4px;
+  padding:5px 0;
+  border-bottom:1px solid #eee;
 }
 
 .player-name{
   font-size:15px;
-  overflow:hidden;
   white-space:nowrap;
+  overflow:hidden;
   text-overflow:ellipsis;
 }
 
-.score-number{
-  text-align:center;
-  font-size:19px;
-  font-weight:bold;
-}
-
 .score-button{
-  width:42px;
+  width:40px;
   height:38px;
   padding:0;
   font-size:22px;
 }
 
-/* スコア一覧 */
+.current-score{
+  text-align:center;
+  font-size:20px;
+  font-weight:bold;
+}
+
+.hole-total{
+  text-align:center;
+  font-size:15px;
+  font-weight:bold;
+}
+
+.total-label{
+  display:block;
+  font-size:9px;
+  color:#777;
+  font-weight:normal;
+}
+
+/* 一覧 */
 .score-table-wrap{
   overflow-x:auto;
 }
@@ -199,30 +239,24 @@ button:active{
 .score-table{
   border-collapse:collapse;
   width:100%;
-  min-width:430px;
-  font-size:13px;
+  min-width:400px;
+  font-size:12px;
 }
 
 .score-table th,
 .score-table td{
   border:1px solid #ccc;
-  padding:5px 3px;
+  padding:4px 2px;
   text-align:center;
 }
 
 .score-table th{
   background:#eee;
-  font-weight:bold;
 }
 
-.score-table .total-row{
+.score-table .summary{
+  background:#f1f1f1;
   font-weight:bold;
-  background:#f0f0f0;
-}
-
-.score-table .par-row{
-  font-weight:bold;
-  background:#fafafa;
 }
 </style>
 </head>
@@ -233,120 +267,81 @@ button:active{
 
 <!-- スコア管理 -->
 <div class="card">
-
   <h2>スコア管理</h2>
 
-  <label>保存済みラウンド</label>
-
-  <div class="round-manage">
+  <div class="manage-row">
     <select id="roundSelect" onchange="loadSelectedRound()">
-      <option value="">ラウンドを選択</option>
+      <option value="">保存済みラウンド</option>
     </select>
 
     <button onclick="newRound()">新しいラウンド</button>
   </div>
 
-  <div id="roundInfo" class="small" style="margin-top:7px;"></div>
-
+  <div id="roundInfo" class="small" style="margin-top:5px;"></div>
 </div>
 
 
 <!-- ラウンド情報 -->
 <div class="card">
 
-  <h2>ラウンド情報</h2>
+  <div class="info-grid">
+    <input id="course"
+           type="text"
+           placeholder="コース名"
+           oninput="autoSave()">
 
-  <label>コース名</label>
-  <input
-    type="text"
-    id="course"
-    placeholder="コース名"
-    oninput="autoSave()"
-  >
-
-  <label>日付</label>
-  <input
-    type="date"
-    id="date"
-    onchange="autoSave()"
-  >
-
-  <div class="row">
-
-    <div>
-      <label>プレイヤー1</label>
-      <input
-        type="text"
-        id="p1"
-        placeholder="名前"
-        oninput="autoSave()"
-      >
-    </div>
-
-    <div>
-      <label>プレイヤー2</label>
-      <input
-        type="text"
-        id="p2"
-        placeholder="名前"
-        oninput="autoSave()"
-      >
-    </div>
-
+    <input id="date"
+           type="date"
+           onchange="autoSave()">
   </div>
 
-  <div class="row">
+  <div class="players-grid">
 
-    <div>
-      <label>プレイヤー3</label>
-      <input
-        type="text"
-        id="p3"
-        placeholder="名前"
-        oninput="autoSave()"
-      >
-    </div>
+    <input id="p1"
+           type="text"
+           placeholder="Aさん"
+           onchange="playerNameChanged()">
 
-    <div>
-      <label>プレイヤー4</label>
-      <input
-        type="text"
-        id="p4"
-        placeholder="名前"
-        oninput="autoSave()"
-      >
-    </div>
+    <input id="p2"
+           type="text"
+           placeholder="Bさん"
+           onchange="playerNameChanged()">
+
+    <input id="p3"
+           type="text"
+           placeholder="Cさん"
+           onchange="playerNameChanged()">
+
+    <input id="p4"
+           type="text"
+           placeholder="Dさん"
+           onchange="playerNameChanged()">
 
   </div>
 
 </div>
 
 
-<!-- 現在のホール -->
+<!-- ホール -->
 <div class="card">
 
-  <div class="hole-box">
+  <div class="hole-area">
 
     <div>
-      <div class="small">現在のホール</div>
-      <div id="holeDisplay" class="hole-number">1H</div>
+      <div class="small">HOLE</div>
+      <div id="holeDisplay" class="hole-title">1H</div>
     </div>
 
-    <div class="center">
+    <div style="text-align:center;">
       <div class="small">PAR</div>
-      <div id="parDisplay" class="par-display">4</div>
+      <div id="parDisplay" class="par-title">4</div>
     </div>
 
   </div>
 
-
-  <!-- ホール移動 -->
   <div class="navigation">
-
     <button onclick="prevHole()">◀ 前のホール</button>
-
     <button onclick="nextHole()">次のホール ▶</button>
-
   </div>
 
 </div>
@@ -355,13 +350,17 @@ button:active{
 <!-- PAR設定 -->
 <div class="card">
 
-  <h2>PAR設定</h2>
+  <details>
 
-  <div class="small" style="margin-bottom:7px;">
-    コースのPARをホールごとに設定してください
-  </div>
+    <summary>PAR設定</summary>
 
-  <div id="parGrid" class="par-grid"></div>
+    <div class="small" style="margin-top:5px;">
+      各ホールのPARを＋／－で変更できます
+    </div>
+
+    <div id="parList" class="par-list"></div>
+
+  </details>
 
 </div>
 
@@ -371,11 +370,12 @@ button:active{
 
   <h2>スコア入力</h2>
 
-  <div id="players"></div>
-
-  <div class="small">
-    ※ ＋／－を押さなくても、スコア一覧では各ホールのPARがスコアとして表示されます。
+  <div class="score-header">
+    <div>プレイヤー</div>
+    <div style="text-align:center;">ホールまで</div>
   </div>
+
+  <div id="players"></div>
 
 </div>
 
@@ -383,14 +383,14 @@ button:active{
 <!-- 保存・一覧 -->
 <div class="card">
 
-  <div class="row">
+  <div class="manage-row">
 
     <button class="primary" onclick="saveCurrentRound()">
       保存
     </button>
 
     <button onclick="showScoreList()">
-      スコア一覧を表示
+      スコア一覧
     </button>
 
   </div>
@@ -404,6 +404,7 @@ button:active{
   <h2>スコア一覧</h2>
 
   <div class="score-table-wrap">
+
     <table class="score-table">
 
       <thead id="scoreTableHead"></thead>
@@ -411,6 +412,7 @@ button:active{
       <tbody id="scoreTableBody"></tbody>
 
     </table>
+
   </div>
 
 </div>
@@ -419,7 +421,7 @@ button:active{
 <script>
 
 /* ==========================================
-   基本設定
+   データ
 ========================================== */
 
 const STORAGE_KEY = "72golf_rounds_v6";
@@ -439,27 +441,28 @@ let scores = Array.from(
 
 
 /* ==========================================
-   初期処理
+   起動
 ========================================== */
 
 window.onload = function(){
 
   loadRounds();
 
-  createParInputs();
+  createParList();
 
-  createPlayerRows();
-
-  if(Object.keys(rounds).length > 0){
+  if(Object.keys(rounds).length){
 
     const ids = Object.keys(rounds);
 
     ids.sort(function(a,b){
 
-      const da = rounds[a].date || "";
-      const db = rounds[b].date || "";
-
-      return db.localeCompare(da);
+      return (
+        (rounds[b].date || "") +
+        (rounds[b].savedAt || "")
+      ).localeCompare(
+        (rounds[a].date || "") +
+        (rounds[a].savedAt || "")
+      );
 
     });
 
@@ -471,25 +474,26 @@ window.onload = function(){
 
   }
 
+  createPlayerRows();
+
   updateDisplay();
 
 };
 
 
 /* ==========================================
-   保存データ読み込み
+   ラウンド読み込み
 ========================================== */
 
 function loadRounds(){
 
   try{
 
-    const saved = localStorage.getItem(STORAGE_KEY);
+    const data =
+      localStorage.getItem(STORAGE_KEY);
 
-    if(saved){
-
-      rounds = JSON.parse(saved);
-
+    if(data){
+      rounds = JSON.parse(data);
     }
 
   }catch(e){
@@ -504,7 +508,7 @@ function loadRounds(){
 
 
 /* ==========================================
-   保存データ全体を保存
+   全体保存
 ========================================== */
 
 function saveRounds(){
@@ -518,7 +522,7 @@ function saveRounds(){
 
 
 /* ==========================================
-   ラウンド選択欄
+   ラウンド選択
 ========================================== */
 
 function updateRoundSelect(){
@@ -526,24 +530,25 @@ function updateRoundSelect(){
   const select =
     document.getElementById("roundSelect");
 
-  select.innerHTML =
-    '<option value="">ラウンドを選択</option>';
+  if(!select) return;
 
-  const ids = Object.keys(rounds);
+  select.innerHTML =
+    '<option value="">保存済みラウンド</option>';
+
+  const ids =
+    Object.keys(rounds);
 
   ids.sort(function(a,b){
 
-    const da =
+    const aa =
       (rounds[a].date || "") +
-      "_" +
       (rounds[a].savedAt || "");
 
-    const db =
+    const bb =
       (rounds[b].date || "") +
-      "_" +
       (rounds[b].savedAt || "");
 
-    return db.localeCompare(da);
+    return bb.localeCompare(aa);
 
   });
 
@@ -557,18 +562,14 @@ function updateRoundSelect(){
 
     option.value = id;
 
-    let text = "";
-
-    if(r.date){
-      text += r.date;
-    }
+    let text = r.date || "";
 
     if(r.course){
       text += "  " + r.course;
     }
 
     if(!text){
-      text = "新規ラウンド";
+      text = "ラウンド";
     }
 
     option.textContent = text;
@@ -578,40 +579,26 @@ function updateRoundSelect(){
   });
 
 
-  if(currentRoundId &&
-     rounds[currentRoundId]){
-
+  if(currentRoundId){
     select.value = currentRoundId;
-
   }
 
 }
 
 
 /* ==========================================
-   新規ラウンド
+   新しいラウンド
 ========================================== */
 
 function newRound(){
 
-  /*
-    現在のラウンドを保存
-    ↓
-    新しいIDを作成
-    ↓
-    完全に新しいデータを作る
-  */
-
   if(currentRoundId){
-
     saveCurrentRound();
-
   }
 
 
   currentRoundId =
     Date.now().toString();
-
 
   currentHole = 0;
 
@@ -637,11 +624,11 @@ function newRound(){
   document.getElementById("p4").value = "";
 
 
-  saveCurrentRound();
-
-  createParInputs();
+  createParList();
 
   createPlayerRows();
+
+  saveCurrentRound();
 
   updateDisplay();
 
@@ -654,7 +641,7 @@ function newRound(){
 
 
 /* ==========================================
-   空のラウンド開始
+   空のラウンド
 ========================================== */
 
 function startBlankRound(){
@@ -681,14 +668,16 @@ function startBlankRound(){
 
 
 /* ==========================================
-   現在のラウンドを保存
+   現在ラウンド保存
 ========================================== */
 
 function saveCurrentRound(){
 
   if(!currentRoundId){
+
     currentRoundId =
       Date.now().toString();
+
   }
 
 
@@ -707,8 +696,7 @@ function saveCurrentRound(){
       document.getElementById("p4").value
     ],
 
-    pars:
-      [...pars],
+    pars:[...pars],
 
     scores:
       scores.map(function(row){
@@ -716,8 +704,7 @@ function saveCurrentRound(){
       }),
 
     /*
-      最後に見ていたホールを保存
-      これにより続きから再開できます
+      最後に見ていたホール
     */
     lastHole:
       currentHole,
@@ -743,29 +730,22 @@ function saveCurrentRound(){
 
 function autoSave(){
 
-  if(!currentRoundId){
-    return;
+  if(currentRoundId){
+    saveCurrentRound();
   }
-
-  saveCurrentRound();
 
 }
 
 
 /* ==========================================
-   保存ラウンド読み込み
+   プレイヤー名変更
 ========================================== */
 
-function loadSelectedRound(){
+function playerNameChanged(){
 
-  const id =
-    document.getElementById("roundSelect").value;
+  createPlayerRows();
 
-  if(!id){
-    return;
-  }
-
-  loadRound(id);
+  saveCurrentRound();
 
 }
 
@@ -774,13 +754,23 @@ function loadSelectedRound(){
    ラウンド読み込み
 ========================================== */
 
+function loadSelectedRound(){
+
+  const id =
+    document.getElementById("roundSelect").value;
+
+  if(id){
+    loadRound(id);
+  }
+
+}
+
+
 function loadRound(id){
 
   const r = rounds[id];
 
-  if(!r){
-    return;
-  }
+  if(!r) return;
 
 
   currentRoundId = id;
@@ -825,10 +815,8 @@ function loadRound(id){
           if(Array.isArray(row)){
 
             for(let i=0;i<18;i++){
-
               result[i] =
                 row[i] ?? null;
-
             }
 
           }
@@ -842,26 +830,20 @@ function loadRound(id){
         );
 
 
-  /*
-    保存時の最後のホールから再開
-  */
-
   currentHole =
     Number.isInteger(r.lastHole)
       ? r.lastHole
       : 0;
 
 
-  if(currentHole < 0){
+  if(currentHole < 0)
     currentHole = 0;
-  }
 
-  if(currentHole > 17){
+  if(currentHole > 17)
     currentHole = 17;
-  }
 
 
-  createParInputs();
+  createParList();
 
   createPlayerRows();
 
@@ -878,7 +860,7 @@ function loadRound(id){
 
 
 /* ==========================================
-   ラウンド情報表示
+   ラウンド情報
 ========================================== */
 
 function updateRoundInfo(){
@@ -903,14 +885,11 @@ function updateRoundInfo(){
 
   if(r.date){
 
-    if(text){
-      text += " / ";
-    }
+    if(text) text += " / ";
 
     text += r.date;
 
   }
-
 
   info.textContent =
     text || "新規ラウンド";
@@ -919,78 +898,94 @@ function updateRoundInfo(){
 
 
 /* ==========================================
-   PAR入力欄作成
+   PAR設定
 ========================================== */
 
-function createParInputs(){
+function createParList(){
 
-  const grid =
-    document.getElementById("parGrid");
+  const list =
+    document.getElementById("parList");
 
-  grid.innerHTML = "";
+  if(!list) return;
+
+  list.innerHTML = "";
 
 
-  for(let i=0;i<18;i++){
+  for(let h=0;h<18;h++){
 
-    const wrapper =
+    const row =
       document.createElement("div");
 
-
-    const label =
-      document.createElement("label");
-
-    label.textContent =
-      (i+1) + "H";
+    row.className =
+      "par-row";
 
 
-    const input =
-      document.createElement("input");
+    const hole =
+      document.createElement("div");
 
-    input.type = "number";
+    hole.className =
+      "par-hole";
 
-    input.min = "3";
-
-    input.max = "6";
-
-    input.value =
-      pars[i];
-
-    input.addEventListener(
-      "change",
-      function(){
-
-        let value =
-          parseInt(this.value,10);
-
-        if(isNaN(value)){
-          value = 4;
-        }
-
-        if(value < 3){
-          value = 3;
-        }
-
-        if(value > 6){
-          value = 6;
-        }
-
-        pars[i] = value;
-
-        this.value = value;
-
-        saveCurrentRound();
-
-        updateDisplay();
-
-      }
-    );
+    hole.textContent =
+      (h+1) + "H";
 
 
-    wrapper.appendChild(label);
+    const value =
+      document.createElement("div");
 
-    wrapper.appendChild(input);
+    value.className =
+      "par-value";
 
-    grid.appendChild(wrapper);
+    value.id =
+      "par-value-" + h;
+
+    value.textContent =
+      pars[h];
+
+
+    const buttons =
+      document.createElement("div");
+
+    buttons.className =
+      "par-buttons";
+
+
+    const minus =
+      document.createElement("button");
+
+    minus.textContent = "−";
+
+    minus.onclick = function(){
+
+      changePar(h,-1);
+
+    };
+
+
+    const plus =
+      document.createElement("button");
+
+    plus.textContent = "+";
+
+    plus.onclick = function(){
+
+      changePar(h,1);
+
+    };
+
+
+    buttons.appendChild(minus);
+
+    buttons.appendChild(plus);
+
+
+    row.appendChild(hole);
+
+    row.appendChild(value);
+
+    row.appendChild(buttons);
+
+    list.appendChild(row);
 
   }
 
@@ -998,13 +993,49 @@ function createParInputs(){
 
 
 /* ==========================================
-   プレイヤー行作成
+   PAR変更
+========================================== */
+
+function changePar(hole,delta){
+
+  pars[hole] += delta;
+
+
+  if(pars[hole] < 3)
+    pars[hole] = 3;
+
+  if(pars[hole] > 6)
+    pars[hole] = 6;
+
+
+  const value =
+    document.getElementById(
+      "par-value-" + hole
+    );
+
+  if(value){
+    value.textContent =
+      pars[hole];
+  }
+
+
+  saveCurrentRound();
+
+  updateDisplay();
+
+}
+
+
+/* ==========================================
+   スコア入力欄
 ========================================== */
 
 function createPlayerRows(){
 
   const container =
     document.getElementById("players");
+
+  if(!container) return;
 
   container.innerHTML = "";
 
@@ -1022,7 +1053,7 @@ function createPlayerRows(){
   ];
 
 
-  for(let i=0;i<4;i++){
+  for(let p=0;p<4;p++){
 
     const row =
       document.createElement("div");
@@ -1038,7 +1069,7 @@ function createPlayerRows(){
       "player-name";
 
     name.textContent =
-      names[i];
+      names[p];
 
 
     const minus =
@@ -1052,7 +1083,7 @@ function createPlayerRows(){
 
     minus.onclick = function(){
 
-      changeScore(i,-1);
+      changeScore(p,-1);
 
     };
 
@@ -1061,10 +1092,10 @@ function createPlayerRows(){
       document.createElement("div");
 
     score.className =
-      "score-number";
+      "current-score";
 
     score.id =
-      "score-" + i;
+      "score-" + p;
 
 
     const plus =
@@ -1078,9 +1109,23 @@ function createPlayerRows(){
 
     plus.onclick = function(){
 
-      changeScore(i,1);
+      changeScore(p,1);
 
     };
+
+
+    const total =
+      document.createElement("div");
+
+    total.className =
+      "hole-total";
+
+    total.id =
+      "total-" + p;
+
+
+    total.innerHTML =
+      '<span class="total-label">合計</span>0';
 
 
     row.appendChild(name);
@@ -1090,6 +1135,8 @@ function createPlayerRows(){
     row.appendChild(score);
 
     row.appendChild(plus);
+
+    row.appendChild(total);
 
     container.appendChild(row);
 
@@ -1112,8 +1159,7 @@ function changeScore(player,delta){
 
 
   /*
-    まだスコアを変更していない場合は
-    そのホールのPARを基準にする
+    初めて変更する場合はPARから開始
   */
 
   if(value === null ||
@@ -1128,13 +1174,11 @@ function changeScore(player,delta){
   value += delta;
 
 
-  if(value < 1){
+  if(value < 1)
     value = 1;
-  }
 
-  if(value > 15){
+  if(value > 15)
     value = 15;
-  }
 
 
   scores[player][currentHole] =
@@ -1149,43 +1193,76 @@ function changeScore(player,delta){
 
 
 /* ==========================================
-   現在ホールのスコア表示
+   スコア取得
+
+   未入力ならPAR
+========================================== */
+
+function getScore(player,hole){
+
+  const value =
+    scores[player][hole];
+
+  if(value === null ||
+     value === undefined){
+
+    return pars[hole];
+
+  }
+
+  return value;
+
+}
+
+
+/* ==========================================
+   現在ホールの表示
 ========================================== */
 
 function updatePlayerScores(){
 
-  for(let i=0;i<4;i++){
+  for(let p=0;p<4;p++){
 
-    const element =
-      document.getElementById("score-" + i);
+    const scoreElement =
+      document.getElementById(
+        "score-" + p
+      );
 
-    if(!element){
-      continue;
-    }
+    const totalElement =
+      document.getElementById(
+        "total-" + p
+      );
 
 
-    let value =
-      scores[i][currentHole];
+    if(scoreElement){
 
-
-    /*
-      ここが重要。
-
-      スコアをまだ変更していなくても
-      PARを表示する。
-    */
-
-    if(value === null ||
-       value === undefined){
-
-      value =
-        pars[currentHole];
+      scoreElement.textContent =
+        getScore(p,currentHole);
 
     }
 
 
-    element.textContent =
-      value;
+    if(totalElement){
+
+      let total = 0;
+
+      /*
+        1番ホールから現在ホールまで
+      */
+
+      for(let h=0;h<=currentHole;h++){
+
+        total +=
+          getScore(p,h);
+
+      }
+
+
+      totalElement.innerHTML =
+        '<span class="total-label">合計</span>' +
+        total;
+
+    }
 
   }
 
@@ -1193,7 +1270,7 @@ function updatePlayerScores(){
 
 
 /* ==========================================
-   ホール表示更新
+   画面更新
 ========================================== */
 
 function updateDisplay(){
@@ -1252,149 +1329,28 @@ function nextHole(){
 
 
 /* ==========================================
-   スコア取得
-
-   未入力の場合はPARを返す
-========================================== */
-
-function getScore(player,hole){
-
-  const value =
-    scores[player][hole];
-
-  if(value === null ||
-     value === undefined){
-
-    return pars[hole];
-
-  }
-
-  return value;
-
-}
-
-
-/* ==========================================
-   OUT
-========================================== */
-
-function getOut(player){
-
-  let total = 0;
-
-  for(let h=0;h<9;h++){
-
-    total +=
-      getScore(player,h);
-
-  }
-
-  return total;
-
-}
-
-
-/* ==========================================
-   IN
-========================================== */
-
-function getIn(player){
-
-  let total = 0;
-
-  for(let h=9;h<18;h++){
-
-    total +=
-      getScore(player,h);
-
-  }
-
-  return total;
-
-}
-
-
-/* ==========================================
-   TOTAL
-========================================== */
-
-function getTotal(player){
-
-  return getOut(player) +
-         getIn(player);
-
-}
-
-
-/* ==========================================
-   PAR OUT
-========================================== */
-
-function getParOut(){
-
-  let total = 0;
-
-  for(let h=0;h<9;h++){
-
-    total +=
-      pars[h];
-
-  }
-
-  return total;
-
-}
-
-
-/* ==========================================
-   PAR IN
-========================================== */
-
-function getParIn(){
-
-  let total = 0;
-
-  for(let h=9;h<18;h++){
-
-    total +=
-      pars[h];
-
-  }
-
-  return total;
-
-}
-
-
-/* ==========================================
-   PAR TOTAL
-========================================== */
-
-function getParTotal(){
-
-  return getParOut() +
-         getParIn();
-
-}
-
-
-/* ==========================================
-   スコア一覧表示
+   スコア一覧
 ========================================== */
 
 function showScoreList(){
 
   const card =
-    document.getElementById("scoreListCard");
+    document.getElementById(
+      "scoreListCard"
+    );
 
   card.style.display = "block";
 
 
   const head =
-    document.getElementById("scoreTableHead");
+    document.getElementById(
+      "scoreTableHead"
+    );
 
   const body =
-    document.getElementById("scoreTableBody");
+    document.getElementById(
+      "scoreTableBody"
+    );
 
 
   head.innerHTML = "";
@@ -1402,31 +1358,31 @@ function showScoreList(){
   body.innerHTML = "";
 
 
-  /*
-    ヘッダー
-  */
+  const names = [
+
+    document.getElementById("p1").value || "Aさん",
+
+    document.getElementById("p2").value || "Bさん",
+
+    document.getElementById("p3").value || "Cさん",
+
+    document.getElementById("p4").value || "Dさん"
+
+  ];
+
+
+  /* ヘッダー */
 
   const header =
     document.createElement("tr");
 
 
-  const headers = [
-    "H",
-    "PAR",
-    document.getElementById("p1").value || "Aさん",
-    document.getElementById("p2").value || "Bさん",
-    document.getElementById("p3").value || "Cさん",
-    document.getElementById("p4").value || "Dさん"
-  ];
-
-
-  headers.forEach(function(text){
+  ["H","PAR",...names].forEach(function(text){
 
     const th =
       document.createElement("th");
 
-    th.textContent =
-      text;
+    th.textContent = text;
 
     header.appendChild(th);
 
@@ -1436,9 +1392,7 @@ function showScoreList(){
   head.appendChild(header);
 
 
-  /*
-    1～18H
-  */
+  /* 1～18H */
 
   for(let h=0;h<18;h++){
 
@@ -1446,22 +1400,14 @@ function showScoreList(){
       document.createElement("tr");
 
 
-    /*
-      ホール番号
-    */
-
     let td =
       document.createElement("td");
 
     td.textContent =
-      (h+1);
+      h+1;
 
     tr.appendChild(td);
 
-
-    /*
-      PAR
-    */
 
     td =
       document.createElement("td");
@@ -1472,16 +1418,14 @@ function showScoreList(){
     tr.appendChild(td);
 
 
-    /*
-      各プレイヤー
-
-      未入力でもPARを表示
-    */
-
     for(let p=0;p<4;p++){
 
       td =
         document.createElement("td");
+
+      /*
+        ここも未入力ならPARを表示
+      */
 
       td.textContent =
         getScore(p,h);
@@ -1496,22 +1440,84 @@ function showScoreList(){
   }
 
 
-  /*
-    OUT
-  */
+  /* OUT */
 
-  let tr =
+  addSummaryRow(
+    body,
+    "OUT",
+    getPar(0,9),
+    0,
+    9
+  );
+
+
+  /* IN */
+
+  addSummaryRow(
+    body,
+    "IN",
+    getPar(9,18),
+    9,
+    18
+  );
+
+
+  /* TOTAL */
+
+  addTotalRow(body);
+
+
+  card.scrollIntoView({
+    behavior:"smooth",
+    block:"start"
+  });
+
+}
+
+
+/* ==========================================
+   PAR合計
+========================================== */
+
+function getPar(start,end){
+
+  let total = 0;
+
+  for(let h=start;h<end;h++){
+
+    total += pars[h];
+
+  }
+
+  return total;
+
+}
+
+
+/* ==========================================
+   OUT / IN
+========================================== */
+
+function addSummaryRow(
+  body,
+  label,
+  parTotal,
+  start,
+  end
+){
+
+  const tr =
     document.createElement("tr");
 
   tr.className =
-    "total-row";
+    "summary";
 
 
-  td =
+  let td =
     document.createElement("td");
 
   td.textContent =
-    "OUT";
+    label;
 
   tr.appendChild(td);
 
@@ -1520,18 +1526,28 @@ function showScoreList(){
     document.createElement("td");
 
   td.textContent =
-    getParOut();
+    parTotal;
 
   tr.appendChild(td);
 
 
   for(let p=0;p<4;p++){
 
+    let total = 0;
+
+    for(let h=start;h<end;h++){
+
+      total +=
+        getScore(p,h);
+
+    }
+
+
     td =
       document.createElement("td");
 
     td.textContent =
-      getOut(p);
+      total;
 
     tr.appendChild(td);
 
@@ -1540,64 +1556,23 @@ function showScoreList(){
 
   body.appendChild(tr);
 
+}
 
-  /*
-    IN
-  */
 
-  tr =
+/* ==========================================
+   TOTAL
+========================================== */
+
+function addTotalRow(body){
+
+  const tr =
     document.createElement("tr");
 
   tr.className =
-    "total-row";
+    "summary";
 
 
-  td =
-    document.createElement("td");
-
-  td.textContent =
-    "IN";
-
-  tr.appendChild(td);
-
-
-  td =
-    document.createElement("td");
-
-  td.textContent =
-    getParIn();
-
-  tr.appendChild(td);
-
-
-  for(let p=0;p<4;p++){
-
-    td =
-      document.createElement("td");
-
-    td.textContent =
-      getIn(p);
-
-    tr.appendChild(td);
-
-  }
-
-
-  body.appendChild(tr);
-
-
-  /*
-    TOTAL
-  */
-
-  tr =
-    document.createElement("tr");
-
-  tr.className =
-    "total-row";
-
-
-  td =
+  let td =
     document.createElement("td");
 
   td.textContent =
@@ -1610,18 +1585,28 @@ function showScoreList(){
     document.createElement("td");
 
   td.textContent =
-    getParTotal();
+    getPar(0,18);
 
   tr.appendChild(td);
 
 
   for(let p=0;p<4;p++){
 
+    let total = 0;
+
+    for(let h=0;h<18;h++){
+
+      total +=
+        getScore(p,h);
+
+    }
+
+
     td =
       document.createElement("td");
 
     td.textContent =
-      getTotal(p);
+      total;
 
     tr.appendChild(td);
 
@@ -1630,35 +1615,7 @@ function showScoreList(){
 
   body.appendChild(tr);
 
-
-  /*
-    一覧までスクロール
-  */
-
-  card.scrollIntoView({
-    behavior:"smooth",
-    block:"start"
-  });
-
 }
-
-
-/* ==========================================
-   プレイヤー名変更時の表示更新
-========================================== */
-
-["p1","p2","p3","p4"].forEach(function(id){
-
-  document.getElementById(id)
-    .addEventListener("change",function(){
-
-      createPlayerRows();
-
-      saveCurrentRound();
-
-    });
-
-});
 
 </script>
 
