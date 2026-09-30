@@ -74,9 +74,9 @@ input,select{
 }
 
 
-/* =========================================
+/* ==============================
    スコア管理
-========================================= */
+============================== */
 
 .manage-row{
   display:flex;
@@ -93,9 +93,9 @@ input,select{
 }
 
 
-/* =========================================
+/* ==============================
    コース・日付
-========================================= */
+============================== */
 
 .info-grid{
   display:grid;
@@ -119,9 +119,9 @@ input,select{
 }
 
 
-/* =========================================
-   ホール表示
-========================================= */
+/* ==============================
+   ホール
+============================== */
 
 .hole-area{
   display:flex;
@@ -150,9 +150,9 @@ input,select{
 }
 
 
-/* =========================================
+/* ==============================
    PAR設定
-========================================= */
+============================== */
 
 details summary{
   cursor:pointer;
@@ -198,23 +198,13 @@ details summary{
 }
 
 
-/* =========================================
+/* ==============================
    スコア入力
-========================================= */
-
-/*
-  名前
-  －
-  スコア
-  ＋
-  ホールまでの合計
-  PAT
-  PAT合計
-*/
+============================== */
 
 .score-header{
   display:grid;
-  grid-template-columns:1fr 55px 55px 55px;
+  grid-template-columns:1fr 55px 55px 70px;
   font-size:11px;
   color:#666;
   margin-bottom:2px;
@@ -228,13 +218,12 @@ details summary{
 .player-row{
   display:grid;
   grid-template-columns:
-    minmax(55px,1fr)
+    minmax(60px,1fr)
     38px
     48px
     38px
-    58px
-    38px
-    50px;
+    62px
+    80px;
   align-items:center;
   gap:3px;
   padding:5px 0;
@@ -248,39 +237,54 @@ details summary{
   text-overflow:ellipsis;
 }
 
-.score-button,
-.pat-button{
+.score-button{
   width:38px;
   height:38px;
   padding:0;
   font-size:22px;
 }
 
-.current-score,
+.current-score{
+  text-align:center;
+  font-size:20px;
+  font-weight:bold;
+}
+
+.hole-total{
+  text-align:center;
+  font-size:20px;
+  font-weight:bold;
+}
+
+
+/* PATは代表者1名のみ */
+
+.pat-box{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:4px;
+}
+
+.pat-button{
+  width:45px;
+  height:45px;
+  padding:0;
+  font-size:27px;
+  font-weight:bold;
+}
+
 .current-pat{
+  min-width:30px;
   text-align:center;
-  font-size:20px;
+  font-size:22px;
   font-weight:bold;
 }
 
-.hole-total,
-.pat-total{
-  text-align:center;
-  font-size:20px;
-  font-weight:bold;
-}
 
-.total-label{
-  display:block;
-  font-size:9px;
-  color:#777;
-  font-weight:normal;
-}
-
-
-/* =========================================
+/* ==============================
    スコア一覧
-========================================= */
+============================== */
 
 .score-table-wrap{
   overflow-x:auto;
@@ -311,9 +315,9 @@ details summary{
 }
 
 
-/* =========================================
-   削除確認
-========================================= */
+/* ==============================
+   削除
+============================== */
 
 .delete-area{
   margin-top:8px;
@@ -329,10 +333,7 @@ details summary{
 <h1>72ゴルフ スコア管理</h1>
 
 
-<!-- ======================================
-     スコア管理
-======================================= -->
-
+<!-- スコア管理 -->
 <div class="card">
 
   <h2>スコア管理</h2>
@@ -365,17 +366,10 @@ details summary{
 </div>
 
 
-<!-- ======================================
-     コース・日付・メンバー
-======================================= -->
-
+<!-- コース・日付・メンバー -->
 <div class="card">
 
   <div class="info-grid">
-
-    <!--
-      過去に入力したコース名を候補表示
-    -->
 
     <input
       id="course"
@@ -385,7 +379,6 @@ details summary{
       oninput="autoSave()">
 
     <datalist id="courseHistory"></datalist>
-
 
     <input
       id="date"
@@ -426,37 +419,19 @@ details summary{
 </div>
 
 
-<!-- ======================================
-     現在ホール
-======================================= -->
-
+<!-- 現在ホール -->
 <div class="card">
 
   <div class="hole-area">
 
     <div>
-
       <div class="small">HOLE</div>
-
-      <div
-        id="holeDisplay"
-        class="hole-title">
-        1H
-      </div>
-
+      <div id="holeDisplay" class="hole-title">1H</div>
     </div>
 
-
     <div style="text-align:center;">
-
       <div class="small">PAR</div>
-
-      <div
-        id="parDisplay"
-        class="par-title">
-        4
-      </div>
-
+      <div id="parDisplay" class="par-title">4</div>
     </div>
 
   </div>
@@ -477,10 +452,7 @@ details summary{
 </div>
 
 
-<!-- ======================================
-     PAR設定
-======================================= -->
-
+<!-- PAR設定 -->
 <div class="card">
 
   <details>
@@ -503,14 +475,10 @@ details summary{
 </div>
 
 
-<!-- ======================================
-     スコア入力
-======================================= -->
-
+<!-- スコア入力 -->
 <div class="card">
 
   <h2>スコア入力</h2>
-
 
   <div class="score-header">
 
@@ -533,16 +501,13 @@ details summary{
   <div
     class="small"
     style="margin-top:5px;">
-    ※ スコアを変更していない場合はPARがスコアとして表示されます。
+    ※ PATは代表者1名のみ入力します。
   </div>
 
 </div>
 
 
-<!-- ======================================
-     保存・一覧
-======================================= -->
-
+<!-- 保存・一覧 -->
 <div class="card">
 
   <div class="manage-row">
@@ -563,10 +528,7 @@ details summary{
 </div>
 
 
-<!-- ======================================
-     スコア一覧
-======================================= -->
-
+<!-- スコア一覧 -->
 <div
   class="card"
   id="scoreListCard"
@@ -591,9 +553,9 @@ details summary{
 
 <script>
 
-/* =========================================
+/* ==============================
    基本データ
-========================================= */
+============================== */
 
 const STORAGE_KEY =
   "72golf_rounds_v6";
@@ -608,11 +570,7 @@ let pars =
   Array(18).fill(4);
 
 
-/*
-  スコア
-  null = 未入力
-  未入力は表示上PARとして扱う
-*/
+/* 4人分のスコア */
 
 let scores =
   Array.from(
@@ -622,20 +580,16 @@ let scores =
 
 
 /*
-  PAT
-  null = 未入力
+  PATは代表者1名分だけ保存
 */
 
 let pats =
-  Array.from(
-    {length:4},
-    () => Array(18).fill(null)
-  );
+  Array(18).fill(null);
 
 
-/* =========================================
+/* ==============================
    起動
-========================================= */
+============================== */
 
 window.onload = function(){
 
@@ -663,7 +617,6 @@ window.onload = function(){
 
     });
 
-
     loadRound(ids[0]);
 
   }else{
@@ -680,9 +633,9 @@ window.onload = function(){
 };
 
 
-/* =========================================
+/* ==============================
    保存データ読み込み
-========================================= */
+============================== */
 
 function loadRounds(){
 
@@ -707,9 +660,9 @@ function loadRounds(){
 }
 
 
-/* =========================================
-   保存
-========================================= */
+/* ==============================
+   全体保存
+============================== */
 
 function saveRounds(){
 
@@ -721,9 +674,9 @@ function saveRounds(){
 }
 
 
-/* =========================================
+/* ==============================
    ラウンド一覧
-========================================= */
+============================== */
 
 function updateRoundSelect(){
 
@@ -804,9 +757,9 @@ function updateRoundSelect(){
 }
 
 
-/* =========================================
+/* ==============================
    コース名履歴
-========================================= */
+============================== */
 
 function updateCourseHistory(){
 
@@ -858,9 +811,9 @@ function updateCourseHistory(){
 }
 
 
-/* =========================================
+/* ==============================
    新しいラウンド
-========================================= */
+============================== */
 
 function newRound(){
 
@@ -888,21 +841,16 @@ function newRound(){
 
 
   pats =
-    Array.from(
-      {length:4},
-      () => Array(18).fill(null)
-    );
+    Array(18).fill(null);
 
 
   document.getElementById("course").value =
     "";
 
-
   document.getElementById("date").value =
     new Date()
       .toISOString()
       .slice(0,10);
-
 
   document.getElementById("p1").value =
     "";
@@ -936,9 +884,9 @@ function newRound(){
 }
 
 
-/* =========================================
+/* ==============================
    空ラウンド
-========================================= */
+============================== */
 
 function startBlankRound(){
 
@@ -947,7 +895,6 @@ function startBlankRound(){
 
 
   currentHole = 0;
-
 
   pars =
     Array(18).fill(4);
@@ -961,10 +908,7 @@ function startBlankRound(){
 
 
   pats =
-    Array.from(
-      {length:4},
-      () => Array(18).fill(null)
-    );
+    Array(18).fill(null);
 
 
   document.getElementById("date").value =
@@ -978,9 +922,9 @@ function startBlankRound(){
 }
 
 
-/* =========================================
+/* ==============================
    現在ラウンド保存
-========================================= */
+============================== */
 
 function saveCurrentRound(){
 
@@ -1016,27 +960,21 @@ function saveCurrentRound(){
 
     ],
 
-
     pars:[
       ...pars
     ],
-
 
     scores:
       scores.map(function(row){
         return [...row];
       }),
 
-
-    pats:
-      pats.map(function(row){
-        return [...row];
-      }),
-
+    pats:[
+      ...pats
+    ],
 
     lastHole:
       currentHole,
-
 
     savedAt:
       new Date().toISOString()
@@ -1055,9 +993,9 @@ function saveCurrentRound(){
 }
 
 
-/* =========================================
+/* ==============================
    自動保存
-========================================= */
+============================== */
 
 function autoSave(){
 
@@ -1068,9 +1006,9 @@ function autoSave(){
 }
 
 
-/* =========================================
+/* ==============================
    プレイヤー名変更
-========================================= */
+============================== */
 
 function playerNameChanged(){
 
@@ -1081,9 +1019,9 @@ function playerNameChanged(){
 }
 
 
-/* =========================================
+/* ==============================
    ラウンド選択
-========================================= */
+============================== */
 
 function loadSelectedRound(){
 
@@ -1100,9 +1038,9 @@ function loadSelectedRound(){
 }
 
 
-/* =========================================
+/* ==============================
    ラウンド読み込み
-========================================= */
+============================== */
 
 function loadRound(id){
 
@@ -1150,15 +1088,17 @@ function loadRound(id){
 
 
   scores =
-    loadMatrix(
-      r.scores
-    );
+    loadScoreMatrix(r.scores);
 
+
+  /*
+    新形式：PATは18ホール分
+  */
 
   pats =
-    loadMatrix(
-      r.pats
-    );
+    Array.isArray(r.pats)
+      ? loadPatArray(r.pats)
+      : Array(18).fill(null);
 
 
   currentHole =
@@ -1169,7 +1109,6 @@ function loadRound(id){
 
   if(currentHole < 0)
     currentHole = 0;
-
 
   if(currentHole > 17)
     currentHole = 17;
@@ -1194,11 +1133,11 @@ function loadRound(id){
 }
 
 
-/* =========================================
-   18ホール×4人データ読み込み
-========================================= */
+/* ==============================
+   スコア配列読み込み
+============================== */
 
-function loadMatrix(data){
+function loadScoreMatrix(data){
 
   const result =
     Array.from(
@@ -1233,9 +1172,37 @@ function loadMatrix(data){
 }
 
 
-/* =========================================
+/* ==============================
+   PAT配列読み込み
+============================== */
+
+function loadPatArray(data){
+
+  const result =
+    Array(18).fill(null);
+
+
+  if(!Array.isArray(data)){
+    return result;
+  }
+
+
+  for(let h=0;h<18;h++){
+
+    result[h] =
+      data[h] ?? null;
+
+  }
+
+
+  return result;
+
+}
+
+
+/* ==============================
    ラウンド情報
-========================================= */
+============================== */
 
 function updateRoundInfo(){
 
@@ -1283,9 +1250,9 @@ function updateRoundInfo(){
 }
 
 
-/* =========================================
+/* ==============================
    PAR設定
-========================================= */
+============================== */
 
 function createParList(){
 
@@ -1389,9 +1356,9 @@ function createParList(){
 }
 
 
-/* =========================================
+/* ==============================
    PAR変更
-========================================= */
+============================== */
 
 function changePar(hole,delta){
 
@@ -1425,9 +1392,9 @@ function changePar(hole,delta){
 }
 
 
-/* =========================================
+/* ==============================
    スコア入力欄
-========================================= */
+============================== */
 
 function createPlayerRows(){
 
@@ -1545,120 +1512,104 @@ function createPlayerRows(){
       "total-" + p;
 
 
-    /* PAT */
+    /* PAT代表者のみ */
 
-    const pat =
-      document.createElement("div");
+    if(p === 0){
 
-    pat.className =
-      "current-pat";
+      const patBox =
+        document.createElement("div");
 
-    pat.id =
-      "pat-" + p;
-
-
-    /*
-      PAT合計
-      こちらもスコアと同じ文字サイズ
-    */
-
-    const patTotal =
-      document.createElement("div");
-
-    patTotal.className =
-      "pat-total";
-
-    patTotal.id =
-      "pat-total-" + p;
+      patBox.className =
+        "pat-box";
 
 
-    /*
-      PATの－＋ボタンは
-      スコア行の右側に配置
-    */
+      const patMinus =
+        document.createElement("button");
 
-    const patMinus =
-      document.createElement("button");
+      patMinus.className =
+        "pat-button";
 
-    patMinus.className =
-      "pat-button";
-
-    patMinus.textContent =
-      "−";
+      patMinus.textContent =
+        "−";
 
 
-    patMinus.onclick =
-      function(){
+      patMinus.onclick =
+        function(){
 
-        changePat(p,-1);
+          changePat(-1);
 
-      };
-
-
-    const patPlus =
-      document.createElement("button");
-
-    patPlus.className =
-      "pat-button";
-
-    patPlus.textContent =
-      "+";
+        };
 
 
-    patPlus.onclick =
-      function(){
+      const pat =
+        document.createElement("div");
 
-        changePat(p,1);
+      pat.className =
+        "current-pat";
 
-      };
-
-
-    /*
-      PAT欄は
-      「− PAT ＋」の形にするため
-      小さなコンテナを作成
-    */
-
-    const patBox =
-      document.createElement("div");
-
-    patBox.style.display =
-      "flex";
-
-    patBox.style.alignItems =
-      "center";
-
-    patBox.style.justifyContent =
-      "center";
-
-    patBox.style.gap =
-      "2px";
+      pat.id =
+        "pat";
 
 
-    patBox.appendChild(patMinus);
+      const patPlus =
+        document.createElement("button");
 
-    patBox.appendChild(pat);
+      patPlus.className =
+        "pat-button";
 
-    patBox.appendChild(patPlus);
+      patPlus.textContent =
+        "+";
 
 
-    /*
-      行
-    */
+      patPlus.onclick =
+        function(){
 
-    row.appendChild(name);
+          changePat(1);
 
-    row.appendChild(scoreMinus);
+        };
 
-    row.appendChild(score);
 
-    row.appendChild(scorePlus);
+      patBox.appendChild(patMinus);
 
-    row.appendChild(total);
+      patBox.appendChild(pat);
 
-    row.appendChild(patBox);
+      patBox.appendChild(patPlus);
 
-    row.appendChild(patTotal);
+
+      row.appendChild(name);
+
+      row.appendChild(scoreMinus);
+
+      row.appendChild(score);
+
+      row.appendChild(scorePlus);
+
+      row.appendChild(total);
+
+      row.appendChild(patBox);
+
+    }else{
+
+      /*
+        PAT欄は代表者以外は空欄
+      */
+
+      row.appendChild(name);
+
+      row.appendChild(scoreMinus);
+
+      row.appendChild(score);
+
+      row.appendChild(scorePlus);
+
+      row.appendChild(total);
+
+      const blank =
+        document.createElement("div");
+
+      row.appendChild(blank);
+
+    }
 
 
     container.appendChild(row);
@@ -1671,9 +1622,9 @@ function createPlayerRows(){
 }
 
 
-/* =========================================
+/* ==============================
    スコア変更
-========================================= */
+============================== */
 
 function changeScore(player,delta){
 
@@ -1682,7 +1633,7 @@ function changeScore(player,delta){
 
 
   /*
-    初回はPARからスタート
+    初回はPARから開始
   */
 
   if(value === null ||
@@ -1716,14 +1667,14 @@ function changeScore(player,delta){
 }
 
 
-/* =========================================
+/* ==============================
    PAT変更
-========================================= */
+============================== */
 
-function changePat(player,delta){
+function changePat(delta){
 
   let value =
-    pats[player][currentHole];
+    pats[currentHole];
 
 
   /*
@@ -1749,7 +1700,7 @@ function changePat(player,delta){
     value = 10;
 
 
-  pats[player][currentHole] =
+  pats[currentHole] =
     value;
 
 
@@ -1760,9 +1711,9 @@ function changePat(player,delta){
 }
 
 
-/* =========================================
+/* ==============================
    スコア取得
-========================================= */
+============================== */
 
 function getScore(player,hole){
 
@@ -1787,19 +1738,15 @@ function getScore(player,hole){
 }
 
 
-/* =========================================
+/* ==============================
    PAT取得
-========================================= */
+============================== */
 
-function getPat(player,hole){
+function getPat(hole){
 
   const value =
-    pats[player][hole];
+    pats[hole];
 
-
-  /*
-    PAT未入力は0
-  */
 
   if(value === null ||
      value === undefined){
@@ -1814,9 +1761,9 @@ function getPat(player,hole){
 }
 
 
-/* =========================================
+/* ==============================
    現在ホール表示
-========================================= */
+============================== */
 
 function updatePlayerScores(){
 
@@ -1834,22 +1781,6 @@ function updatePlayerScores(){
       );
 
 
-    const patElement =
-      document.getElementById(
-        "pat-" + p
-      );
-
-
-    const patTotalElement =
-      document.getElementById(
-        "pat-total-" + p
-      );
-
-
-    /*
-      現在ホールのスコア
-    */
-
     if(scoreElement){
 
       scoreElement.textContent =
@@ -1862,7 +1793,7 @@ function updatePlayerScores(){
 
 
     /*
-      1H～現在ホールまでのスコア
+      1H～現在ホールまで
     */
 
     if(totalElement){
@@ -1885,54 +1816,30 @@ function updatePlayerScores(){
 
     }
 
-
-    /*
-      現在ホールPAT
-    */
-
-    if(patElement){
-
-      patElement.textContent =
-        getPat(
-          p,
-          currentHole
-        );
-
-    }
+  }
 
 
-    /*
-      1H～現在ホールまでのPAT
-    */
+  /*
+    PAT代表
+  */
 
-    if(patTotalElement){
-
-      let patTotal = 0;
-
-
-      for(let h=0;
-          h<=currentHole;
-          h++){
-
-        patTotal +=
-          getPat(p,h);
-
-      }
+  const patElement =
+    document.getElementById("pat");
 
 
-      patTotalElement.textContent =
-        patTotal;
+  if(patElement){
 
-    }
+    patElement.textContent =
+      getPat(currentHole);
 
   }
 
 }
 
 
-/* =========================================
+/* ==============================
    画面更新
-========================================= */
+============================== */
 
 function updateDisplay(){
 
@@ -1955,9 +1862,9 @@ function updateDisplay(){
 }
 
 
-/* =========================================
+/* ==============================
    前のホール
-========================================= */
+============================== */
 
 function prevHole(){
 
@@ -1974,9 +1881,9 @@ function prevHole(){
 }
 
 
-/* =========================================
+/* ==============================
    次のホール
-========================================= */
+============================== */
 
 function nextHole(){
 
@@ -1993,9 +1900,9 @@ function nextHole(){
 }
 
 
-/* =========================================
-   コース名・ラウンド削除
-========================================= */
+/* ==============================
+   ラウンド削除
+============================== */
 
 function deleteCurrentRound(){
 
@@ -2074,10 +1981,7 @@ function deleteCurrentRound(){
       );
 
     pats =
-      Array.from(
-        {length:4},
-        () => Array(18).fill(null)
-      );
+      Array(18).fill(null);
 
 
     document.getElementById("course").value =
@@ -2112,9 +2016,9 @@ function deleteCurrentRound(){
 }
 
 
-/* =========================================
+/* ==============================
    PAR合計
-========================================= */
+============================== */
 
 function getParTotal(start,end){
 
@@ -2133,9 +2037,9 @@ function getParTotal(start,end){
 }
 
 
-/* =========================================
+/* ==============================
    スコア一覧
-========================================= */
+============================== */
 
 function showScoreList(){
 
@@ -2231,9 +2135,7 @@ function showScoreList(){
     tr.appendChild(td);
 
 
-    /*
-      PAR
-    */
+    /* PAR */
 
     td =
       document.createElement("td");
@@ -2244,53 +2146,26 @@ function showScoreList(){
     tr.appendChild(td);
 
 
-    /*
-      PAT
-
-      4人分を
-      「1 / 2 / 2 / 1」
-      のように表示
-    */
+    /* PAT代表 */
 
     td =
       document.createElement("td");
 
-    const patValues = [];
-
-
-    for(let p=0;p<4;p++){
-
-      patValues.push(
-        getPat(p,h)
-      );
-
-    }
-
-
     td.textContent =
-      patValues.join(" / ");
-
+      getPat(h);
 
     tr.appendChild(td);
 
 
-    /*
-      スコア
-    */
+    /* スコア */
 
     for(let p=0;p<4;p++){
 
       td =
         document.createElement("td");
 
-
-      /*
-        未入力でもPARを表示
-      */
-
       td.textContent =
         getScore(p,h);
-
 
       tr.appendChild(td);
 
@@ -2341,9 +2216,9 @@ function showScoreList(){
 }
 
 
-/* =========================================
+/* ==============================
    OUT / IN
-========================================= */
+============================== */
 
 function addSummaryRow(
   body,
@@ -2369,9 +2244,7 @@ function addSummaryRow(
   tr.appendChild(td);
 
 
-  /*
-    PAR
-  */
+  /* PAR */
 
   td =
     document.createElement("td");
@@ -2382,45 +2255,29 @@ function addSummaryRow(
   tr.appendChild(td);
 
 
-  /*
-    PAT合計
-  */
+  /* PAT合計 */
 
-  td =
-    document.createElement("td");
+  let patTotal = 0;
 
 
-  const patsText = [];
+  for(let h=start;h<end;h++){
 
-
-  for(let p=0;p<4;p++){
-
-    let total = 0;
-
-
-    for(let h=start;h<end;h++){
-
-      total +=
-        getPat(p,h);
-
-    }
-
-
-    patsText.push(total);
+    patTotal +=
+      getPat(h);
 
   }
 
 
-  td.textContent =
-    patsText.join(" / ");
+  td =
+    document.createElement("td");
 
+  td.textContent =
+    patTotal;
 
   tr.appendChild(td);
 
 
-  /*
-    各プレイヤーのスコア
-  */
+  /* 各プレイヤー */
 
   for(let p=0;p<4;p++){
 
@@ -2452,9 +2309,9 @@ function addSummaryRow(
 }
 
 
-/* =========================================
+/* ==============================
    TOTAL
-========================================= */
+============================== */
 
 function addTotalRow(body){
 
@@ -2475,9 +2332,7 @@ function addTotalRow(body){
   tr.appendChild(td);
 
 
-  /*
-    PAR
-  */
+  /* PAR */
 
   td =
     document.createElement("td");
@@ -2488,45 +2343,29 @@ function addTotalRow(body){
   tr.appendChild(td);
 
 
-  /*
-    PAT
-  */
+  /* PAT合計 */
 
-  td =
-    document.createElement("td");
+  let patTotal = 0;
 
 
-  const patTotals = [];
+  for(let h=0;h<18;h++){
 
-
-  for(let p=0;p<4;p++){
-
-    let total = 0;
-
-
-    for(let h=0;h<18;h++){
-
-      total +=
-        getPat(p,h);
-
-    }
-
-
-    patTotals.push(total);
+    patTotal +=
+      getPat(h);
 
   }
 
 
-  td.textContent =
-    patTotals.join(" / ");
+  td =
+    document.createElement("td");
 
+  td.textContent =
+    patTotal;
 
   tr.appendChild(td);
 
 
-  /*
-    スコア
-  */
+  /* スコア */
 
   for(let p=0;p<4;p++){
 
