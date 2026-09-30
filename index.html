@@ -7,9 +7,7 @@
 <title>72ゴルフ スコア管理</title>
 
 <style>
-*{
-  box-sizing:border-box;
-}
+*{box-sizing:border-box}
 
 body{
   font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
@@ -68,21 +66,6 @@ button:active{
   background:#ddd;
 }
 
-.row{
-  display:flex;
-  gap:8px;
-  align-items:center;
-}
-
-.row > *{
-  flex:1;
-}
-
-.small{
-  font-size:12px;
-  color:#666;
-}
-
 /* ラウンド管理 */
 .round-select{
   display:flex;
@@ -123,7 +106,7 @@ button:active{
   margin-top:8px;
 }
 
-/* スコア入力上部 */
+/* ホール表示 */
 .hole-info{
   display:flex;
   justify-content:center;
@@ -258,6 +241,7 @@ summary{
   font-weight:bold;
 }
 
+/* PAT */
 .pat-box{
   display:flex;
   align-items:center;
@@ -494,10 +478,13 @@ summary{
 
 <!-- スコア一覧 -->
 <div id="scoreListCard" class="card hidden">
+
   <h2>スコア一覧</h2>
 
   <div class="score-list">
+
     <table class="score-table">
+
       <thead>
         <tr>
           <th>H</th>
@@ -511,7 +498,9 @@ summary{
       </thead>
 
       <tbody id="scoreTableBody"></tbody>
+
     </table>
+
   </div>
 </div>
 
@@ -530,7 +519,10 @@ let scores = Array.from(
   () => Array(18).fill(null)
 );
 
-let pats = Array(18).fill(null);
+/*
+ * PATは各ホールの初期値を2にする
+ */
+let pats = Array(18).fill(2);
 
 
 /* =========================
@@ -561,12 +553,37 @@ window.onload = function(){
 
 function loadRounds(){
 
-  const data = localStorage.getItem(STORAGE_KEY);
+  const data =
+    localStorage.getItem(STORAGE_KEY);
 
   if(data){
+
     try{
       rounds = JSON.parse(data);
+
+      /*
+       * 過去データでPATがnullの場合は2にする
+       */
+      Object.values(rounds).forEach(r => {
+
+        if(!Array.isArray(r.pats)){
+          r.pats = Array(18).fill(2);
+        }else{
+
+          for(let h=0;h<18;h++){
+
+            if(
+              r.pats[h] === null ||
+              r.pats[h] === undefined
+            ){
+              r.pats[h] = 2;
+            }
+          }
+        }
+      });
+
     }catch(e){
+
       rounds = {};
     }
   }
@@ -592,17 +609,18 @@ function saveRounds(){
 
 function updateRoundSelect(){
 
-  const select = document.getElementById("roundSelect");
+  const select =
+    document.getElementById("roundSelect");
 
   select.innerHTML =
     '<option value="">保存済みラウンド</option>';
 
-  const ids = Object.keys(rounds).sort(
-    (a,b) => {
-      return (rounds[b].savedAt || 0)
-           - (rounds[a].savedAt || 0);
-    }
-  );
+  const ids =
+    Object.keys(rounds).sort(
+      (a,b) =>
+        (rounds[b].savedAt || 0) -
+        (rounds[a].savedAt || 0)
+    );
 
   ids.forEach(id => {
 
@@ -658,7 +676,10 @@ function newRound(){
     () => Array(18).fill(null)
   );
 
-  pats = Array(18).fill(null);
+  /*
+   * 新しいラウンドは全ホールPAT 2
+   */
+  pats = Array(18).fill(2);
 
   document.getElementById("course").value = "";
 
@@ -709,15 +730,21 @@ function setToday(){
 function saveCurrentRound(){
 
   if(!currentRoundId){
+
     currentRoundId =
       Date.now().toString();
   }
 
   const players = [
+
     document.getElementById("p1").value,
+
     document.getElementById("p2").value,
+
     document.getElementById("p3").value,
+
     document.getElementById("p4").value
+
   ];
 
   rounds[currentRoundId] = {
@@ -739,6 +766,7 @@ function saveCurrentRound(){
     lastHole:currentHole,
 
     savedAt:Date.now()
+
   };
 
   saveRounds();
@@ -792,10 +820,23 @@ function loadRound(id){
         () => Array(18).fill(null)
       );
 
+  /*
+   * 古いラウンドもPAT未入力なら2
+   */
   pats =
     Array.isArray(r.pats)
     ? r.pats
-    : Array(18).fill(null);
+    : Array(18).fill(2);
+
+  for(let h=0;h<18;h++){
+
+    if(
+      pats[h] === null ||
+      pats[h] === undefined
+    ){
+      pats[h] = 2;
+    }
+  }
 
   currentHole =
     Number.isInteger(r.lastHole)
@@ -832,7 +873,9 @@ function updateRoundInfo(){
     document.getElementById("roundInfo");
 
   if(!r){
+
     el.textContent = "";
+
     return;
   }
 
@@ -851,7 +894,9 @@ function updateRoundInfo(){
 function deleteCurrentRound(){
 
   if(!currentRoundId){
+
     alert("削除するラウンドがありません。");
+
     return;
   }
 
@@ -874,7 +919,10 @@ function deleteCurrentRound(){
     () => Array(18).fill(null)
   );
 
-  pats = Array(18).fill(null);
+  /*
+   * 新しい状態もPATは2
+   */
+  pats = Array(18).fill(2);
 
   document.getElementById("course").value = "";
 
@@ -916,11 +964,13 @@ function updateCourseHistory(){
 
   Object.values(rounds).forEach(r => {
 
-    if(r.course &&
-       !names.includes(r.course)){
-
+    if(
+      r.course &&
+      !names.includes(r.course)
+    ){
       names.push(r.course);
     }
+
   });
 
   datalist.innerHTML = "";
@@ -957,16 +1007,23 @@ function renderParList(){
 
     item.innerHTML = `
 
-      <button onclick="changePar(${h},-1)">−</button>
+      <button
+        onclick="changePar(${h},-1)"
+      >−</button>
 
       <div>
         <div>${h+1}H</div>
-        <div class="par-value" id="parValue${h}">
+        <div
+          class="par-value"
+          id="parValue${h}"
+        >
           ${pars[h]}
         </div>
       </div>
 
-      <button onclick="changePar(${h},1)">＋</button>
+      <button
+        onclick="changePar(${h},1)"
+      >＋</button>
 
     `;
 
@@ -1004,14 +1061,18 @@ function changePar(h,delta){
 function updateHoleDisplay(){
 
   document.getElementById("holeNo")
-    .textContent = currentHole + 1;
+    .textContent =
+      currentHole + 1;
 
   document.getElementById("parNo")
-    .textContent = pars[currentHole];
+    .textContent =
+      pars[currentHole];
 
   updateRunningTotals();
 
   updateCurrentScoreDisplays();
+
+  updatePatDisplay();
 }
 
 
@@ -1026,6 +1087,8 @@ function prevHole(){
     currentHole--;
 
     updateHoleDisplay();
+
+    renderScoreInputs();
   }
 }
 
@@ -1037,6 +1100,8 @@ function nextHole(){
     currentHole++;
 
     updateHoleDisplay();
+
+    renderScoreInputs();
   }
 }
 
@@ -1050,9 +1115,10 @@ function getScore(player,hole){
   const value =
     scores[player][hole];
 
-  if(value === null ||
-     value === undefined){
-
+  if(
+    value === null ||
+    value === undefined
+  ){
     return pars[hole];
   }
 
@@ -1069,9 +1135,10 @@ function changeScore(player,hole,delta){
   let value =
     scores[player][hole];
 
-  if(value === null ||
-     value === undefined){
-
+  if(
+    value === null ||
+    value === undefined
+  ){
     value = pars[hole];
   }
 
@@ -1101,10 +1168,14 @@ function getPat(hole){
 
   const value = pats[hole];
 
-  if(value === null ||
-     value === undefined){
-
-    return 0;
+  /*
+   * PAT未設定の場合も基本2
+   */
+  if(
+    value === null ||
+    value === undefined
+  ){
+    return 2;
   }
 
   return value;
@@ -1113,14 +1184,7 @@ function getPat(hole){
 
 function changePat(hole,delta){
 
-  let value =
-    pats[hole];
-
-  if(value === null ||
-     value === undefined){
-
-    value = 0;
-  }
+  let value = getPat(hole);
 
   value += delta;
 
@@ -1158,13 +1222,18 @@ function renderScoreInputs(){
 
     const name =
       document.getElementById("p"+(p+1)).value
-      || ["Aさん","Bさん","Cさん","Dさん"][p];
+      ||
+      ["Aさん","Bさん","Cさん","Dさん"][p];
 
     let patHTML = "";
 
+    /*
+     * PATは代表の1名だけ
+     */
     if(p === 0){
 
       patHTML = `
+
         <div class="pat-box">
 
           <button
@@ -1183,6 +1252,7 @@ function renderScoreInputs(){
           >＋</button>
 
         </div>
+
       `;
 
     }else{
@@ -1204,7 +1274,9 @@ function renderScoreInputs(){
       <div
         class="current-score"
         id="currentScore${p}"
-      >${getScore(p,currentHole)}</div>
+      >
+        ${getScore(p,currentHole)}
+      </div>
 
       <button
         class="score-button"
@@ -1214,7 +1286,9 @@ function renderScoreInputs(){
       <div
         class="hole-total"
         id="holeTotal${p}"
-      >${getRunningTotal(p)}</div>
+      >
+        ${getRunningTotal(p)}
+      </div>
 
       ${patHTML}
 
@@ -1245,6 +1319,7 @@ function updateCurrentScoreDisplays(){
       );
 
     if(el){
+
       el.textContent =
         getScore(p,currentHole);
     }
@@ -1262,6 +1337,7 @@ function updatePatDisplay(){
     document.getElementById("patValue");
 
   if(el){
+
     el.textContent =
       getPat(currentHole);
   }
@@ -1276,7 +1352,11 @@ function getRunningTotal(player){
 
   let total = 0;
 
-  for(let h=0;h<=currentHole;h++){
+  for(
+    let h=0;
+    h<=currentHole;
+    h++
+  ){
 
     total += getScore(player,h);
   }
@@ -1295,6 +1375,7 @@ function updateRunningTotals(){
       );
 
     if(el){
+
       el.textContent =
         getRunningTotal(p);
     }
@@ -1319,7 +1400,8 @@ function showScoreList(){
 
     const name =
       document.getElementById("p"+p).value
-      || ["Aさん","Bさん","Cさん","Dさん"][p-1];
+      ||
+      ["Aさん","Bさん","Cさん","Dさん"][p-1];
 
     document.getElementById(
       "headP"+p
@@ -1339,9 +1421,13 @@ function showScoreList(){
       document.createElement("tr");
 
     let html = `
+
       <td>${h+1}</td>
+
       <td>${pars[h]}</td>
+
       <td>${getPat(h)}</td>
+
     `;
 
     for(let p=0;p<4;p++){
@@ -1359,7 +1445,7 @@ function showScoreList(){
   addSummaryRow(
     tbody,
     0,
-    8,
+    9,
     "OUT",
     0,
     9
@@ -1397,26 +1483,38 @@ function addSummaryRow(
   tr.className = "summary";
 
   let parTotal = 0;
+
   let patTotal = 0;
 
   for(let h=start;h<end;h++){
 
     parTotal += pars[h];
 
+    /*
+     * 未変更でも2として合計
+     */
     patTotal += getPat(h);
   }
 
   let html = `
-    <td colspan="1">${label}</td>
+
+    <td>${label}</td>
+
     <td>${parTotal}</td>
+
     <td>${patTotal}</td>
+
   `;
 
   for(let p=0;p<4;p++){
 
     let total = 0;
 
-    for(let h=scoreStart;h<scoreEnd;h++){
+    for(
+      let h=scoreStart;
+      h<scoreEnd;
+      h++
+    ){
 
       total += getScore(p,h);
     }
@@ -1444,19 +1542,27 @@ function addTotalRow(tbody){
   tr.className = "total";
 
   let parTotal = 0;
+
   let patTotal = 0;
 
   for(let h=0;h<18;h++){
 
     parTotal += pars[h];
 
+    /*
+     * 全18ホール、基本2
+     */
     patTotal += getPat(h);
   }
 
   let html = `
+
     <td>TOTAL</td>
+
     <td>${parTotal}</td>
+
     <td>${patTotal}</td>
+
   `;
 
   for(let p=0;p<4;p++){
@@ -1486,10 +1592,15 @@ function addTotalRow(tbody){
 function escapeHtml(str){
 
   return String(str)
+
     .replace(/&/g,"&amp;")
+
     .replace(/</g,"&lt;")
+
     .replace(/>/g,"&gt;")
+
     .replace(/"/g,"&quot;")
+
     .replace(/'/g,"&#039;");
 }
 
