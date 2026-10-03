@@ -3,57 +3,100 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>72ゴルフ Watch v6</title>
+<title>72ゴルフ Watch v7</title>
 <style>
 *{box-sizing:border-box}
 html,body{
-  margin:0;width:100%;height:100%;
-  background:#000;color:#fff;
+  margin:0;
+  width:100%;
+  height:100%;
+  background:#000;
+  color:#fff;
   font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
   overflow:hidden;
 }
 .app{
-  width:min(100%,360px);
+  width:100%;
+  max-width:360px;
   height:100vh;
   margin:auto;
-  padding:12px 10px;
+  padding:12px 10px 8px;
   display:flex;
   flex-direction:column;
   justify-content:center;
   text-align:center;
   touch-action:none;
 }
-.hole{font-size:28px;font-weight:bold;margin-bottom:2px}
-.par{font-size:17px;color:#bbb;margin-bottom:16px}
-.name{font-size:27px;font-weight:bold;margin-bottom:12px}
+.hole{
+  font-size:28px;
+  font-weight:bold;
+  margin-bottom:2px;
+}
+.par{
+  font-size:17px;
+  color:#aaa;
+  margin-bottom:13px;
+}
+.name{
+  font-size:27px;
+  font-weight:bold;
+  margin-bottom:12px;
+}
 .row{
   display:grid;
-  grid-template-columns:58px 58px 1fr 58px;
+  grid-template-columns:54px 58px 1fr 58px;
   align-items:center;
-  gap:5px;
-  margin:10px 0;
+  gap:7px;
+  margin:9px 0;
 }
-.label{text-align:left;font-size:17px;color:#bbb}
-.value{font-size:32px;font-weight:bold}
+.label{
+  text-align:left;
+  font-size:17px;
+  color:#bbb;
+}
+.value{
+  font-size:32px;
+  font-weight:bold;
+  text-align:center;
+}
 .btn{
-  width:58px;height:54px;
-  border:1px solid #666;border-radius:13px;
-  background:#222;color:#fff;
-  font-size:30px;font-weight:bold;padding:0;
+  width:58px;
+  height:54px;
+  border:1px solid #666;
+  border-radius:13px;
+  background:#222;
+  color:#fff;
+  font-size:30px;
+  font-weight:bold;
+  padding:0;
+  touch-action:manipulation;
 }
-.btn:active{background:#555}
+.btn:active{
+  background:#555;
+}
 .total{
-  margin-top:12px;padding-top:9px;
+  margin-top:12px;
+  padding-top:9px;
   border-top:1px solid #444;
-  font-size:16px;color:#bbb;
+  font-size:15px;
+  color:#aaa;
 }
-.total span{font-size:25px;color:#fff;font-weight:bold}
+.total span{
+  font-size:25px;
+  color:#fff;
+  font-weight:bold;
+}
 .hint{
-  position:absolute;bottom:6px;left:0;right:0;
-  font-size:10px;color:#666;
+  position:absolute;
+  left:0;
+  right:0;
+  bottom:5px;
+  font-size:10px;
+  color:#666;
 }
 </style>
 </head>
+
 <body>
 <div class="app" id="app"></div>
 
@@ -61,9 +104,7 @@ html,body{
 const pars=[4,4,3,5,4,4,3,4,5,4,4,3,5,4,4,3,4,5];
 const names=["武田","Aさん","Bさん","Cさん"];
 
-// scores[人][ホール]
 const scores=Array.from({length:4},()=>Array(18).fill(null));
-// PATは武田のみ使用
 const pats=Array(18).fill(2);
 
 let person=0;
@@ -73,14 +114,14 @@ function getScore(){
   return scores[person][hole] ?? pars[hole];
 }
 
-function changeScore(d){
-  scores[person][hole]=Math.max(1,Math.min(12,getScore()+d));
+function changeScore(delta){
+  scores[person][hole]=Math.max(1,Math.min(12,getScore()+delta));
   render();
 }
 
-function changePat(d){
+function changePat(delta){
   if(person!==0)return;
-  pats[hole]=Math.max(0,Math.min(10,pats[hole]+d));
+  pats[hole]=Math.max(0,Math.min(10,pats[hole]+delta));
   render();
 }
 
@@ -93,7 +134,14 @@ function cumulative(){
 }
 
 function render(){
-  const showPat=(person===0);
+  const patHtml = person===0 ? `
+    <div class="row">
+      <div class="label">PAT</div>
+      <button class="btn" type="button" data-action="pat-minus">−</button>
+      <div class="value">${pats[hole]}</div>
+      <button class="btn" type="button" data-action="pat-plus">＋</button>
+    </div>
+  ` : "";
 
   document.getElementById("app").innerHTML=`
     <div class="hole">${hole+1}番</div>
@@ -101,66 +149,68 @@ function render(){
     <div class="name">${names[person]}</div>
 
     <div class="row">
-      <div></div>
       <div class="label">打数</div>
-      <button class="btn" type="button" onclick="changeScore(-1)">−</button>
+      <button class="btn" type="button" data-action="score-minus">−</button>
       <div class="value">${getScore()}</div>
-      <button class="btn" type="button" onclick="changeScore(1)">＋</button>
+      <button class="btn" type="button" data-action="score-plus">＋</button>
     </div>
 
-    ${showPat ? `
-    <div class="row">
-      <div></div>
-      <div class="label">PAT</div>
-      <button class="btn" type="button" onclick="changePat(-1)">−</button>
-      <div class="value">${pats[hole]}</div>
-      <button class="btn" type="button" onclick="changePat(1)">＋</button>
-    </div>` : ``}
+    ${patHtml}
 
     <div class="total">
       1番からの累計：<span>${cumulative()}</span> 打
     </div>
 
-    <div class="hint">縦：人　　左：次ホール　右：前ホール</div>
+    <div class="hint">上下：人　　左：次ホール　右：前ホール</div>
   `;
 }
 
-// スワイプ操作
-let startX=0,startY=0;
+/* ボタン操作 */
+document.getElementById("app").addEventListener("click",function(e){
+  const action=e.target.dataset.action;
+  if(!action)return;
 
-document.addEventListener("touchstart",e=>{
+  if(action==="score-minus")changeScore(-1);
+  if(action==="score-plus")changeScore(1);
+  if(action==="pat-minus")changePat(-1);
+  if(action==="pat-plus")changePat(1);
+});
+
+/* スワイプ操作 */
+let startX=0;
+let startY=0;
+let startTarget=null;
+
+document.addEventListener("touchstart",function(e){
   if(e.touches.length!==1)return;
+
   startX=e.touches[0].clientX;
   startY=e.touches[0].clientY;
+  startTarget=e.target;
 },{passive:true});
 
-document.addEventListener("touchend",e=>{
+document.addEventListener("touchend",function(e){
   if(e.changedTouches.length!==1)return;
+
+  /* ボタンを押した場合はスワイプ処理しない */
+  if(startTarget && startTarget.closest && startTarget.closest(".btn")){
+    startTarget=null;
+    return;
+  }
 
   const dx=e.changedTouches[0].clientX-startX;
   const dy=e.changedTouches[0].clientY-startY;
 
-  if(Math.max(Math.abs(dx),Math.abs(dy))<45)return;
+  if(Math.abs(dx)<45 && Math.abs(dy)<45)return;
 
-  // 横スワイプ：ホール切替
   if(Math.abs(dx)>Math.abs(dy)){
-    if(dx<0){
-      // 左スワイプ＝次のホール
-      if(hole<17)hole++;
-    }else{
-      // 右スワイプ＝前のホール
-      if(hole>0)hole--;
-    }
-  }
-  // 縦スワイプ：人切替
-  else{
-    if(dy<0){
-      // 上スワイプ＝次の人
-      if(person<3)person++;
-    }else{
-      // 下スワイプ＝前の人
-      if(person>0)person--;
-    }
+    /* 左＝次のホール、右＝前のホール */
+    if(dx<0 && hole<17)hole++;
+    if(dx>0 && hole>0)hole--;
+  }else{
+    /* 上＝次の人、下＝前の人 */
+    if(dy<0 && person<3)person++;
+    if(dy>0 && person>0)person--;
   }
 
   render();
