@@ -76,6 +76,9 @@ summary{cursor:pointer;font-weight:bold}
     <button onclick="deleteCurrentRound()" class="danger">削除</button>
   </div>
   <div id="roundStatus" style="margin-top:7px;font-size:13px;color:#555"></div>
+  <div style="margin-top:8px;text-align:center">
+    <button onclick="prepareWatchData()">⌚ Watch用データ更新</button>
+  </div>
 </div>
 
 <div class="card">
@@ -203,6 +206,9 @@ function saveCurrentRound(showAlert=true){
   const idx=rounds.findIndex(x=>x.id===r.id);
   if(idx>=0) rounds[idx]=r; else rounds.unshift(r);
   localStorage.setItem(STORAGE_KEY,JSON.stringify(rounds));
+  localStorage.setItem("72golf_watch_bridge_v1",JSON.stringify({
+    version:Date.now(), round:r
+  }));
   refreshRoundSelect();
   updateRoundInfo();
   if(showAlert) alert("ラウンドを保存しました。");
@@ -422,6 +428,27 @@ function addSummaryRow(body,label,start,end){
   tr.innerHTML='<td>'+label+'</td><td>'+par+'</td><td>'+pat+'</td>'+
     '<td>'+sc[0]+'</td><td>'+sc[1]+'</td><td>'+sc[2]+'</td><td>'+sc[3]+'</td>';
   body.appendChild(tr);
+}
+
+
+// ===== Apple Watch連携 =====
+function prepareWatchData(){
+  saveCurrentRound(false);
+  alert("Watch用データを更新しました。Watchを開いてください。");
+}
+
+function receiveWatchData(data){
+  if(!data || !data.round || !Array.isArray(data.round.scores)) return false;
+  const r=data.round;
+  scores=r.scores.map(a=>Array.isArray(a)?a.slice(0,18):Array(18).fill(null));
+  if(Array.isArray(r.pats) && r.pats.length===18){
+    pats=r.pats.map(v=>v==null?2:Number(v));
+  }
+  if(Number.isInteger(r.lastHole)) currentHole=r.lastHole;
+  saveCurrentRound(false);
+  renderAll();
+  updateRoundInfo();
+  return true;
 }
 
 function init(){
