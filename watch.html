@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -13,28 +12,33 @@
   box-sizing:border-box;
   -webkit-user-select:none;
   user-select:none;
+  -webkit-touch-callout:none;
 }
 
-body{
+html,body{
   margin:0;
+  padding:0;
+  width:100%;
+  height:100%;
   background:#000;
   color:#fff;
   font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+}
+
+body{
   text-align:center;
-  overflow:hidden;
+  touch-action:none;
 }
 
 .app{
   width:100%;
-  max-width:360px;
-  height:100vh;
-  margin:auto;
-  padding:8px 10px 10px;
+  min-height:100vh;
+  padding:7px 10px 8px;
   display:flex;
   flex-direction:column;
 }
 
-/* ホール表示 */
+/* ホール */
 .hole{
   font-size:25px;
   font-weight:bold;
@@ -42,48 +46,42 @@ body{
 }
 
 .par{
-  font-size:16px;
+  font-size:15px;
+  color:#ccc;
   margin-top:2px;
-  color:#ddd;
 }
 
 /* 人名 */
 .player-name{
   font-size:27px;
   font-weight:bold;
-  margin:8px 0 4px;
+  margin:7px 0 3px;
 }
 
 /* 項目 */
 .label{
-  font-size:15px;
-  color:#bbb;
+  font-size:14px;
+  color:#aaa;
   margin-top:2px;
 }
 
-/* 打数・PAT */
+/* ＋－と数字 */
 .score-area{
   display:grid;
-  grid-template-columns:72px 1fr 72px;
+  grid-template-columns:70px 1fr 70px;
   align-items:center;
-  gap:8px;
-  margin-top:3px;
-}
-
-.value{
-  font-size:42px;
-  font-weight:bold;
-  line-height:1;
+  gap:6px;
+  margin-top:2px;
 }
 
 .big-btn{
-  width:72px;
-  height:58px;
+  width:70px;
+  height:55px;
   border:1px solid #777;
   border-radius:14px;
   background:#222;
   color:#fff;
-  font-size:34px;
+  font-size:32px;
   font-weight:bold;
   padding:0;
 }
@@ -92,42 +90,59 @@ body{
   background:#666;
 }
 
+.value{
+  font-size:40px;
+  font-weight:bold;
+}
+
 /* 累計 */
 .total{
-  margin-top:10px;
-  padding-top:7px;
+  margin-top:8px;
+  padding-top:6px;
   border-top:1px solid #444;
-  font-size:18px;
+  font-size:17px;
 }
 
 .total-value{
-  font-size:27px;
+  font-size:26px;
   font-weight:bold;
-  margin-left:8px;
+  margin-left:6px;
 }
 
-/* スワイプ案内 */
-.swipe{
+/* 下部 */
+.bottom{
   margin-top:auto;
   padding-top:5px;
-  font-size:11px;
-  color:#888;
+}
+
+.swipe-guide{
+  font-size:10px;
+  color:#777;
   line-height:1.5;
 }
 
-.hint{
-  font-size:10px;
-  color:#666;
-}
-
-/* 画面下の現在位置 */
 .position{
   font-size:10px;
-  color:#666;
+  color:#555;
   margin-top:2px;
 }
-</style>
 
+/* 補助ボタン */
+.nav{
+  display:flex;
+  justify-content:space-between;
+  margin-top:3px;
+}
+
+.nav button{
+  background:#111;
+  border:1px solid #444;
+  color:#aaa;
+  border-radius:8px;
+  font-size:11px;
+  padding:3px 9px;
+}
+</style>
 </head>
 
 <body>
@@ -147,41 +162,507 @@ body{
   </div>
 
   <!-- 打数 -->
-
   <div class="label">打数</div>
 
   <div class="score-area">
+
     <button class="big-btn"
             onclick="changeScore(-1)">−</button>
 
-```
-<div class="value" id="score">4</div>
+    <div class="value" id="score">4</div>
 
-<button class="big-btn"
-        onclick="changeScore(1)">＋</button>
-```
-
-  </div>
-
-  <!-- PAT -->
-
-  <div class="label">PAT</div>
-
-  <div class="score-area">
     <button class="big-btn"
-            onclick="changePat(-1)">−</button>
-
-```
-<div class="value" id="pat">2</div>
-
-<button class="big-btn"
-        onclick="changePat(1)">＋</button>
-```
+            onclick="changeScore(1)">＋</button>
 
   </div>
+
+
+  <!-- PAT：武田だけ表示 -->
+  <div id="patArea">
+
+    <div class="label">PAT</div>
+
+    <div class="score-area">
+
+      <button class="big-btn"
+              onclick="changePat(-1)">−</button>
+
+      <div class="value" id="pat">2</div>
+
+      <button class="big-btn"
+              onclick="changePat(1)">＋</button>
+
+    </div>
+
+  </div>
+
 
   <!-- 累計 -->
-
   <div class="total">
+
     累計打数
-    <span class="total-valu
+
+    <span class="total-value"
+          id="total">4</span>打
+
+  </div>
+
+
+  <div class="bottom">
+
+    <div class="swipe-guide">
+      ← 前ホール　｜　次ホール →<br>
+      ↑ 次の人　｜　前の人 ↓
+    </div>
+
+    <div class="position"
+         id="position">
+      武田　1 / 4
+    </div>
+
+    <div class="nav">
+
+      <button onclick="prevHole()">
+        ◀ 前ホール
+      </button>
+
+      <button onclick="nextHole()">
+        次ホール ▶
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<script>
+
+/* =========================
+   PAR
+========================= */
+
+const pars=[
+  4,4,3,5,4,4,3,4,5,
+  4,4,3,5,4,4,3,4,5
+];
+
+
+/* =========================
+   人
+========================= */
+
+const players=[
+  "武田",
+  "Bさん",
+  "Cさん",
+  "Dさん"
+];
+
+let hole=0;
+let player=0;
+
+
+/* =========================
+   データ
+========================= */
+
+const scores=Array.from(
+  {length:4},
+  ()=>Array(18).fill(null)
+);
+
+/* PATは武田だけ */
+const pats=Array(18).fill(null);
+
+
+/* =========================
+   現在の打数
+========================= */
+
+function getScore(){
+
+  return scores[player][hole] ?? pars[hole];
+
+}
+
+
+/* =========================
+   PAT
+========================= */
+
+function getPat(){
+
+  return pats[hole] ?? 2;
+
+}
+
+
+/* =========================
+   累計
+========================= */
+
+function getTotal(){
+
+  let total=0;
+
+  for(let h=0;h<=hole;h++){
+
+    total +=
+      scores[player][h] ??
+      pars[h];
+
+  }
+
+  return total;
+
+}
+
+
+/* =========================
+   表示
+========================= */
+
+function render(){
+
+  document.getElementById("hole").textContent=
+    hole+1;
+
+  document.getElementById("par").textContent=
+    pars[hole];
+
+  document.getElementById("playerName").textContent=
+    players[player];
+
+  document.getElementById("score").textContent=
+    getScore();
+
+  document.getElementById("total").textContent=
+    getTotal();
+
+
+  /* 武田だけPAT */
+
+  const patArea=
+    document.getElementById("patArea");
+
+  if(player===0){
+
+    patArea.style.display="block";
+
+    document.getElementById("pat").textContent=
+      getPat();
+
+  }else{
+
+    patArea.style.display="none";
+
+  }
+
+
+  document.getElementById("position").textContent=
+    players[player]+"　"+(player+1)+" / "+players.length;
+
+}
+
+
+/* =========================
+   打数
+========================= */
+
+function changeScore(d){
+
+  scores[player][hole]=
+    Math.max(
+      1,
+      Math.min(
+        12,
+        getScore()+d
+      )
+    );
+
+  render();
+
+}
+
+
+/* =========================
+   PAT
+========================= */
+
+function changePat(d){
+
+  if(player!==0) return;
+
+  pats[hole]=
+    Math.max(
+      0,
+      Math.min(
+        10,
+        getPat()+d
+      )
+    );
+
+  render();
+
+}
+
+
+/* =========================
+   ホール
+========================= */
+
+function nextHole(){
+
+  if(hole<17){
+
+    hole++;
+
+    render();
+
+  }
+
+}
+
+function prevHole(){
+
+  if(hole>0){
+
+    hole--;
+
+    render();
+
+  }
+
+}
+
+
+/* =========================
+   人
+========================= */
+
+function nextPlayer(){
+
+  player++;
+
+  if(player>=players.length){
+
+    player=0;
+
+  }
+
+  render();
+
+}
+
+function prevPlayer(){
+
+  player--;
+
+  if(player<0){
+
+    player=players.length-1;
+
+  }
+
+  render();
+
+}
+
+
+/* =================================================
+   Apple Watch用スワイプ検出
+================================================= */
+
+let startX=0;
+let startY=0;
+let tracking=false;
+
+
+/* タッチ開始 */
+
+document.addEventListener(
+  "touchstart",
+  function(e){
+
+    if(!e.touches || e.touches.length!==1){
+      return;
+    }
+
+    startX=e.touches[0].clientX;
+    startY=e.touches[0].clientY;
+
+    tracking=true;
+
+  },
+  {passive:true}
+);
+
+
+/* タッチ終了 */
+
+document.addEventListener(
+  "touchend",
+  function(e){
+
+    if(!tracking){
+      return;
+    }
+
+    tracking=false;
+
+    if(!e.changedTouches ||
+       e.changedTouches.length===0){
+
+      return;
+
+    }
+
+    const endX=
+      e.changedTouches[0].clientX;
+
+    const endY=
+      e.changedTouches[0].clientY;
+
+    const dx=endX-startX;
+    const dy=endY-startY;
+
+    const absX=Math.abs(dx);
+    const absY=Math.abs(dy);
+
+
+    /* 40px未満はタップと判断 */
+
+    if(absX<40 && absY<40){
+      return;
+    }
+
+
+    /* 横方向 */
+
+    if(absX>absY){
+
+      if(dx>0){
+
+        /*
+          右スワイプ
+          → 次のホール
+        */
+
+        nextHole();
+
+      }else{
+
+        /*
+          左スワイプ
+          → 前のホール
+        */
+
+        prevHole();
+
+      }
+
+      return;
+    }
+
+
+    /* 縦方向 */
+
+    if(dy<0){
+
+      /*
+        上スワイプ
+        → 次の人
+      */
+
+      nextPlayer();
+
+    }else{
+
+      /*
+        下スワイプ
+        → 前の人
+      */
+
+      prevPlayer();
+
+    }
+
+  },
+  {passive:true}
+);
+
+
+/* =================================================
+   Pointer Eventsも追加
+   Apple Watch / Safari対策
+================================================= */
+
+let pointerStartX=0;
+let pointerStartY=0;
+
+document.addEventListener(
+  "pointerdown",
+  function(e){
+
+    pointerStartX=e.clientX;
+    pointerStartY=e.clientY;
+
+  },
+  true
+);
+
+document.addEventListener(
+  "pointerup",
+  function(e){
+
+    const dx=e.clientX-pointerStartX;
+    const dy=e.clientY-pointerStartY;
+
+    const absX=Math.abs(dx);
+    const absY=Math.abs(dy);
+
+    if(absX<50 && absY<50){
+      return;
+    }
+
+    if(absX>absY){
+
+      if(dx>0){
+
+        nextHole();
+
+      }else{
+
+        prevHole();
+
+      }
+
+    }else{
+
+      if(dy<0){
+
+        nextPlayer();
+
+      }else{
+
+        prevPlayer();
+
+      }
+
+    }
+
+  },
+  true
+);
+
+
+/* 初期表示 */
+
+render();
+
+</script>
+
+</body>
+</html>
