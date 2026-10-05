@@ -103,7 +103,7 @@ summary{cursor:pointer;font-weight:bold}
     </select>
     <button onclick="newRound()">新しいラウンド</button>
     <button onclick="saveCurrentRound()">保存</button>
-    <button onclick="sendToWatch()" class="watch-send">Watchへ送る</button>
+    <button onclick="sendToWatch()" class="watch-send">Watchへ送る（コピー）</button>
     <button onclick="deleteCurrentRound()" class="danger">削除</button>
   </div>
   <div id="roundStatus" style="margin-top:7px;font-size:13px;color:#555"></div>
@@ -464,7 +464,6 @@ function addSummaryRow(body,label,start,end){
 
 
 function sendToWatch(){
-  // 保存されている現在ラウンドをそのままWatch用データにする
   updateRoundInfo();
 
   const data={
@@ -484,23 +483,15 @@ function sendToWatch(){
 
   const json=JSON.stringify(data);
   const encoded=btoa(unescape(encodeURIComponent(json)));
-  const base=location.href.split("#")[0].replace(/[^/]*$/,"watch.html");
+  const base=location.href.split("#")[0].replace(/index[^/]*\.html?$/i,"watch.html");
   const url=base+"#data="+encoded;
 
-  if(navigator.share){
-    navigator.share({
-      title:"72ゴルフ Watch用データ",
-      text:"Apple Watchで開いてください",
-      url:url
-    }).catch(()=>{});
-  }else if(navigator.clipboard){
-    navigator.clipboard.writeText(url).then(
-      ()=>alert("Watch用URLをコピーしました。Apple Watchへ送って開いてください。"),
-      ()=>prompt("このURLをApple Watchで開いてください。",url)
-    );
-  }else{
-    prompt("このURLをApple Watchで開いてください。",url);
-  }
+  navigator.clipboard.writeText(url).then(
+    ()=>alert("Watch用データをコピーしました。
+
+次にApple Watchで「iPhoneデータ読込」を押してください。"),
+    ()=>prompt("Watch用データです。コピーしてください。",url)
+  );
 }
 
 function init(){
