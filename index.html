@@ -462,11 +462,7 @@ function addSummaryRow(body,label,start,end){
   body.appendChild(tr);
 }
 
-function init(){
-  ["courseName","roundDate","player0","player1","player2","player3"].forEach(id=>{
-    el(id).addEventListener("change",updateRoundInfo);
-  });
-  
+
 function sendToWatch(){
   // 保存されている現在ラウンドをそのままWatch用データにする
   updateRoundInfo();
@@ -488,7 +484,7 @@ function sendToWatch(){
 
   const json=JSON.stringify(data);
   const encoded=btoa(unescape(encodeURIComponent(json)));
-  const base=location.href.split("#")[0].replace(/index[^/]*\.html?$/i,"watch.html");
+  const base=location.href.split("#")[0].replace(/[^/]*$/,"watch.html");
   const url=base+"#data="+encoded;
 
   if(navigator.share){
@@ -507,6 +503,11 @@ function sendToWatch(){
   }
 }
 
+function init(){
+  ["courseName","roundDate","player0","player1","player2","player3"].forEach(id=>{
+    el(id).addEventListener("change",updateRoundInfo);
+  });
+  
 loadRounds();
 }
 init();
