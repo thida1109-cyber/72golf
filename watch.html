@@ -6,163 +6,7 @@
 <title>72ゴルフ Watch</title>
 <style>
 *{box-sizing:border-box}
-html,body{margin:0;padding:0;width:100%;height:<!DOCTYPE html>
-<html lang="ja">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>72ゴルフ Watch</title>
-<style>
-*{box-sizing:border-box}
 html,body{margin:0;padding:0;width:100%;height:100%;background:#000;color:#fff;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;overflow:hidden}
-#screen{width:100%;height:100vh;display:flex;align-items:center;justify-content:center;touch-action:none}
-.page{width:100%;max-width:380px;padding:7px 8px;text-align:center}
-.header{height:48px;display:flex;align-items:center;justify-content:center;gap:10px;font-weight:bold}
-.hole{font-size:31px}.par{font-size:22px}.person{font-size:29px;min-width:76px}
-.input-row{height:70px;display:flex;align-items:center;justify-content:center;gap:7px}
-.label{width:60px;text-align:left;font-size:19px;font-weight:bold}
-.button{width:58px;height:58px;flex:0 0 58px;border:1px solid #666;border-radius:12px;background:#222;color:#fff;font-size:32px;font-weight:bold;padding:0;margin:0}
-.button:active{background:#555}
-.number{width:52px;flex:0 0 52px;text-align:center;font-size:32px;font-weight:bold}
-.total{height:55px;margin-top:2px;border-top:1px solid #444;display:flex;align-items:center;justify-content:center;gap:8px;font-size:19px;font-weight:bold}
-.total-number{font-size:31px}.no-pat .total{margin-top:0}
-.status{margin-top:7px;font-size:9px;color:#777;min-height:12px}
-.help{margin-top:5px;font-size:10px;color:#666}
-</style>
-</head>
-<body><div id="screen"></div>
-<script>
-/*
-  72ゴルフ Watch v10
-  - v8の画面・スワイプ操作を維持
-  - 入力内容をWatch側localStorageへ自動保存
-  - 再読み込みしてもスコア/PAT/現在位置を保持
-  - 18ホールのPARを保持
-*/
-const STORAGE_KEY="72golf_watch_v9";
-const pars=[4,4,3,5,4,4,3,4,5,4,4,3,5,4,4,3,4,5];
-const names=["武田","Aさん","Bさん","Cさん"];
-let scores=Array.from({length:4},()=>Array(18).fill(null));
-let pats=Array(18).fill(2);
-let person=0,hole=0;
-
-function loadData(){
-  try{
-    const d=JSON.parse(localStorage.getItem(STORAGE_KEY)||"null");
-    if(!d)return;
-    if(Array.isArray(d.pars)&&d.pars.length===18)
-      for(let i=0;i<18;i++)pars[i]=Number(d.pars[i])||4;
-    if(Array.isArray(d.scores)&&d.scores.length===4)
-      scores=d.scores.map(a=>{
-        const row=Array(18).fill(null);
-        if(Array.isArray(a))for(let i=0;i<18;i++)row[i]=a[i]==null?null:Number(a[i]);
-        return row;
-      });
-    if(Array.isArray(d.pats)&&d.pats.length===18)
-      pats=d.pats.map(v=>v==null?2:Number(v));
-    person=Math.max(0,Math.min(3,Number(d.person)||0));
-    hole=Math.max(0,Math.min(17,Number(d.hole)||0));
-  }catch(e){}
-}
-
-function saveData(){
-  try{
-    localStorage.setItem(STORAGE_KEY,JSON.stringify({pars,scores,pats,person,hole}));
-  }catch(e){}
-}
-
-function getScore(){return scores[person][hole] ?? pars[hole]}
-function changeScore(d){
-  scores[person][hole]=Math.max(1,Math.min(12,getScore()+d));
-  saveData();
-  render();
-}
-function changePat(d){
-  if(person!==0)return;
-  pats[hole]=Math.max(0,Math.min(10,pats[hole]+d));
-  saveData();
-  render();
-}
-function totalScore(){
-  let t=0;
-  for(let i=0;i<=hole;i++)t+=scores[person][i]??pars[i];
-  return t;
-}
-
-function render(){
-  const pat=person===0;
-  document.getElementById("screen").innerHTML=`
-  <div class="page ${pat?"":"no-pat"}">
-    <div class="header">
-      <div class="hole">${hole+1}番</div>
-      <div class="par">PAR ${pars[hole]}</div>
-      <div class="person">${names[person]}</div>
-    </div>
-
-    <div class="input-row">
-      <div class="label">打数</div>
-      <button class="button" id="scoreMinus">−</button>
-      <div class="number">${getScore()}</div>
-      <button class="button" id="scorePlus">＋</button>
-    </div>
-
-    ${pat?`
-    <div class="input-row">
-      <div class="label">PAT数</div>
-      <button class="button" id="patMinus">−</button>
-      <div class="number">${pats[hole]}</div>
-      <button class="button" id="patPlus">＋</button>
-    </div>`:""}
-
-    <div class="total">
-      <span>合計打数</span>
-      <span class="total-number">${totalScore()}</span>
-    </div>
-
-    <div class="status">自動保存</div>
-    <div class="help">↑↓ 人　　← 次ホール　→ 前ホール</div>
-  </div>`;
-
-  document.getElementById("scoreMinus").onclick=()=>changeScore(-1);
-  document.getElementById("scorePlus").onclick=()=>changeScore(1);
-
-  if(pat){
-    document.getElementById("patMinus").onclick=()=>changePat(-1);
-    document.getElementById("patPlus").onclick=()=>changePat(1);
-  }
-}
-
-let sx=0,sy=0;
-document.addEventListener("touchstart",e=>{
-  if(e.touches.length===1){
-    sx=e.touches[0].clientX;
-    sy=e.touches[0].clientY;
-  }
-},{passive:true});
-
-document.addEventListener("touchend",e=>{
-  if(e.changedTouches.length!==1)return;
-  const dx=e.changedTouches[0].clientX-sx;
-  const dy=e.changedTouches[0].clientY-sy;
-  if(Math.max(Math.abs(dx),Math.abs(dy))<45)return;
-
-  if(Math.abs(dx)>Math.abs(dy)){
-    if(dx<0&&hole<17)hole++;
-    if(dx>0&&hole>0)hole--;
-  }else{
-    if(dy<0&&person<3)person++;
-    if(dy>0&&person>0)person--;
-  }
-  saveData();
-  render();
-},{passive:true});
-
-loadData();
-render();
-</script>
-</body>
-</html>
-100%;background:#000;color:#fff;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;overflow:hidden}
 #screen{width:100%;height:100vh;display:flex;align-items:flex-start;justify-content:center;touch-action:none}
 .page{width:100%;max-width:380px;padding:10px 8px 6px;text-align:center}
 .header{height:48px;display:flex;align-items:center;justify-content:center;gap:10px;font-weight:bold}
@@ -194,33 +38,28 @@ let scores=Array.from({length:4},()=>Array(18).fill(null));
 let pats=Array(18).fill(2);
 let person=0,hole=0;
 
-function applyImportedData(d){
-  if(Array.isArray(d.pars)&&d.pars.length===18) pars=d.pars.map(v=>Number(v)||4);
-  if(Array.isArray(d.scores)&&d.scores.length===4)
-    scores=d.scores.map(a=>{
-      const row=Array(18).fill(null);
-      if(Array.isArray(a))for(let i=0;i<18;i++)row[i]=a[i]==null?null:Number(a[i]);
-      return row;
-    });
-  if(Array.isArray(d.pats)&&d.pats.length===18) pats=d.pats.map(v=>v==null?2:Number(v));
-  if(Array.isArray(d.players)&&d.players.length===4)
-    names=d.players.slice(0,4).map((v,i)=>v||["武田","Aさん","Bさん","Cさん"][i]);
-  hole=Math.max(0,Math.min(17,Number(d.lastHole)||0));
-  person=0;
-  const st=document.getElementById("importStatus");
-  if(st) st.textContent="iPhoneデータ：読込済";
-  saveData();
-  render();
-}
-
 function loadData(){
   try{
     const hash=location.hash||"";
     if(hash.startsWith("#data=")){
-      const d=JSON.parse(decodeURIComponent(escape(atob(hash.slice(6)))));
-      applyImportedData(d);
+      const encoded=hash.slice(6);
+      const d=JSON.parse(decodeURIComponent(escape(atob(encoded))));
+      if(Array.isArray(d.pars)&&d.pars.length===18) pars=d.pars.map(v=>Number(v)||4);
+      if(Array.isArray(d.scores)&&d.scores.length===4)
+        scores=d.scores.map(a=>{
+          const row=Array(18).fill(null);
+          if(Array.isArray(a)) for(let i=0;i<18;i++) row[i]=a[i]==null?null:Number(a[i]);
+          return row;
+        });
+      if(Array.isArray(d.pats)&&d.pats.length===18) pats=d.pats.map(v=>v==null?2:Number(v));
+      if(Array.isArray(d.players)&&d.players.length===4)
+        names=d.players.slice(0,4).map((v,i)=>v||["武田","Aさん","Bさん","Cさん"][i]);
+      hole=Math.max(0,Math.min(17,Number(d.lastHole)||0));
+      person=0;
+      saveData();
       return;
     }
+
     const d=JSON.parse(localStorage.getItem(STORAGE_KEY)||"null");
     if(!d)return;
     if(Array.isArray(d.pars)&&d.pars.length===18) pars=d.pars.map(v=>Number(v)||4);
@@ -235,31 +74,6 @@ function loadData(){
     person=Math.max(0,Math.min(3,Number(d.person)||0));
     hole=Math.max(0,Math.min(17,Number(d.hole)||0));
   }catch(e){}
-}
-
-async function readIphoneData(){
-  try{
-    if(!navigator.clipboard || !navigator.clipboard.readText){
-      alert("この環境ではクリップボードを読み込めません。");
-      return;
-    }
-    const text=await navigator.clipboard.readText();
-    if(!text){
-      alert("iPhoneデータがコピーされていません。");
-      return;
-    }
-    const pos=text.indexOf("#data=");
-    if(pos<0){
-      alert("72ゴルフのiPhoneデータではありません。");
-      return;
-    }
-    const encoded=text.slice(pos+6).split("&")[0];
-    const d=JSON.parse(decodeURIComponent(escape(atob(encoded))));
-    applyImportedData(d);
-    alert("iPhoneのデータを読み込みました。");
-  }catch(e){
-    alert("データを読み込めませんでした。iPhoneで「Watchへ送る（コピー）」をもう一度押してください。");
-  }
 }
 
 function saveData(){
@@ -356,9 +170,6 @@ document.addEventListener("touchend",e=>{
 
 loadData();
 render();
-
-const readBtn=document.getElementById("readIphone");
-if(readBtn) readBtn.addEventListener("click",readIphoneData);
 </script>
 </body>
 </html>
