@@ -7,8 +7,8 @@
 <style>
 *{box-sizing:border-box}
 html,body{margin:0;padding:0;width:100%;height:100%;background:#000;color:#fff;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;overflow:hidden}
-#screen{width:100%;height:100vh;display:flex;align-items:center;justify-content:center;touch-action:none}
-.page{width:100%;max-width:380px;padding:7px 8px;text-align:center}
+#screen{width:100%;height:100vh;display:flex;align-items:flex-start;justify-content:center;touch-action:none}
+.page{width:100%;max-width:380px;padding:10px 8px 6px;text-align:center}
 .header{height:48px;display:flex;align-items:center;justify-content:center;gap:10px;font-weight:bold}
 .hole{font-size:31px}.par{font-size:22px}.person{font-size:29px;min-width:76px}
 .input-row{height:70px;display:flex;align-items:center;justify-content:center;gap:7px}
@@ -32,7 +32,7 @@ html,body{margin:0;padding:0;width:100%;height:100%;background:#000;color:#fff;f
   - 18ホールのPARを保持
 */
 const STORAGE_KEY="72golf_watch_v11";
-const pars=[4,4,3,5,4,4,3,4,5,4,4,3,5,4,4,3,4,5];
+let pars=[4,4,3,5,4,4,3,4,5,4,4,3,5,4,4,3,4,5];
 let names=["武田","Aさん","Bさん","Cさん"];
 let scores=Array.from({length:4},()=>Array(18).fill(null));
 let pats=Array(18).fill(2);
@@ -56,8 +56,6 @@ function loadData(){
         names=d.players.slice(0,4).map((v,i)=>v||["武田","Aさん","Bさん","Cさん"][i]);
       hole=Math.max(0,Math.min(17,Number(d.lastHole)||0));
       person=0;
-      const st=document.getElementById("importStatus");
-      if(st) st.textContent="iPhoneデータ：読込済";
       saveData();
       return;
     }
