@@ -7,8 +7,8 @@
 <style>
 *{box-sizing:border-box}
 html,body{margin:0;padding:0;width:100%;height:100%;background:#000;color:#fff;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;overflow:hidden}
-#screen{width:100%;height:100vh;display:flex;align-items:center;justify-content:center;touch-action:none}
-.page{width:100%;max-width:380px;padding:7px 8px;text-align:center}
+#screen{width:100%;height:100vh;display:flex;align-items:flex-start;justify-content:center;touch-action:none}
+.page{width:100%;max-width:380px;padding:10px 8px 6px;text-align:center}
 .header{height:48px;display:flex;align-items:center;justify-content:center;gap:10px;font-weight:bold}
 .hole{font-size:31px}.par{font-size:22px}.person{font-size:29px;min-width:76px}
 .input-row{height:70px;display:flex;align-items:center;justify-content:center;gap:7px}
@@ -31,27 +31,46 @@ html,body{margin:0;padding:0;width:100%;height:100%;background:#000;color:#fff;f
   - 再読み込みしてもスコア/PAT/現在位置を保持
   - 18ホールのPARを保持
 */
-const STORAGE_KEY="72golf_watch_v9";
-const pars=[4,4,3,5,4,4,3,4,5,4,4,3,5,4,4,3,4,5];
-const names=["武田","Aさん","Bさん","Cさん"];
+const STORAGE_KEY="72golf_watch_v11";
+let pars=[4,4,3,5,4,4,3,4,5,4,4,3,5,4,4,3,4,5];
+let names=["武田","Aさん","Bさん","Cさん"];
 let scores=Array.from({length:4},()=>Array(18).fill(null));
 let pats=Array(18).fill(2);
 let person=0,hole=0;
 
 function loadData(){
   try{
+    const hash=location.hash||"";
+    if(hash.startsWith("#data=")){
+      const encoded=hash.slice(6);
+      const d=JSON.parse(decodeURIComponent(escape(atob(encoded))));
+      if(Array.isArray(d.pars)&&d.pars.length===18) pars=d.pars.map(v=>Number(v)||4);
+      if(Array.isArray(d.scores)&&d.scores.length===4)
+        scores=d.scores.map(a=>{
+          const row=Array(18).fill(null);
+          if(Array.isArray(a)) for(let i=0;i<18;i++) row[i]=a[i]==null?null:Number(a[i]);
+          return row;
+        });
+      if(Array.isArray(d.pats)&&d.pats.length===18) pats=d.pats.map(v=>v==null?2:Number(v));
+      if(Array.isArray(d.players)&&d.players.length===4)
+        names=d.players.slice(0,4).map((v,i)=>v||["武田","Aさん","Bさん","Cさん"][i]);
+      hole=Math.max(0,Math.min(17,Number(d.lastHole)||0));
+      person=0;
+      saveData();
+      return;
+    }
+
     const d=JSON.parse(localStorage.getItem(STORAGE_KEY)||"null");
     if(!d)return;
-    if(Array.isArray(d.pars)&&d.pars.length===18)
-      for(let i=0;i<18;i++)pars[i]=Number(d.pars[i])||4;
+    if(Array.isArray(d.pars)&&d.pars.length===18) pars=d.pars.map(v=>Number(v)||4);
     if(Array.isArray(d.scores)&&d.scores.length===4)
       scores=d.scores.map(a=>{
         const row=Array(18).fill(null);
         if(Array.isArray(a))for(let i=0;i<18;i++)row[i]=a[i]==null?null:Number(a[i]);
         return row;
       });
-    if(Array.isArray(d.pats)&&d.pats.length===18)
-      pats=d.pats.map(v=>v==null?2:Number(v));
+    if(Array.isArray(d.pats)&&d.pats.length===18) pats=d.pats.map(v=>v==null?2:Number(v));
+    if(Array.isArray(d.names)&&d.names.length===4) names=d.names.slice();
     person=Math.max(0,Math.min(3,Number(d.person)||0));
     hole=Math.max(0,Math.min(17,Number(d.hole)||0));
   }catch(e){}
@@ -59,7 +78,7 @@ function loadData(){
 
 function saveData(){
   try{
-    localStorage.setItem(STORAGE_KEY,JSON.stringify({pars,scores,pats,person,hole}));
+    localStorage.setItem(STORAGE_KEY,JSON.stringify({pars,names,scores,pats,person,hole}));
   }catch(e){}
 }
 
