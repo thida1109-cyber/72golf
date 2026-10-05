@@ -79,6 +79,18 @@ summary{cursor:pointer;font-weight:bold}
 }
 </style>
 
+
+<style id="player-name-color-v2">
+.players input#player0,
+.players input#player1,
+.players input#player2,
+.players input#player3{
+  background-color:#f3e8ff !important;
+  border:2px solid #b58ad9 !important;
+  font-weight:600 !important;
+}
+</style>
+
 </head>
 <body>
 <div class="container">
@@ -147,11 +159,11 @@ summary{cursor:pointer;font-weight:bold}
 </div>
 
 <div class="card">
-  <h3>スコア一覧</h3>
+  <h3 id="scoreListTitle">コース名</h3>
   <div class="table-wrap">
     <table class="score-table">
       <thead>
-        <tr><th>H</th><th>PAR</th><th>PAT</th><th>Aさん</th><th>Bさん</th><th>Cさん</th><th>Dさん</th></tr>
+        <tr><th>H</th><th>PAR</th><th>PAT</th><th id="listPlayer0">Aさん</th><th id="listPlayer1">Bさん</th><th id="listPlayer2">Cさん</th><th id="listPlayer3">Dさん</th></tr>
       </thead>
       <tbody id="scoreList"></tbody>
     </table>
@@ -291,6 +303,13 @@ function updateRoundInfo(){
   courseName=el("courseName").value;
   for(let i=0;i<4;i++) players[i]=el("player"+i).value||["Aさん","Bさん","Cさん","Dさん"][i];
   el("roundStatus").textContent=(courseName||"コース未設定")+"　"+(roundDate||"日付未設定");
+
+  const title=el("scoreListTitle");
+  if(title) title.textContent=courseName||"コース名";
+  for(let i=0;i<4;i++){
+    const nameCell=el("listPlayer"+i);
+    if(nameCell) nameCell.textContent=players[i]||["Aさん","Bさん","Cさん","Dさん"][i];
+  }
 }
 
 function renderAll(){
