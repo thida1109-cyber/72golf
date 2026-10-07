@@ -193,35 +193,37 @@ function el(id){return document.getElementById(id)}
 // ===== 72ゴルフ Supabase設定 =====
 const SUPABASE_URL = "https://qujiuvxikrmphvfunngn.supabase.co";
 const SUPABASE_TABLE = "rounds";
-const SUPABASE_KEY_STORAGE = "72golf_supabase_anon_key";
-let SUPABASE_ANON_KEY = localStorage.getItem(SUPABASE_KEY_STORAGE) || "";
+const SUPABASE_KEY_STORAGE = "72golf_supabase_publishable_key_v2";
+let SUPABASE_PUBLISHABLE_KEY = localStorage.getItem(SUPABASE_KEY_STORAGE) || "";
 
 function supabaseReady(){
-  return !!(SUPABASE_URL && SUPABASE_TABLE && SUPABASE_ANON_KEY);
+  return !!(SUPABASE_URL && SUPABASE_TABLE && SUPABASE_PUBLISHABLE_KEY);
 }
 
 function setupSupabaseKey(){
-  if(SUPABASE_ANON_KEY) return true;
-  const key = prompt("72ゴルフをクラウド保存するため、Supabaseの『anon / public API key』を貼り付けてください。\n\n※『Secret key』は貼り付けないでください。\n※ Supabaseの「anon / public」キーを貼り付けてください。", "");
+  if(SUPABASE_PUBLISHABLE_KEY) return true;
+  const key = prompt("72ゴルフをクラウド保存するため、Supabaseの『公開可能なキー』を貼り付けてください。\n\n※『Secret key』は貼り付けないでください。\n※ 「Publishable key」を貼り付けてください。", "");
   if(!key) return false;
-  SUPABASE_ANON_KEY = key.trim();
-  if(!SUPABASE_ANON_KEY) return false;
-  localStorage.setItem(SUPABASE_KEY_STORAGE, SUPABASE_ANON_KEY);
+  SUPABASE_PUBLISHABLE_KEY = key.trim();
+  if(!SUPABASE_PUBLISHABLE_KEY) return false;
+  localStorage.setItem(SUPABASE_KEY_STORAGE, SUPABASE_PUBLISHABLE_KEY);
   return true;
 }
 
 async function supabaseRequest(path, options={}){
-  if(!supabaseReady()) throw new Error("Supabaseのanon / public API keyが設定されていません。");
+  if(!supabaseReady()) throw new Error("Supabaseの公開可能なキーが設定されていません。");
   const res = await fetch(SUPABASE_URL + "/rest/v1/" + path, {
     ...options,
     headers:{
-      "apikey":SUPABASE_ANON_KEY,
+      "apikey":SUPABASE_PUBLISHABLE_KEY,
       "Content-Type":"application/json",
       ...(options.headers||{})
     }
   });
   const text = await res.text();
-  if(!res.ok) throw new Error(text || ("HTTP "+res.status));
+  if(!res.ok){
+    throw new Error("HTTP " + res.status + "\n" + text + "\n\n使用キー: " + SUPABASE_PUBLISHABLE_KEY.slice(0,16) + "...（全文は表示しません）");
+  }
   return text ? JSON.parse(text) : null;
 }
 
