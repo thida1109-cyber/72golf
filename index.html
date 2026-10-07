@@ -189,11 +189,87 @@ let players=["Aさん","Bさん","Cさん","Dさん"];
 
 function el(id){return document.getElementById(id)}
 
-function loadRounds(){
+
+// ===== 72ゴルフ Supabase設定 =====
+const SUPABASE_URL = "https://qujiuvxikrmphvfunngn.supabase.co";
+const SUPABASE_TABLE = "rounds";
+const SUPABASE_KEY_STORAGE = "72golf_supabase_publishable_key";
+let SUPABASE_PUBLISHABLE_KEY = localStorage.getItem(SUPABASE_KEY_STORAGE) || "";
+
+function supabaseReady(){
+  return !!(SUPABASE_URL && SUPABASE_TABLE && SUPABASE_PUBLISHABLE_KEY);
+}
+
+function setupSupabaseKey(){
+  if(SUPABASE_PUBLISHABLE_KEY) return true;
+  const key = prompt("72ゴルフをクラウド保存するため、Supabaseの『公開可能なキー』を貼り付けてください。\n\n※『Secret key』は貼り付けないでください。\n※ sb_publishable_ で始まるキーです。", "");
+  if(!key) return false;
+  SUPABASE_PUBLISHABLE_KEY = key.trim();
+  if(!SUPABASE_PUBLISHABLE_KEY) return false;
+  localStorage.setItem(SUPABASE_KEY_STORAGE, SUPABASE_PUBLISHABLE_KEY);
+  return true;
+}
+
+async function supabaseRequest(path, options={}){
+  if(!supabaseReady()) throw new Error("Supabaseの公開可能なキーが設定されていません。");
+  const res = await fetch(SUPABASE_URL + "/rest/v1/" + path, {
+    ...options,
+    headers:{
+      "apikey":SUPABASE_PUBLISHABLE_KEY,
+      "Authorization":"Bearer "+SUPABASE_PUBLISHABLE_KEY,
+      "Content-Type":"application/json",
+      ...(options.headers||{})
+    }
+  });
+  const text = await res.text();
+  if(!res.ok) throw new Error(text || ("HTTP "+res.status));
+  return text ? JSON.parse(text) : null;
+}
+
+function toCloudRound(r){
+  return {
+    id:Number(r.id),
+    date:r.date||"",
+    course_name:r.courseName||"",
+    players:r.players||[],
+    pars:r.pars||[],
+    scores:r.scores||[],
+    pats:r.pats||[],
+    last_hole:Number.isInteger(r.lastHole)?r.lastHole:0
+  };
+}
+
+function fromCloudRound(r){
+  return {
+    id:Number(r.id),
+    date:r.date||"",
+    courseName:r.course_name||"",
+    players:Array.isArray(r.players)?r.players:[],
+    pars:Array.isArray(r.pars)?r.pars:Array(18).fill(4),
+    scores:Array.isArray(r.scores)?r.scores:Array.from({length:4},()=>Array(18).fill(null)),
+    pats:Array.isArray(r.pats)?r.pats:Array(18).fill(2),
+    lastHole:Number.isInteger(r.last_hole)?r.last_hole:0
+  };
+}
+
+async function loadRounds(){
   try{
-    rounds=JSON.parse(localStorage.getItem(STORAGE_KEY)||"[]");
-    if(!Array.isArray(rounds)) rounds=[];
-  }catch(e){rounds=[]}
+    if(setupSupabaseKey()){
+      const data=await supabaseRequest(SUPABASE_TABLE+"?select=*&order=date.desc,id.desc");
+      rounds=(data||[]).map(fromCloudRound);
+      localStorage.setItem(STORAGE_KEY,JSON.stringify(rounds));
+    }else{
+      rounds=JSON.parse(localStorage.getItem(STORAGE_KEY)||"[]");
+      if(!Array.isArray(rounds)) rounds=[];
+    }
+  }catch(e){
+    console.error(e);
+    try{
+      rounds=JSON.parse(localStorage.getItem(STORAGE_KEY)||"[]");
+      if(!Array.isArray(rounds)) rounds=[];
+    }catch(_){rounds=[]}
+    alert("Supabaseから読み込めませんでした。\nまずはローカル保存データを表示します。\n\n"+e.message);
+  }
   refreshRoundSelect();
   if(rounds.length){
     loadRound(rounds[0].id);
@@ -214,29 +290,39 @@ function refreshRoundSelect(){
   if(currentRoundId!==null) s.value=currentRoundId;
 }
 
-function saveCurrentRound(showAlert=true){
+async function saveCurrentRound(showAlert=true){
   const r={
     id:currentRoundId||Date.now(),
     date:roundDate,
-    courseName:el("courseName").value.trim(),
-    players:[
-      el("player0").value.trim()||"Aさん",
-      el("player1").value.trim()||"Bさん",
-      el("player2").value.trim()||"Cさん",
-      el("player3").value.trim()||"Dさん"
-    ],
+    courseName:courseName,
+    players:[...players],
     pars:[...pars],
     scores:scores.map(a=>[...a]),
-    pats:pats.map(v=>v==null?2:v),
+    pats:pats.map(v=>v==null?2:Number(v)),
     lastHole:currentHole
   };
   currentRoundId=r.id;
   const idx=rounds.findIndex(x=>x.id===r.id);
-  if(idx>=0) rounds[idx]=r; else rounds.unshift(r);
+  if(idx>=0) rounds[idx]=r; else rounds.push(r);
   localStorage.setItem(STORAGE_KEY,JSON.stringify(rounds));
   refreshRoundSelect();
   updateRoundInfo();
-  if(showAlert) alert("ラウンドを保存しました。");
+
+  if(setupSupabaseKey()){
+    try{
+      await supabaseRequest(SUPABASE_TABLE+"?on_conflict=id",{
+        method:"POST",
+        headers:{"Prefer":"resolution=merge-duplicates,return=minimal"},
+        body:JSON.stringify(toCloudRound(r))
+      });
+      if(showAlert) alert("ラウンドをSupabaseに保存しました。");
+    }catch(e){
+      console.error(e);
+      alert("Supabaseへの保存に失敗しました。\nローカルには保存されています。\n\n"+e.message);
+    }
+  }else if(showAlert){
+    alert("ラウンドを保存しました。\n（現在はローカル保存です）");
+  }
 }
 
 function newRound(showAlert=true){
@@ -286,14 +372,27 @@ function loadRound(id){
   updateRoundInfo();
 }
 
-function deleteCurrentRound(){
+async function deleteCurrentRound(){
   if(currentRoundId===null){
     newRound(false);
     return;
   }
   if(!confirm("現在のラウンドを削除しますか？"))return;
-  rounds=rounds.filter(r=>r.id!==currentRoundId);
+  const deleteId=currentRoundId;
+  rounds=rounds.filter(r=>r.id!==deleteId);
   localStorage.setItem(STORAGE_KEY,JSON.stringify(rounds));
+
+  if(supabaseReady()){
+    try{
+      await supabaseRequest(SUPABASE_TABLE+"?id=eq."+encodeURIComponent(deleteId),{
+        method:"DELETE",
+        headers:{"Prefer":"return=minimal"}
+      });
+    }catch(e){
+      console.error(e);
+      alert("Supabase側の削除に失敗しました。\nローカルからは削除しました。\n\nDELETEポリシーがまだ設定されていない可能性があります。\n"+e.message);
+    }
+  }
   currentRoundId=null;
   if(rounds.length) loadRound(rounds[0].id);
   else newRound(false);
@@ -462,7 +561,11 @@ function addSummaryRow(body,label,start,end){
   body.appendChild(tr);
 }
 
-
+function init(){
+  ["courseName","roundDate","player0","player1","player2","player3"].forEach(id=>{
+    el(id).addEventListener("change",updateRoundInfo);
+  });
+  
 function sendToWatch(){
   // 保存されている現在ラウンドをそのままWatch用データにする
   updateRoundInfo();
@@ -484,7 +587,7 @@ function sendToWatch(){
 
   const json=JSON.stringify(data);
   const encoded=btoa(unescape(encodeURIComponent(json)));
-  const base=location.href.split("#")[0].replace(/[^/]*$/,"watch.html");
+  const base=location.href.split("#")[0].replace(/index[^/]*\.html?$/i,"watch.html");
   const url=base+"#data="+encoded;
 
   if(navigator.share){
@@ -503,11 +606,6 @@ function sendToWatch(){
   }
 }
 
-function init(){
-  ["courseName","roundDate","player0","player1","player2","player3"].forEach(id=>{
-    el(id).addEventListener("change",updateRoundInfo);
-  });
-  
 loadRounds();
 }
 init();
