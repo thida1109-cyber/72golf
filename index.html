@@ -216,6 +216,7 @@ async function supabaseRequest(path, options={}){
     ...options,
     headers:{
       "apikey":SUPABASE_PUBLISHABLE_KEY,
+      "Authorization":"Bearer "+SUPABASE_PUBLISHABLE_KEY,
       "Content-Type":"application/json",
       ...(options.headers||{})
     }
@@ -379,25 +380,35 @@ async function deleteCurrentRound(){
     return;
   }
   if(!confirm("現在のラウンドを削除しますか？"))return;
-  const deleteId=currentRoundId;
-  rounds=rounds.filter(r=>r.id!==deleteId);
-  localStorage.setItem(STORAGE_KEY,JSON.stringify(rounds));
 
+  const deleteId=currentRoundId;
+
+  // まずSupabaseから削除。成功してから端末側も削除する。
   if(supabaseReady()){
     try{
       await supabaseRequest(SUPABASE_TABLE+"?id=eq."+encodeURIComponent(deleteId),{
         method:"DELETE",
-        headers:{"Prefer":"return=minimal"}
+        headers:{
+          "Prefer":"return=representation",
+          "Authorization":"Bearer "+SUPABASE_PUBLISHABLE_KEY
+        }
       });
     }catch(e){
       console.error(e);
-      alert("Supabase側の削除に失敗しました。\nローカルからは削除しました。\n\nDELETEポリシーがまだ設定されていない可能性があります。\n"+e.message);
+      alert("Supabase側の削除に失敗しました。\n\n"+e.message+"\n\nデータは削除していません。");
+      return;
     }
   }
+
+  // Supabase削除成功後にローカルも削除
+  rounds=rounds.filter(r=>String(r.id)!==String(deleteId));
+  localStorage.setItem(STORAGE_KEY,JSON.stringify(rounds));
   currentRoundId=null;
+
   if(rounds.length) loadRound(rounds[0].id);
   else newRound(false);
   refreshRoundSelect();
+  alert("ラウンドを削除しました。");
 }
 
 function updateRoundInfo(){
