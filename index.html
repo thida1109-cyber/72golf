@@ -573,30 +573,27 @@ function addSummaryRow(body,label,start,end){
   body.appendChild(tr);
 }
 
+
+async function sendToWatch(){
+  updateRoundInfo();
+  const btn=document.querySelector('.watch-send');
+  if(btn) btn.disabled=true;
+  try{
+    await saveCurrentRound(false);
+    alert("Watch用データをSupabaseに送信しました。\nApple Watchで72ゴルフWatchを開いてください。");
+  }catch(e){
+    console.error(e);
+    alert("Watchへの送信に失敗しました。\n\n"+e.message);
+  }finally{
+    if(btn) btn.disabled=false;
+  }
+}
+
 function init(){
   ["courseName","roundDate","player0","player1","player2","player3"].forEach(id=>{
     el(id).addEventListener("change",updateRoundInfo);
   });
-  
-function sendToWatch(){
-  updateRoundInfo();
-  const btn=document.querySelector('.watch-send');
-  if(btn) btn.disabled=true;
-  (async()=>{
-    try{
-      // 現在のラウンドをSupabaseへ保存してからWatchへ送る
-      await saveCurrentRound(false);
-      alert("Watch用データをSupabaseに送信しました。\nApple Watchで72ゴルフWatchを開いてください。");
-    }catch(e){
-      console.error(e);
-      alert("Watchへの送信に失敗しました。\n\n"+e.message);
-    }finally{
-      if(btn) btn.disabled=false;
-    }
-  })();
-}
-
-loadRounds();
+  loadRounds();
 }
 init();
 </script>
