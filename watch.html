@@ -2,174 +2,661 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>72ゴルフ Watch</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>72ゴルフ スコア管理</title>
 <style>
 *{box-sizing:border-box}
-html,body{margin:0;padding:0;width:100%;height:100%;background:#000;color:#fff;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;overflow:hidden}
-#screen{width:100%;height:100vh;display:flex;align-items:flex-start;justify-content:center;touch-action:none}
-.page{width:100%;max-width:380px;padding:10px 8px 6px;text-align:center}
-.header{height:48px;display:flex;align-items:center;justify-content:center;gap:10px;font-weight:bold}
-.hole{font-size:31px}.par{font-size:22px}.person{font-size:29px;min-width:76px}
-.input-row{height:70px;display:flex;align-items:center;justify-content:center;gap:7px}
-.label{width:60px;text-align:left;font-size:19px;font-weight:bold}
-.button{width:58px;height:58px;flex:0 0 58px;border:1px solid #666;border-radius:12px;background:#222;color:#fff;font-size:32px;font-weight:bold;padding:0;margin:0}
-.button:active{background:#555}
-.number{width:52px;flex:0 0 52px;text-align:center;font-size:32px;font-weight:bold}
-.total{height:55px;margin-top:2px;border-top:1px solid #444;display:flex;align-items:center;justify-content:center;gap:8px;font-size:19px;font-weight:bold}
-.total-number{font-size:31px}.no-pat .total{margin-top:0}
-.status{margin-top:7px;font-size:9px;color:#777;min-height:12px}
-.help{margin-top:5px;font-size:10px;color:#666}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;margin:0;background:#f4f6f8;color:#222;font-size:15px}
+.container{max-width:900px;margin:auto;padding:8px}
+.card{background:#fff;border-radius:10px;padding:10px;margin-bottom:10px;box-shadow:0 1px 4px rgba(0,0,0,.12)}
+h2{font-size:18px;margin:0}
+h3{font-size:16px;margin:8px 0}
+button,input,select{font:inherit}
+button{border:1px solid #8a8a8a;background:#e9eef3;border-radius:7px;padding:7px 10px;cursor:pointer;font-weight:600}
+button:active{transform:scale(.97);filter:brightness(.92)}
+.top-buttons button{background:#dbeafe;border-color:#7aa7d9}
+.top-buttons button:nth-child(2){background:#dcfce7;border-color:#79b889}
+.top-buttons button:nth-child(3){background:#dbeafe;border-color:#7aa7d9}
+.top-buttons .danger{background:#fee2e2;border-color:#d98a8a;color:#a40000}
+.score-nav button{background:#eef2f7;border-color:#9aa6b2}
+.par-item button{background:#e0f2fe;border-color:#76a9c9}
+.score-button{background:#e8f5e9;border-color:#75a77d}
+.pat-button{background:#fff3cd;border-color:#c7a94b}
+input,select{border:1px solid #bbb;border-radius:6px;padding:7px;width:100%;min-width:0}
+.top-buttons{display:flex;gap:6px;flex-wrap:wrap}
+.top-buttons button{flex:1}
+.info-title{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
+.info-date{font-size:14px;white-space:nowrap}
+.course-grid{display:grid;grid-template-columns:1fr 160px;gap:8px}
+.players{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:8px}
+details{margin-top:8px;border-top:1px solid #ddd;padding-top:8px}
+summary{cursor:pointer;font-weight:bold}
+.par-course-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px}
+.par-course{border:1px solid #ddd;border-radius:8px;padding:6px}
+.par-course-title{text-align:center;font-weight:bold;background:#f1f3f5;border-radius:5px;padding:5px;margin-bottom:5px}
+.par-item{display:grid;grid-template-columns:42px 1fr 42px;align-items:center;gap:5px;margin:4px 0}
+.par-item button{height:38px;padding:0;font-size:22px}
+.par-item .hole-label{text-align:center;font-weight:bold}
+.par-item .par-value{text-align:center;font-weight:bold}
+.score-nav{display:flex;gap:8px;margin-bottom:8px}
+.score-nav button{flex:1;font-size:15px}
+.hole-title{text-align:center;font-size:20px;font-weight:bold;margin:3px 0 8px}
+.score-header,.score-row{display:grid;grid-template-columns:1.15fr 50px 58px 50px 1.15fr 60px;gap:4px;align-items:center}
+.score-header{font-size:12px;text-align:center;color:#555;margin-bottom:4px}
+.score-row{margin:6px 0}
+.score-row .name{text-align:left;font-weight:bold;overflow:hidden;white-space:nowrap}
+.score-button{width:50px;height:48px;padding:0;font-size:25px;font-weight:bold}
+.score-value{text-align:center;font-size:21px;font-weight:bold}
+.running{text-align:center;font-size:21px;font-weight:bold}
+.pat-area{display:flex;justify-content:center;align-items:center;gap:3px}
+.pat-button{width:45px;height:45px;padding:0;font-size:22px;font-weight:bold}
+.pat-value{width:28px;text-align:center;font-weight:bold;font-size:18px}
+.table-wrap{overflow-x:auto}
+.score-table{border-collapse:collapse;width:100%;min-width:520px;font-size:13px}
+.score-table th,.score-table td{border:1px solid #ccc;padding:5px 3px;text-align:center}
+.score-table th{background:#f0f2f4}
+.summary{font-weight:bold;background:#fafafa}
+.danger{color:#b00020}
+@media(max-width:600px){
+ body{font-size:14px}
+ .container{padding:5px}
+ .card{padding:8px}
+ .course-grid{grid-template-columns:1fr 125px}
+ .players{gap:4px}
+ .score-header,.score-row{grid-template-columns:1.05fr 45px 52px 45px 1.05fr 58px;gap:3px}
+ .score-button{width:45px;height:46px;font-size:24px}
+ .pat-button{width:42px;height:44px}
+ .running{font-size:21px}
+ .info-date{font-size:13px}
+}
+.watch-send{background:#e8f0ff !important;border-color:#7aa2e8 !important;color:#174a9c !important;font-weight:600 !important}
 </style>
+
+<style id="player-name-color">
+.players input{
+  background:#f3e8ff;
+  border-color:#b58ad9;
+  font-weight:600;
+}
+</style>
+
+
+<style id="player-name-color-v2">
+.players input#player0,
+.players input#player1,
+.players input#player2,
+.players input#player3{
+  background-color:#f3e8ff !important;
+  border:2px solid #b58ad9 !important;
+  font-weight:600 !important;
+}
+</style>
+
 </head>
-<body><div id="screen"></div>
+<body>
+<div class="container">
+
+<div class="card">
+  <div class="top-buttons">
+    <select id="savedRounds" onchange="loadSelectedRound()">
+      <option value="">スコア管理（保存ラウンド）</option>
+    </select>
+    <button onclick="newRound()">新しいラウンド</button>
+    <button onclick="saveCurrentRound()">保存</button>
+    <button onclick="sendToWatch()" class="watch-send">Watchへ送る</button>
+    <button onclick="syncFromWatch()" class="watch-send">Watchの変更を反映</button>
+    <button onclick="deleteCurrentRound()" class="danger">削除</button>
+  </div>
+  <div id="roundStatus" style="margin-top:7px;font-size:13px;color:#555"></div>
+</div>
+
+<div class="card">
+  <div class="info-title">
+    <h2>ラウンド情報</h2>
+    <div class="info-date">日付：<input id="roundDate" type="date" onchange="updateRoundInfo()" style="width:145px;padding:4px"></div>
+  </div>
+
+  <div class="course-grid">
+    <input id="courseName" list="courseList" placeholder="ゴルフ場名">
+    <datalist id="courseList"></datalist>
+  </div>
+
+  <div class="players">
+    <input id="player0" placeholder="Aさん">
+    <input id="player1" placeholder="Bさん">
+    <input id="player2" placeholder="Cさん">
+    <input id="player3" placeholder="Dさん">
+  </div>
+</div>
+
+<div class="card">
+  <details>
+    <summary>PAR設定</summary>
+    <div class="par-course-grid">
+      <div class="par-course">
+        <div class="par-course-title">OUT（1～9）</div>
+        <div id="parOut"></div>
+      </div>
+      <div class="par-course">
+        <div class="par-course-title">IN（10～18）</div>
+        <div id="parIn"></div>
+      </div>
+    </div>
+  </details>
+</div>
+
+<div class="card">
+  <div class="hole-title">
+    <span id="holeNumber">1</span>番ホール　PAR <span id="currentPar">4</span>
+  </div>
+  <div class="score-nav">
+    <button onclick="prevHole()">◀ 前のホール</button>
+    <button onclick="nextHole()">次のホール ▶</button>
+  </div>
+
+  <h3>スコア入力</h3>
+  <div class="score-header">
+    <div>名前</div><div>−</div><div>スコア</div><div>＋</div><div>ホールまでの合計</div><div>PAT</div>
+  </div>
+  <div id="scoreInputs"></div>
+</div>
+
+<div class="card">
+  <h3 id="scoreListTitle">コース名</h3>
+  <div class="table-wrap">
+    <table class="score-table">
+      <thead>
+        <tr><th>H</th><th>PAR</th><th>PAT</th><th id="listPlayer0">Aさん</th><th id="listPlayer1">Bさん</th><th id="listPlayer2">Cさん</th><th id="listPlayer3">Dさん</th></tr>
+      </thead>
+      <tbody id="scoreList"></tbody>
+    </table>
+  </div>
+</div>
+
+</div>
+
 <script>
-/*
-  72ゴルフ Watch v10
-  - v8の画面・スワイプ操作を維持
-  - 入力内容をWatch側localStorageへ自動保存
-  - 再読み込みしてもスコア/PAT/現在位置を保持
-  - 18ホールのPARを保持
-*/
-const STORAGE_KEY="72golf_watch_v11";
-let pars=[4,4,3,5,4,4,3,4,5,4,4,3,5,4,4,3,4,5];
-let names=["武田","Aさん","Bさん","Cさん"];
+const STORAGE_KEY="72golf_rounds_v6";
+let rounds=[];
+let currentRoundId=null;
+let currentHole=0;
+
+let pars=Array(18).fill(4);
 let scores=Array.from({length:4},()=>Array(18).fill(null));
 let pats=Array(18).fill(2);
-let person=0,hole=0;
+let courseName="";
+let roundDate="";
+let players=["Aさん","Bさん","Cさん","Dさん"];
 
-function loadData(){
+function el(id){return document.getElementById(id)}
+
+
+// ===== 72ゴルフ Supabase設定 =====
+const SUPABASE_URL = "https://qujiuvxikrmphvfunngn.supabase.co";
+const SUPABASE_TABLE = "rounds";
+const SUPABASE_KEY_STORAGE = "72golf_supabase_publishable_key_v2";
+let SUPABASE_PUBLISHABLE_KEY = localStorage.getItem(SUPABASE_KEY_STORAGE) || "";
+
+function supabaseReady(){
+  return !!(SUPABASE_URL && SUPABASE_TABLE && SUPABASE_PUBLISHABLE_KEY);
+}
+
+function setupSupabaseKey(){
+  if(SUPABASE_PUBLISHABLE_KEY) return true;
+  const key = prompt("72ゴルフをクラウド保存するため、Supabaseの『公開可能なキー』を貼り付けてください。\n\n※『Secret key』は貼り付けないでください。\n※ 「Publishable key」を貼り付けてください。", "");
+  if(!key) return false;
+  SUPABASE_PUBLISHABLE_KEY = key.trim();
+  if(!SUPABASE_PUBLISHABLE_KEY) return false;
+  localStorage.setItem(SUPABASE_KEY_STORAGE, SUPABASE_PUBLISHABLE_KEY);
+  return true;
+}
+
+async function supabaseRequest(path, options={}){
+  if(!supabaseReady()) throw new Error("Supabaseの公開可能なキーが設定されていません。");
+  const res = await fetch(SUPABASE_URL + "/rest/v1/" + path, {
+    ...options,
+    headers:{
+      "apikey":SUPABASE_PUBLISHABLE_KEY,
+      "Authorization":"Bearer "+SUPABASE_PUBLISHABLE_KEY,
+      "Content-Type":"application/json",
+      ...(options.headers||{})
+    }
+  });
+  const text = await res.text();
+  if(!res.ok){
+    throw new Error("HTTP " + res.status + "\n" + text + "\n\n使用キー: " + SUPABASE_PUBLISHABLE_KEY.slice(0,16) + "...（全文は表示しません）");
+  }
+  return text ? JSON.parse(text) : null;
+}
+
+function toCloudRound(r){
+  return {
+    id:Number(r.id),
+    date:r.date||"",
+    course_name:r.courseName||"",
+    players_name:r.players||[],
+    pars:r.pars||[],
+    scores:r.scores||[],
+    pats:r.pats||[],
+    last_hole:Number.isInteger(r.lastHole)?r.lastHole:0
+  };
+}
+
+function fromCloudRound(r){
+  return {
+    id:Number(r.id),
+    date:r.date||"",
+    courseName:r.course_name||"",
+    players:Array.isArray(r.players_name)?r.players_name:[],
+    pars:Array.isArray(r.pars)?r.pars:Array(18).fill(4),
+    scores:Array.isArray(r.scores)?r.scores:Array.from({length:4},()=>Array(18).fill(null)),
+    pats:Array.isArray(r.pats)?r.pats:Array(18).fill(2),
+    lastHole:Number.isInteger(r.last_hole)?r.last_hole:0
+  };
+}
+
+async function loadRounds(){
   try{
-    const hash=location.hash||"";
-    if(hash.startsWith("#data=")){
-      const encoded=hash.slice(6);
-      const d=JSON.parse(decodeURIComponent(escape(atob(encoded))));
-      if(Array.isArray(d.pars)&&d.pars.length===18) pars=d.pars.map(v=>Number(v)||4);
-      if(Array.isArray(d.scores)&&d.scores.length===4)
-        scores=d.scores.map(a=>{
-          const row=Array(18).fill(null);
-          if(Array.isArray(a)) for(let i=0;i<18;i++) row[i]=a[i]==null?null:Number(a[i]);
-          return row;
-        });
-      if(Array.isArray(d.pats)&&d.pats.length===18) pats=d.pats.map(v=>v==null?2:Number(v));
-      if(Array.isArray(d.players)&&d.players.length===4)
-        names=d.players.slice(0,4).map((v,i)=>v||["武田","Aさん","Bさん","Cさん"][i]);
-      hole=Math.max(0,Math.min(17,Number(d.lastHole)||0));
-      person=0;
-      saveData();
+    if(setupSupabaseKey()){
+      const data=await supabaseRequest(SUPABASE_TABLE+"?select=*&order=date.desc,id.desc");
+      rounds=(data||[]).map(fromCloudRound);
+      localStorage.setItem(STORAGE_KEY,JSON.stringify(rounds));
+    }else{
+      rounds=JSON.parse(localStorage.getItem(STORAGE_KEY)||"[]");
+      if(!Array.isArray(rounds)) rounds=[];
+    }
+  }catch(e){
+    console.error(e);
+    try{
+      rounds=JSON.parse(localStorage.getItem(STORAGE_KEY)||"[]");
+      if(!Array.isArray(rounds)) rounds=[];
+    }catch(_){rounds=[]}
+    alert("Supabaseから読み込めませんでした。\nまずはローカル保存データを表示します。\n\n"+e.message);
+  }
+  refreshRoundSelect();
+  if(rounds.length){
+    loadRound(rounds[0].id);
+  }else{
+    newRound(false);
+  }
+}
+
+function refreshRoundSelect(){
+  const s=el("savedRounds");
+  s.innerHTML='<option value="">スコア管理（保存ラウンド）</option>';
+  rounds.forEach(r=>{
+    const o=document.createElement("option");
+    o.value=r.id;
+    o.textContent=(r.date||"日付未設定")+"　"+(r.courseName||"コース未設定");
+    s.appendChild(o);
+  });
+  if(currentRoundId!==null) s.value=currentRoundId;
+}
+
+async function saveCurrentRound(showAlert=true){
+  const r={
+    id:currentRoundId||Date.now(),
+    date:roundDate,
+    courseName:courseName,
+    players:[...players],
+    pars:[...pars],
+    scores:scores.map(a=>[...a]),
+    pats:pats.map(v=>v==null?2:Number(v)),
+    lastHole:currentHole
+  };
+  currentRoundId=r.id;
+  const idx=rounds.findIndex(x=>x.id===r.id);
+  if(idx>=0) rounds[idx]=r; else rounds.push(r);
+  localStorage.setItem(STORAGE_KEY,JSON.stringify(rounds));
+  refreshRoundSelect();
+  updateRoundInfo();
+
+  if(setupSupabaseKey()){
+    try{
+      await supabaseRequest(SUPABASE_TABLE+"?on_conflict=id",{
+        method:"POST",
+        headers:{"Prefer":"resolution=merge-duplicates,return=minimal"},
+        body:JSON.stringify(toCloudRound(r))
+      });
+      if(showAlert) alert("ラウンドをSupabaseに保存しました。");
+    }catch(e){
+      console.error(e);
+      alert("Supabaseへの保存に失敗しました。\nローカルには保存されています。\n\n"+e.message);
+    }
+  }else if(showAlert){
+    alert("ラウンドを保存しました。\n（現在はローカル保存です）");
+  }
+}
+
+function newRound(showAlert=true){
+  currentRoundId=null;
+  currentHole=0;
+  pars=Array(18).fill(4);
+  scores=Array.from({length:4},()=>Array(18).fill(null));
+  pats=Array(18).fill(2);
+  courseName="";
+  roundDate=new Date().toISOString().slice(0,10);
+  players=["Aさん","Bさん","Cさん","Dさん"];
+
+  el("courseName").value="";
+  el("roundDate").value=roundDate;
+  for(let i=0;i<4;i++) el("player"+i).value=players[i];
+
+  renderAll();
+  updateRoundInfo();
+  if(showAlert) alert("新しいラウンドを開始しました。");
+}
+
+function loadSelectedRound(){
+  const id=el("savedRounds").value;
+  if(id!=="") loadRound(Number(id));
+}
+
+function loadRound(id){
+  const r=rounds.find(x=>String(x.id)===String(id));
+  if(!r)return;
+  currentRoundId=r.id;
+  currentHole=Number.isInteger(r.lastHole)?r.lastHole:0;
+  roundDate=r.date||"";
+  courseName=r.courseName||"";
+  pars=Array.isArray(r.pars)&&r.pars.length===18?[...r.pars]:Array(18).fill(4);
+  scores=Array.isArray(r.scores)&&r.scores.length===4
+    ?r.scores.map(a=>Array.isArray(a)?a.slice(0,18):Array(18).fill(null))
+    :Array.from({length:4},()=>Array(18).fill(null));
+  pats=Array.isArray(r.pats)&&r.pats.length===18
+    ?r.pats.map(v=>v==null?2:Number(v))
+    :Array(18).fill(2);
+  players=Array.isArray(r.players)&&r.players.length===4?r.players.slice():["Aさん","Bさん","Cさん","Dさん"];
+
+  el("courseName").value=courseName;
+  el("roundDate").value=roundDate;
+  for(let i=0;i<4;i++) el("player"+i).value=players[i]||["Aさん","Bさん","Cさん","Dさん"][i];
+  renderAll();
+  updateRoundInfo();
+}
+
+async function deleteCurrentRound(){
+  if(currentRoundId===null){
+    newRound(false);
+    return;
+  }
+  if(!confirm("現在のラウンドを削除しますか？"))return;
+
+  const deleteId=currentRoundId;
+
+  // まずSupabaseから削除。成功してから端末側も削除する。
+  if(supabaseReady()){
+    try{
+      await supabaseRequest(SUPABASE_TABLE+"?id=eq."+encodeURIComponent(deleteId),{
+        method:"DELETE",
+        headers:{
+          "Prefer":"return=representation",
+          "Authorization":"Bearer "+SUPABASE_PUBLISHABLE_KEY
+        }
+      });
+    }catch(e){
+      console.error(e);
+      alert("Supabase側の削除に失敗しました。\n\n"+e.message+"\n\nデータは削除していません。");
       return;
     }
+  }
 
-    const d=JSON.parse(localStorage.getItem(STORAGE_KEY)||"null");
-    if(!d)return;
-    if(Array.isArray(d.pars)&&d.pars.length===18) pars=d.pars.map(v=>Number(v)||4);
-    if(Array.isArray(d.scores)&&d.scores.length===4)
-      scores=d.scores.map(a=>{
-        const row=Array(18).fill(null);
-        if(Array.isArray(a))for(let i=0;i<18;i++)row[i]=a[i]==null?null:Number(a[i]);
-        return row;
-      });
-    if(Array.isArray(d.pats)&&d.pats.length===18) pats=d.pats.map(v=>v==null?2:Number(v));
-    if(Array.isArray(d.names)&&d.names.length===4) names=d.names.slice();
-    person=Math.max(0,Math.min(3,Number(d.person)||0));
-    hole=Math.max(0,Math.min(17,Number(d.hole)||0));
-  }catch(e){}
+  // Supabase削除成功後にローカルも削除
+  rounds=rounds.filter(r=>String(r.id)!==String(deleteId));
+  localStorage.setItem(STORAGE_KEY,JSON.stringify(rounds));
+  currentRoundId=null;
+
+  if(rounds.length) loadRound(rounds[0].id);
+  else newRound(false);
+  refreshRoundSelect();
+  alert("ラウンドを削除しました。");
 }
 
-function saveData(){
+function updateRoundInfo(){
+  roundDate=el("roundDate").value;
+  courseName=el("courseName").value;
+  for(let i=0;i<4;i++) players[i]=el("player"+i).value||["Aさん","Bさん","Cさん","Dさん"][i];
+  el("roundStatus").textContent=(courseName||"コース未設定")+"　"+(roundDate||"日付未設定");
+
+  const title=el("scoreListTitle");
+  if(title) title.textContent=courseName||"コース名";
+  for(let i=0;i<4;i++){
+    const nameCell=el("listPlayer"+i);
+    if(nameCell) nameCell.textContent=players[i]||["Aさん","Bさん","Cさん","Dさん"][i];
+  }
+}
+
+function renderAll(){
+  renderParList();
+  updateHoleDisplay();
+  renderScoreInputs();
+  showScoreList();
+}
+
+function renderParList(){
+  el("parOut").innerHTML="";
+  el("parIn").innerHTML="";
+  for(let h=0;h<18;h++){
+    const item=createParItem(h);
+    (h<9?el("parOut"):el("parIn")).appendChild(item);
+  }
+}
+
+function createParItem(h){
+  const d=document.createElement("div");
+  d.className="par-item";
+  d.innerHTML=
+    '<button onclick="changePar('+h+',-1)">−</button>'+
+    '<div class="hole-label">'+(h+1)+'番　<span class="par-value" id="parValue'+h+'">'+pars[h]+'</span></div>'+
+    '<button onclick="changePar('+h+',1)">＋</button>';
+  return d;
+}
+
+function changePar(h,delta){
+  pars[h]=Math.max(3,Math.min(6,Number(pars[h])+delta));
+  el("parValue"+h).textContent=pars[h];
+  if(h===currentHole){
+    el("currentPar").textContent=pars[h];
+    renderScoreInputs();
+  }
+  showScoreList();
+}
+
+function updateHoleDisplay(){
+  el("holeNumber").textContent=currentHole+1;
+  el("currentPar").textContent=pars[currentHole];
+}
+
+function prevHole(){
+  if(currentHole>0){
+    currentHole--;
+    updateHoleDisplay();
+    renderScoreInputs();
+  }
+}
+
+function nextHole(){
+  if(currentHole<17){
+    currentHole++;
+    updateHoleDisplay();
+    renderScoreInputs();
+  }
+}
+
+function getScore(p,h){
+  const v=scores[p][h];
+  return v==null?pars[h]:Number(v);
+}
+
+function changeScore(p,h,delta){
+  let v=getScore(p,h);
+  v=Math.max(1,Math.min(12,v+delta));
+  scores[p][h]=v;
+  renderScoreInputs();
+  showScoreList();
+}
+
+function getRunningTotal(p,h){
+  let total=0;
+  for(let i=0;i<=h;i++) total+=getScore(p,i);
+  return total;
+}
+
+function renderScoreInputs(){
+  const box=el("scoreInputs");
+  box.innerHTML="";
+  for(let p=0;p<4;p++){
+    const row=document.createElement("div");
+    row.className="score-row";
+    const name=players[p]||["Aさん","Bさん","Cさん","Dさん"][p];
+    let patHtml="";
+    if(p===0){
+      patHtml='<div class="pat-area">'+
+        '<button class="pat-button" onclick="changePat('+currentHole+',-1)">−</button>'+
+        '<span class="pat-value">'+getPat(currentHole)+'</span>'+
+        '<button class="pat-button" onclick="changePat('+currentHole+',1)">＋</button>'+
+      '</div>';
+    }else{
+      patHtml='<div></div>';
+    }
+    row.innerHTML=
+      '<div class="name">'+name+'</div>'+
+      '<button class="score-button" onclick="changeScore('+p+','+currentHole+',-1)">−</button>'+
+      '<div class="score-value">'+getScore(p,currentHole)+'</div>'+
+      '<button class="score-button" onclick="changeScore('+p+','+currentHole+',1)">＋</button>'+
+      '<div class="running">'+getRunningTotal(p,currentHole)+'</div>'+
+      patHtml;
+    box.appendChild(row);
+  }
+}
+
+function getPat(h){
+  return pats[h]==null?2:Number(pats[h]);
+}
+
+function changePat(h,delta){
+  pats[h]=Math.max(0,Math.min(10,getPat(h)+delta));
+  renderScoreInputs();
+  showScoreList();
+}
+
+function showScoreList(){
+  const body=el("scoreList");
+  body.innerHTML="";
+  for(let h=0;h<18;h++){
+    const tr=document.createElement("tr");
+    tr.innerHTML=
+      '<td>'+(h+1)+'</td>'+
+      '<td>'+pars[h]+'</td>'+
+      '<td>'+getPat(h)+'</td>'+
+      '<td>'+getScore(0,h)+'</td>'+
+      '<td>'+getScore(1,h)+'</td>'+
+      '<td>'+getScore(2,h)+'</td>'+
+      '<td>'+getScore(3,h)+'</td>';
+    body.appendChild(tr);
+  }
+  addSummaryRow(body,"OUT",0,9);
+  addSummaryRow(body,"IN",9,18);
+  addSummaryRow(body,"TOTAL",0,18);
+}
+
+function addSummaryRow(body,label,start,end){
+  const tr=document.createElement("tr");
+  tr.className="summary";
+  let par=0,pat=0,sc=[0,0,0,0];
+  for(let h=start;h<end;h++){
+    par+=pars[h];
+    pat+=getPat(h);
+    for(let p=0;p<4;p++) sc[p]+=getScore(p,h);
+  }
+  tr.innerHTML='<td>'+label+'</td><td>'+par+'</td><td>'+pat+'</td>'+
+    '<td>'+sc[0]+'</td><td>'+sc[1]+'</td><td>'+sc[2]+'</td><td>'+sc[3]+'</td>';
+  body.appendChild(tr);
+}
+
+function init(){
+  ["courseName","roundDate","player0","player1","player2","player3"].forEach(id=>{
+    el(id).addEventListener("change",updateRoundInfo);
+  });
+  
+async function sendToWatch(){
+  // Watch側から変更を戻せるよう、まず現在ラウンドをSupabaseへ保存
+  updateRoundInfo();
+  if(currentRoundId===null){
+    currentRoundId=Date.now();
+  }
   try{
-    localStorage.setItem(STORAGE_KEY,JSON.stringify({pars,names,scores,pats,person,hole}));
-  }catch(e){}
-}
-
-function getScore(){return scores[person][hole] ?? pars[hole]}
-function changeScore(d){
-  scores[person][hole]=Math.max(1,Math.min(12,getScore()+d));
-  saveData();
-  render();
-}
-function changePat(d){
-  if(person!==0)return;
-  pats[hole]=Math.max(0,Math.min(10,pats[hole]+d));
-  saveData();
-  render();
-}
-function totalScore(){
-  let t=0;
-  for(let i=0;i<=hole;i++)t+=scores[person][i]??pars[i];
-  return t;
-}
-
-function render(){
-  const pat=person===0;
-  document.getElementById("screen").innerHTML=`
-  <div class="page ${pat?"":"no-pat"}">
-    <div class="header">
-      <div class="hole">${hole+1}番</div>
-      <div class="par">PAR ${pars[hole]}</div>
-      <div class="person">${names[person]}</div>
-    </div>
-
-    <div class="input-row">
-      <div class="label">打数</div>
-      <button class="button" id="scoreMinus">−</button>
-      <div class="number">${getScore()}</div>
-      <button class="button" id="scorePlus">＋</button>
-    </div>
-
-    ${pat?`
-    <div class="input-row">
-      <div class="label">PAT数</div>
-      <button class="button" id="patMinus">−</button>
-      <div class="number">${pats[hole]}</div>
-      <button class="button" id="patPlus">＋</button>
-    </div>`:""}
-
-    <div class="total">
-      <span>合計打数</span>
-      <span class="total-number">${totalScore()}</span>
-    </div>
-
-    <div class="status">自動保存</div>
-    <div class="help">↑↓ 人　　← 次ホール　→ 前ホール</div>
-  </div>`;
-
-  document.getElementById("scoreMinus").onclick=()=>changeScore(-1);
-  document.getElementById("scorePlus").onclick=()=>changeScore(1);
-
-  if(pat){
-    document.getElementById("patMinus").onclick=()=>changePat(-1);
-    document.getElementById("patPlus").onclick=()=>changePat(1);
+    await saveCurrentRound(false);
+  }catch(e){
+    alert("Watchへ送る前の保存に失敗しました。\n\n"+e.message);
+    return;
   }
-}
 
-let sx=0,sy=0;
-document.addEventListener("touchstart",e=>{
-  if(e.touches.length===1){
-    sx=e.touches[0].clientX;
-    sy=e.touches[0].clientY;
-  }
-},{passive:true});
+  const data={
+    roundId:currentRoundId,
+    supabaseUrl:SUPABASE_URL,
+    supabaseKey:SUPABASE_PUBLISHABLE_KEY,
+    date:el("roundDate").value||roundDate,
+    courseName:el("courseName").value.trim(),
+    players:[
+      el("player0").value.trim()||"Aさん",
+      el("player1").value.trim()||"Bさん",
+      el("player2").value.trim()||"Cさん",
+      el("player3").value.trim()||"Dさん"
+    ],
+    pars:[...pars],
+    scores:scores.map(a=>[...a]),
+    pats:pats.map(v=>v==null?2:Number(v)),
+    lastHole:currentHole
+  };
 
-document.addEventListener("touchend",e=>{
-  if(e.changedTouches.length!==1)return;
-  const dx=e.changedTouches[0].clientX-sx;
-  const dy=e.changedTouches[0].clientY-sy;
-  if(Math.max(Math.abs(dx),Math.abs(dy))<45)return;
+  const json=JSON.stringify(data);
+  const encoded=btoa(unescape(encodeURIComponent(json)));
+  const base=location.href.split("#")[0].replace(/index[^/]*\.html?$/i,"watch.html");
+  const url=base+"#data="+encoded;
 
-  if(Math.abs(dx)>Math.abs(dy)){
-    if(dx<0&&hole<17)hole++;
-    if(dx>0&&hole>0)hole--;
+  if(navigator.share){
+    navigator.share({title:"72ゴルフ Watch用データ",text:"Apple Watchで開いてください",url:url}).catch(()=>{});
+  }else if(navigator.clipboard){
+    navigator.clipboard.writeText(url).then(
+      ()=>alert("Watch用URLをコピーしました。Apple Watchで開いてください。"),
+      ()=>prompt("このURLをApple Watchで開いてください。",url)
+    );
   }else{
-    if(dy<0&&person<3)person++;
-    if(dy>0&&person>0)person--;
+    prompt("このURLをApple Watchで開いてください。",url);
   }
-  saveData();
-  render();
-},{passive:true});
+}
 
-loadData();
-render();
+async function syncFromWatch(){
+  if(!currentRoundId){
+    alert("先に保存済みラウンドを選択してください。");
+    return;
+  }
+  if(!supabaseReady()){
+    alert("Supabaseの公開可能なキーが設定されていません。");
+    return;
+  }
+  try{
+    const data=await supabaseRequest(SUPABASE_TABLE+"?id=eq."+encodeURIComponent(currentRoundId)+"&select=*");
+    if(!Array.isArray(data)||!data.length){
+      alert("Supabaseにこのラウンドが見つかりません。");
+      return;
+    }
+    const r=fromCloudRound(data[0]);
+    const idx=rounds.findIndex(x=>String(x.id)===String(r.id));
+    if(idx>=0) rounds[idx]=r; else rounds.push(r);
+    localStorage.setItem(STORAGE_KEY,JSON.stringify(rounds));
+    loadRound(r.id);
+    refreshRoundSelect();
+    alert("Watchの変更をiPhoneに反映しました。");
+  }catch(e){
+    alert("Watchの変更を読み込めませんでした。\n\n"+e.message);
+  }
+}
+
+loadRounds();
+}
+init();
 </script>
 </body>
 </html>
