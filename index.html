@@ -578,15 +578,22 @@ function init(){
     el(id).addEventListener("change",updateRoundInfo);
   });
   
-async function sendToWatch(){
+function sendToWatch(){
   updateRoundInfo();
-  try{
-    // 現在のラウンドをSupabaseへ保存してからWatchに知らせる
-    await saveCurrentRound(false);
-    alert("Watch用データをSupabaseに送信しました。\n\n次にApple Watchで「72ゴルフ Watch」を開いてください。\nWatchが自動的に最新データを読み込みます。");
-  }catch(e){
-    alert("Watch用データの送信に失敗しました。\n\n"+e.message);
-  }
+  const btn=document.querySelector('.watch-send');
+  if(btn) btn.disabled=true;
+  (async()=>{
+    try{
+      // 現在のラウンドをSupabaseへ保存してからWatchへ送る
+      await saveCurrentRound(false);
+      alert("Watch用データをSupabaseに送信しました。\nApple Watchで72ゴルフWatchを開いてください。");
+    }catch(e){
+      console.error(e);
+      alert("Watchへの送信に失敗しました。\n\n"+e.message);
+    }finally{
+      if(btn) btn.disabled=false;
+    }
+  })();
 }
 
 loadRounds();
