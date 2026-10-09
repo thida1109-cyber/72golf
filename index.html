@@ -578,43 +578,14 @@ function init(){
     el(id).addEventListener("change",updateRoundInfo);
   });
   
-function sendToWatch(){
-  // 保存されている現在ラウンドをそのままWatch用データにする
+async function sendToWatch(){
   updateRoundInfo();
-
-  const data={
-    date:el("roundDate").value||roundDate,
-    courseName:el("courseName").value.trim(),
-    players:[
-      el("player0").value.trim()||"Aさん",
-      el("player1").value.trim()||"Bさん",
-      el("player2").value.trim()||"Cさん",
-      el("player3").value.trim()||"Dさん"
-    ],
-    pars:[...pars],
-    scores:scores.map(a=>[...a]),
-    pats:pats.map(v=>v==null?2:Number(v)),
-    lastHole:currentHole
-  };
-
-  const json=JSON.stringify(data);
-  const encoded=btoa(unescape(encodeURIComponent(json)));
-  const base=location.href.split("#")[0].replace(/index[^/]*\.html?$/i,"watch.html");
-  const url=base+"#data="+encoded;
-
-  if(navigator.share){
-    navigator.share({
-      title:"72ゴルフ Watch用データ",
-      text:"Apple Watchで開いてください",
-      url:url
-    }).catch(()=>{});
-  }else if(navigator.clipboard){
-    navigator.clipboard.writeText(url).then(
-      ()=>alert("Watch用URLをコピーしました。Apple Watchへ送って開いてください。"),
-      ()=>prompt("このURLをApple Watchで開いてください。",url)
-    );
-  }else{
-    prompt("このURLをApple Watchで開いてください。",url);
+  try{
+    // 現在のラウンドをSupabaseへ保存してからWatchに知らせる
+    await saveCurrentRound(false);
+    alert("Watch用データをSupabaseに送信しました。\n\n次にApple Watchで「72ゴルフ Watch」を開いてください。\nWatchが自動的に最新データを読み込みます。");
+  }catch(e){
+    alert("Watch用データの送信に失敗しました。\n\n"+e.message);
   }
 }
 
