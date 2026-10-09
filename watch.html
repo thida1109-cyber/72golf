@@ -190,24 +190,29 @@ let lastCloudData = "";
    Supabaseキー
 ========================================= */
 
-function askKey(){
-
-  if(key) return true;
-
+function askKey(force=false){
+  if(key && !force) return true;
   const k = prompt(
-    "Supabaseの「Publishable key」を入力してください。\n\n" +
-    "※ Secret keyは入力しないでください。",
-    ""
+    "72ゴルフWatchをSupabaseに接続します。\n\n" +
+    "Supabaseの「Publishable key」を入力してください。\n" +
+    "※ Secret keyは入力しないでください。\n\n" +
+    "iPhoneに入力したものと同じPublishable keyです。",
+    key || ""
   );
-
-  if(!k) return false;
-
-  key = k.trim();
-
-  if(!key) return false;
-
+  if(!k){
+    status="キー未設定";
+    render();
+    return false;
+  }
+  key=k.trim();
+  if(!key){
+    status="キー未設定";
+    render();
+    return false;
+  }
   localStorage.setItem(KEY_STORE,key);
-
+  status="キー設定済み・読込中…";
+  render();
   return true;
 }
 
@@ -286,7 +291,7 @@ async function saveToCloud(){
 
   if(roundId===null){
 
-    status="ラウンドID未取得";
+    status="iPhoneデータ未取得";
     render();
 
     return false;
@@ -932,25 +937,15 @@ document.addEventListener(
 ========================================= */
 
 loadLocal();
-
+status="Supabaseキーを確認しています…";
 render();
 
-
-/*
-  最初にSupabaseから取得
-*/
-
-getLatest();
-
-
-/*
-  3秒ごとに最新データを確認
-*/
-
-setInterval(
-  getLatest,
-  3000
-);
+(async()=>{
+  if(askKey()){
+    await getLatest();
+    setInterval(getLatest,3000);
+  }
+})();
 
 </script>
 
