@@ -10,16 +10,84 @@
 </head>
 <body><div id="screen"></div><script>
 const SUPABASE_URL="https://qujiuvxikrmphvfunngn.supabase.co",SUPABASE_TABLE="rounds";
-const SUPABASE_PUBLISHABLE_KEY="sb_publishable_09N1Fzj2K7p8kiwTLywU1Q_ujDdNsez";
+const SUPABASE_PUBLISHABLE_KEY="YOUR_PUBLISHABLE_KEY_HERE";
+const DATA_STORE="72golf_watch_v18";
 let key=SUPABASE_PUBLISHABLE_KEY.trim(),roundId=null,pars=[4,4,3,5,4,4,3,4,5,4,4,3,5,4,4,3,4,5],names=["武田","Aさん","Bさん","Cさん"],scores=Array.from({length:4},()=>Array(18).fill(null)),pats=Array(18).fill(2),person=0,hole=0,status="Supabase接続確認中…",lastCloudData="";
+async function supabaseRequest(path,options={}){
+  if(!key) throw new Error("Publishable keyが未設定です");
+  let res;
+  try{
+    res=await fetch(SUPABASE_URL+"/rest/v1/"+path,{
+      ...options,
+      headers:{
+        apikey:key,
+        Authorization:"Bearer "+key,
+        "Content-Type":"application/json",
+        ...(options.headers||{})
+      }
+    });
+  }catch(e){
+    const err=new Error("通信エラー: "+(e&&e.message?e.message:String(e)));
+    err.code="NETWORK";
+    throw err;
+  }
+  const text=await res.text();
+  if(!res.ok){
+    const err=new Error("HTTP "+res.status+"\n"+(text||"Supabaseから詳細なエラーが返りませんでした"));
+    err.status=res.status;
+    err.responseText=text;
+    throw err;
+  }
+  try{return text?JSON.parse(text):null}catch(e){return text}
+}
+
 function saveLocal(){try{localStorage.setItem(DATA_STORE,JSON.stringify({roundId,pars,names,scores,pats,person,hole}))}catch(e){}}
 function loadLocal(){try{const d=JSON.parse(localStorage.getItem(DATA_STORE)||"null");if(!d)return;if(d.roundId!=null)roundId=d.roundId;if(Array.isArray(d.pars)&&d.pars.length===18)pars=d.pars;if(Array.isArray(d.names)&&d.names.length===4)names=d.names;if(Array.isArray(d.scores)&&d.scores.length===4)scores=d.scores;if(Array.isArray(d.pats)&&d.pats.length===18)pats=d.pats;if(Number.isInteger(d.person))person=d.person;if(Number.isInteger(d.hole))hole=d.hole}catch(e){}}
-async function getLatest(){try{status="iPhoneデータを読込中…";render();const d=await supabaseRequest(SUPABASE_TABLE+"?select=*&order=id.desc&limit=1");if(!d||!d.length){status="保存データなし";render();return}const x=d[0],cloud=JSON.stringify({id:x.id,players_name:x.players_name,pars:x.pars,scores:x.scores,pats:x.pats,last_hole:x.last_hole});if(cloud===lastCloudData)return;lastCloudData=cloud;roundId=Number(x.id);if(Array.isArray(x.pars)&&x.pars.length===18)pars=x.pars.map(Number);if(Array.isArray(x.scores)&&x.scores.length===4)scores=x.scores.map(row=>{const z=Array(18).fill(null);if(Array.isArray(row))for(let i=0;i<18;i++)z[i]=row[i]==null?null:Number(row[i]);return z});if(Array.isArray(x.pats)&&x.pats.length===18)pats=x.pats.map(v=>v==null?2:Number(v));if(Array.isArray(x.players_name)&&x.players_name.length===4)names=x.players_name.map((v,i)=>v||["武田","Aさん","Bさん","Cさん"][i]);hole=Math.max(0,Math.min(17,Number(x.last_hole)||0));person=0;saveLocal();status="iPhoneデータ：更新済";render()}catch(e){console.error(e);if(e.status===401||e.status===403){status="キーが正しくありません";render()}else{status="読込失敗";render()}}}
+async function getLatest(){
+  try{
+    status="iPhoneデータを読込中…";
+    render();
+    const d=await supabaseRequest(SUPABASE_TABLE+"?select=*&order=id.desc&limit=1");
+    if(!d||!d.length){status="保存データなし";render();return}
+    const x=d[0];
+    const cloud=JSON.stringify({id:x.id,players_name:x.players_name,pars:x.pars,scores:x.scores,pats:x.pats,last_hole:x.last_hole});
+    if(cloud===lastCloudData)return;
+    lastCloudData=cloud;
+    roundId=Number(x.id);
+    if(Array.isArray(x.pars)&&x.pars.length===18)pars=x.pars.map(Number);
+    if(Array.isArray(x.scores)&&x.scores.length===4)scores=x.scores.map(row=>{const z=Array(18).fill(null);if(Array.isArray(row))for(let i=0;i<18;i++)z[i]=row[i]==null?null:Number(row[i]);return z});
+    if(Array.isArray(x.pats)&&x.pats.length===18)pats=x.pats.map(v=>v==null?2:Number(v));
+    if(Array.isArray(x.players_name)&&x.players_name.length===4)names=x.players_name.map((v,i)=>v||["武田","Aさん","Bさん","Cさん"][i]);
+    hole=Math.max(0,Math.min(17,Number(x.last_hole)||0));
+    person=0;
+    saveLocal();
+    status="iPhoneデータ：更新済";
+    render();
+  }catch(e){
+    console.error(e);
+    let msg="読込失敗";
+    if(e&&e.status){
+      msg="読込失敗 HTTP "+e.status;
+      if(e.status===401)msg="読込失敗：HTTP 401（キーを確認）";
+      else if(e.status===403)msg="読込失敗：HTTP 403（RLSを確認）";
+      else if(e.status===404)msg="読込失敗：HTTP 404（URL/テーブルを確認）";
+    }else if(e&&e.code==="NETWORK"){
+      msg="通信エラー";
+    }else if(e&&e.message){
+      msg="読込失敗："+e.message;
+    }
+    status=msg;
+    render();
+  }
+}
+
 function currentScore(){return scores[person][hole]??pars[hole]}function total(){let t=0;for(let i=0;i<=hole;i++)t+=scores[person][i]??pars[i];return t}
-async function saveToCloud(){if(roundId===null){status="iPhoneデータ未取得";render();return false}try{status="Watchデータを保存中…";render();await supabaseRequest(SUPABASE_TABLE+"?id=eq."+encodeURIComponent(roundId),{method:"PATCH",headers:{Prefer:"return=minimal"},body:JSON.stringify({players_name:names,pars,scores,pats,last_hole:hole})});status="クラウド保存済";return true}catch(e){console.error(e);status="保存失敗";render();return false}}
+async function saveToCloud(){if(roundId===null){status="iPhoneデータ未取得";render();return false}try{status="Watchデータを保存中…";render();await supabaseRequest(SUPABASE_TABLE+"?id=eq."+encodeURIComponent(roundId),{method:"PATCH",headers:{Prefer:"return=minimal"},body:JSON.stringify({players_name:names,pars,scores,pats,last_hole:hole})});status="クラウド保存済";return true}catch(e){console.error(e);status=e&&e.status?"保存失敗 HTTP "+e.status:"保存失敗";render();return false}}
 async function changeScore(d){scores[person][hole]=Math.max(1,Math.min(12,currentScore()+d));saveLocal();render();await saveToCloud()}
 async function changePat(d){if(person!==0)return;pats[hole]=Math.max(0,Math.min(10,pats[hole]+d));saveLocal();render();await saveToCloud()}
 function render(){const pat=person===0;document.getElementById("screen").innerHTML=`<div class="page"><div class="header"><div class="hole">${hole+1}番</div><div class="par">PAR ${pars[hole]}</div><div class="person">${names[person]}</div></div><div class="input-row"><div class="label">打数</div><button class="button" id="sm">−</button><div class="number">${currentScore()}</div><button class="button" id="sp">＋</button></div>${pat?`<div class="input-row"><div class="label">PAT数</div><button class="button" id="pm">−</button><div class="number">${pats[hole]}</div><button class="button" id="pp">＋</button></div>`:""}<div class="total"><span>合計打数</span><span class="total-number">${total()}</span></div><div class="status">${status||"自動保存"}</div><div class="help">↑↓ 人　← 次ホール　→ 前ホール</div></div>`;document.getElementById("sm").onclick=()=>changeScore(-1);document.getElementById("sp").onclick=()=>changeScore(1);if(pat){document.getElementById("pm").onclick=()=>changePat(-1);document.getElementById("pp").onclick=()=>changePat(1)}}
 let sx=0,sy=0;document.addEventListener("touchstart",e=>{if(e.touches.length===1){sx=e.touches[0].clientX;sy=e.touches[0].clientY}},{passive:true});document.addEventListener("touchend",async e=>{if(e.changedTouches.length!==1)return;const dx=e.changedTouches[0].clientX-sx,dy=e.changedTouches[0].clientY-sy;if(Math.max(Math.abs(dx),Math.abs(dy))<45)return;if(Math.abs(dx)>Math.abs(dy)){if(dx<0&&hole<17)hole++;else if(dx>0&&hole>0)hole--}else{if(dy<0&&person<3)person++;else if(dy>0&&person>0)person--}saveLocal();render();await saveToCloud()},{passive:true});
-loadLocal();render();getLatest();setInterval(getLatest,3000);
+loadLocal();
+if(!key){status="Publishable key未設定";render();}
+else{render();getLatest();setInterval(getLatest,3000);}
 </script></body></html>
