@@ -70,6 +70,7 @@ summary{cursor:pointer;font-weight:bold}
  .info-date{font-size:13px}
 }
 .watch-send{background:#e8f0ff !important;border-color:#7aa2e8 !important;color:#174a9c !important;font-weight:600 !important}
+.watch-receive{background:#e8f7e8 !important;border-color:#79b879 !important;color:#216b21 !important;font-weight:600 !important}
 </style>
 
 <style id="player-name-color">
@@ -104,6 +105,7 @@ summary{cursor:pointer;font-weight:bold}
     <button onclick="newRound()">新しいラウンド</button>
     <button onclick="saveCurrentRound()">保存</button>
     <button onclick="sendToWatch()" class="watch-send">Watchへ送る</button>
+    <button onclick="loadFromWatch()" class="watch-receive">Watchから読み込む</button>
     <button onclick="deleteCurrentRound()" class="danger">削除</button>
   </div>
   <div id="roundStatus" style="margin-top:7px;font-size:13px;color:#555"></div>
@@ -574,16 +576,68 @@ function addSummaryRow(body,label,start,end){
 }
 
 
-async function sendToWatch(){
-  updateRoundInfo();
-  const btn=document.querySelector('.watch-send');
+/* =========================================
+   Watch → iPhone
+========================================= */
+async function loadFromWatch(){
+  const btn=document.querySelector('.watch-receive');
   if(btn) btn.disabled=true;
   try{
-    await saveCurrentRound(false);
-    alert("Watch用データをSupabaseに送信しました。\nApple Watchで72ゴルフWatchを開いてください。");
+    if(!setupSupabaseKey()){
+      alert("SupabaseのPublishable keyが設定されていません。");
+      return;
+    }
+
+    let path;
+    if(currentRoundId!==null){
+      path=SUPABASE_TABLE+"?select=*&id=eq."+encodeURIComponent(currentRoundId)+"&limit=1";
+    }else{
+      path=SUPABASE_TABLE+"?select=*&order=id.desc&limit=1";
+    }
+
+    const data=await supabaseRequest(path);
+    if(!data || !data.length){
+      alert("WatchのデータがSupabaseにありません。");
+      return;
+    }
+
+    const r=fromCloudRound(data[0]);
+
+    currentRoundId=r.id;
+    currentHole=r.lastHole;
+    roundDate=r.date || roundDate;
+    courseName=r.courseName || courseName;
+    players=Array.isArray(r.players)&&r.players.length===4
+      ?r.players.slice()
+      :players;
+    pars=Array.isArray(r.pars)&&r.pars.length===18
+      ?r.pars.slice()
+      :pars;
+    scores=Array.isArray(r.scores)&&r.scores.length===4
+      ?r.scores.map(a=>Array.isArray(a)?a.slice(0,18):Array(18).fill(null))
+      :scores;
+    pats=Array.isArray(r.pats)&&r.pats.length===18
+      ?r.pats.map(v=>v==null?2:Number(v))
+      :pats;
+
+    localStorage.setItem(STORAGE_KEY,JSON.stringify([r]));
+    rounds=[r];
+
+    el("courseName").value=courseName;
+    el("roundDate").value=roundDate;
+    for(let i=0;i<4;i++){
+      el("player"+i).value=players[i]||["Aさん","Bさん","Cさん","Dさん"][i];
+    }
+
+    renderAll();
+    refreshRoundSelect();
+    updateRoundInfo();
+
+    alert("WatchのデータをiPhoneに反映しました。\nスコア一覧を確認してください。");
+
   }catch(e){
     console.error(e);
-    alert("Watchへの送信に失敗しました。\n\n"+e.message);
+    alert("Watchデータの読み込みに失敗しました。\n\n"+e.message);
   }finally{
     if(btn) btn.disabled=false;
   }
@@ -593,7 +647,26 @@ function init(){
   ["courseName","roundDate","player0","player1","player2","player3"].forEach(id=>{
     el(id).addEventListener("change",updateRoundInfo);
   });
-  loadRounds();
+  
+function sendToWatch(){
+  updateRoundInfo();
+  const btn=document.querySelector('.watch-send');
+  if(btn) btn.disabled=true;
+  (async()=>{
+    try{
+      // 現在のラウンドをSupabaseへ保存してからWatchへ送る
+      await saveCurrentRound(false);
+      alert("Watch用データをSupabaseに送信しました。\nApple Watchで72ゴルフWatchを開いてください。");
+    }catch(e){
+      console.error(e);
+      alert("Watchへの送信に失敗しました。\n\n"+e.message);
+    }finally{
+      if(btn) btn.disabled=false;
+    }
+  })();
+}
+
+loadRounds();
 }
 init();
 </script>
