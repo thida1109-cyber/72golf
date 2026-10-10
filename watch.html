@@ -140,6 +140,73 @@ html,body{
   color:#aaa;
   font-weight:bold;
 }
+
+/* ==============================
+   Supabaseキー入力画面
+============================== */
+
+.key-page{
+  width:100%;
+  max-width:380px;
+  padding:18px 12px;
+  text-align:center;
+}
+
+.key-title{
+  font-size:22px;
+  font-weight:bold;
+  margin-bottom:14px;
+}
+
+.key-message{
+  font-size:14px;
+  line-height:20px;
+  color:#ccc;
+  margin-bottom:14px;
+}
+
+.key-input{
+  width:100%;
+  height:48px;
+  border:1px solid #777;
+  border-radius:10px;
+  background:#222;
+  color:#fff;
+  font-size:13px;
+  padding:6px 8px;
+  outline:none;
+}
+
+.key-button{
+  width:100%;
+  height:52px;
+  margin-top:12px;
+  border:1px solid #777;
+  border-radius:12px;
+  background:#333;
+  color:#fff;
+  font-size:17px;
+  font-weight:bold;
+}
+
+.key-button:active{
+  background:#666;
+}
+
+.key-error{
+  min-height:22px;
+  margin-top:10px;
+  color:#fff;
+  font-size:13px;
+  white-space:pre-line;
+}
+
+.key-note{
+  margin-top:12px;
+  color:#999;
+  font-size:11px;
+  line-height:16px;
+}
 </style>
 </head>
 
@@ -265,61 +332,109 @@ function makeDefaultData(){
 
 
 /* ==================================================
-   Supabaseキー入力
+   Supabaseキー入力画面
 ================================================== */
 
-function askKey(force=false){
+function showKeyPage(message=""){
 
-  if(key && !force){
+  document.getElementById("screen").innerHTML =
 
-    return true;
+`
+<div class="key-page">
+
+  <div class="key-title">
+    Supabaseキー未設定
+  </div>
+
+  <div class="key-message">
+    72ゴルフWatchを接続します。<br>
+    iPhoneで使用している<br>
+    「Publishable key」を入力してください。
+  </div>
+
+  <input
+    id="keyInput"
+    class="key-input"
+    type="text"
+    autocomplete="off"
+    autocapitalize="none"
+    spellcheck="false"
+    placeholder="Publishable key"
+    value=""
+  >
+
+  <button
+    id="keySaveButton"
+    class="key-button">
+    保存して接続
+  </button>
+
+  <div class="key-error">
+    ${message}
+  </div>
+
+  <div class="key-note">
+    ※ Secret keyは入力しないでください。
+  </div>
+
+</div>
+`;
+
+  const input =
+    document.getElementById("keyInput");
+
+  const button =
+    document.getElementById("keySaveButton");
+
+
+  if(input){
+
+    setTimeout(function(){
+
+      input.focus();
+
+    },300);
   }
 
-  const k = prompt(
 
-    "72ゴルフWatchをSupabaseに接続します。\n\n" +
+  if(button){
 
-    "Supabaseの「Publishable key」を入力してください。\n\n" +
-
-    "※ Secret keyは入力しないでください。\n" +
-
-    "※ iPhoneに入力したものと同じキーです。",
-
-    key || ""
-
-  );
+    button.onclick =
+      saveKeyFromScreen;
+  }
+}
 
 
-  if(!k){
+/* ==================================================
+   画面からキーを保存
+================================================== */
 
-    key = "";
+async function saveKeyFromScreen(){
 
-    localStorage.removeItem(
-      KEY_STORE
+  const input =
+    document.getElementById("keyInput");
+
+  if(!input){
+
+    return;
+  }
+
+
+  const newKey =
+    input.value.trim();
+
+
+  if(!newKey){
+
+    showKeyPage(
+      "Publishable keyを入力してください。"
     );
 
-    status =
-      "Supabaseキー未設定";
-
-    render();
-
-    return false;
+    return;
   }
 
 
-  key =
-    k.trim();
-
-
-  if(!key){
-
-    status =
-      "Supabaseキー未設定";
-
-    render();
-
-    return false;
-  }
+  key = newKey;
 
 
   localStorage.setItem(
@@ -331,7 +446,33 @@ function askKey(force=false){
   status =
     "キー設定済み・読込中…";
 
+
   render();
+
+
+  await getLatest();
+}
+
+
+/* ==================================================
+   キー確認
+================================================== */
+
+function checkKey(){
+
+  key =
+    localStorage.getItem(
+      KEY_STORE
+    ) || "";
+
+
+  if(!key){
+
+    showKeyPage();
+
+    return false;
+  }
+
 
   return true;
 }
@@ -428,10 +569,6 @@ function applyCloudData(d){
     "";
 
 
-  /* -------------------------------
-     PAR
-  -------------------------------- */
-
   if(
     Array.isArray(d.pars) &&
     d.pars.length
@@ -457,10 +594,6 @@ function applyCloudData(d){
   }
 
 
-  /* -------------------------------
-     名前
-  -------------------------------- */
-
   if(
     Array.isArray(d.players_name) &&
     d.players_name.length
@@ -473,10 +606,6 @@ function applyCloudData(d){
   }
 
 
-  /* -------------------------------
-     人数がいない場合
-  -------------------------------- */
-
   if(!names.length){
 
     names = [
@@ -487,10 +616,6 @@ function applyCloudData(d){
     ];
   }
 
-
-  /* -------------------------------
-     スコア
-  -------------------------------- */
 
   const cloudScores =
     Array.isArray(d.scores)
@@ -539,17 +664,6 @@ function applyCloudData(d){
   }
 
 
-  /* -------------------------------
-     PAT
-     
-     iPhone側が
-     [人][ホール]
-     
-     Watch側も
-     [人][ホール]
-     に統一
-  -------------------------------- */
-
   const cloudPats =
     Array.isArray(d.pats)
       ? d.pats
@@ -568,10 +682,6 @@ function applyCloudData(d){
     const newPat =
       Array(18).fill(2);
 
-
-    /*
-      iPhone側が2次元の場合
-    */
 
     if(
       Array.isArray(cloudPats[p])
@@ -595,10 +705,6 @@ function applyCloudData(d){
       }
     }
 
-    /*
-      旧データが1次元の場合
-      武田さんのPATとして利用
-    */
 
     else if(
       p === 0 &&
@@ -627,10 +733,6 @@ function applyCloudData(d){
   }
 
 
-  /* -------------------------------
-     現在ホール
-  -------------------------------- */
-
   if(
     d.last_hole !== null &&
     d.last_hole !== undefined
@@ -651,10 +753,6 @@ function applyCloudData(d){
     );
 
 
-  /* -------------------------------
-     人を武田さんに戻す
-  -------------------------------- */
-
   person = 0;
 
 
@@ -674,7 +772,7 @@ async function getLatest(){
   }
 
 
-  if(!askKey()){
+  if(!checkKey()){
 
     return;
   }
@@ -710,11 +808,6 @@ async function getLatest(){
 
     }catch(e){
 
-      /*
-        401 / 403
-        → キー再入力
-      */
-
       if(
         e.status === 401 ||
         e.status === 403
@@ -727,31 +820,14 @@ async function getLatest(){
         );
 
 
-        status =
-          "キーを再入力してください";
-
-        render();
+        loading=false;
 
 
-        if(!askKey(true)){
+        showKeyPage(
+          "キーが正しくありません。\nPublishable keyを確認してください。"
+        );
 
-          loading=false;
-
-          return;
-        }
-
-
-        data =
-          await supabaseRequest(
-
-            SUPABASE_TABLE +
-            "?select=*&order=id.desc&limit=1",
-
-            {
-              method:"GET"
-            }
-
-          );
+        return;
 
       }else{
 
@@ -780,18 +856,9 @@ async function getLatest(){
       data[0];
 
 
-    /*
-      最新データそのものを比較
-    */
-
     const cloudString =
       JSON.stringify(d);
 
-
-    /*
-      Watch側で直前に変更した直後は
-      同じデータを再読込しない
-    */
 
     if(
       cloudString === lastCloudData &&
@@ -866,6 +933,14 @@ async function saveToCloud(){
   }
 
 
+  if(!key){
+
+    showKeyPage();
+
+    return false;
+  }
+
+
   try{
 
     status =
@@ -896,11 +971,6 @@ async function saveToCloud(){
                   : Number(v)
             )
         ),
-
-      /*
-        iPhone側と合わせて
-        人×ホールの2次元
-      */
 
       pats:
         pats.map(
@@ -938,11 +1008,6 @@ async function saveToCloud(){
 
     );
 
-
-    /*
-      保存したデータを
-      最新クラウドデータとして記録
-    */
 
     lastCloudData =
       JSON.stringify({
@@ -1315,10 +1380,6 @@ async function changeScore(delta){
 
 async function changePat(delta){
 
-  /*
-    武田さんだけ
-  */
-
   if(person !== 0){
 
     return;
@@ -1365,6 +1426,20 @@ async function changePat(delta){
 function render(){
 
   makeDefaultData();
+
+
+  /*
+    キーがない場合は
+    ゴルフ画面ではなく
+    キー入力画面を表示
+  */
+
+  if(!key){
+
+    showKeyPage();
+
+    return;
+  }
 
 
   if(
@@ -1653,18 +1728,10 @@ document.addEventListener(
     }
 
 
-    /*
-      左右
-    */
-
     if(
       Math.abs(dx) >
       Math.abs(dy)
     ){
-
-      /*
-        左 → 次ホール
-      */
 
       if(
         dx < 0 &&
@@ -1677,10 +1744,6 @@ document.addEventListener(
 
       }
 
-
-      /*
-        右 → 前ホール
-      */
 
       else if(
         dx > 0 &&
@@ -1695,15 +1758,7 @@ document.addEventListener(
     }
 
 
-    /*
-      上下
-    */
-
     else{
-
-      /*
-        上 → 次の人
-      */
 
       if(
         dy < 0 &&
@@ -1714,10 +1769,6 @@ document.addEventListener(
 
       }
 
-
-      /*
-        下 → 前の人
-      */
 
       else if(
         dy > 0 &&
@@ -1734,11 +1785,6 @@ document.addEventListener(
 
     render();
 
-
-    /*
-      ホール変更の場合だけ
-      Supabaseへ現在ホールを保存
-    */
 
     if(localChange){
 
@@ -1759,18 +1805,35 @@ loadLocal();
 
 makeDefaultData();
 
-render();
+
+/*
+  キーがある場合だけ
+  ゴルフ画面を表示
+*/
+
+if(key){
+
+  render();
+
+}else{
+
+  showKeyPage();
+}
 
 
 /*
-  起動後にSupabaseから取得
+  0.5秒後にSupabase取得
 */
 
 setTimeout(
 
   async function(){
 
-    await getLatest();
+    if(key){
+
+      await getLatest();
+
+    }
 
   },
 
@@ -1779,15 +1842,17 @@ setTimeout(
 
 
 /*
-  5秒ごとにiPhone側の
-  新しいデータを確認
+  5秒ごとに確認
 */
 
 setInterval(
 
   async function(){
 
-    if(!localChange){
+    if(
+      key &&
+      !localChange
+    ){
 
       await getLatest();
 
