@@ -10,7 +10,7 @@
 </head>
 <body><div id="screen"></div><script>
 const SUPABASE_URL="https://qujiuvxikrmphvfunngn.supabase.co",SUPABASE_TABLE="rounds";
-const SUPABASE_PUBLISHABLE_KEY="YOUR_PUBLISHABLE_KEY_HERE";
+const SUPABASE_PUBLISHABLE_KEY="sb_publishable_09N1Fzj2K7p8kiwTLywU1Q_ujDdNsez";
 const DATA_STORE="72golf_watch_v18";
 let key=SUPABASE_PUBLISHABLE_KEY.trim(),roundId=null,pars=[4,4,3,5,4,4,3,4,5,4,4,3,5,4,4,3,4,5],names=["武田","Aさん","Bさん","Cさん"],scores=Array.from({length:4},()=>Array(18).fill(null)),pats=Array(18).fill(2),person=0,hole=0,status="Supabase接続確認中…",lastCloudData="";
 async function supabaseRequest(path,options={}){
