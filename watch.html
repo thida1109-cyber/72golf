@@ -37,7 +37,7 @@ html,body{
 .page{
   width:100%;
   max-width:380px;
-  padding:8px 7px 4px;
+  padding:6px 7px 3px;
   text-align:center;
 }
 
@@ -61,14 +61,14 @@ html,body{
 .person{
   font-size:28px;
   min-width:75px;
-  max-width:100px;
+  max-width:105px;
   overflow:hidden;
   white-space:nowrap;
   text-overflow:ellipsis;
 }
 
 .input-row{
-  height:68px;
+  height:67px;
   display:flex;
   align-items:center;
   justify-content:center;
@@ -108,8 +108,8 @@ html,body{
 }
 
 .total{
-  height:52px;
-  margin-top:3px;
+  height:50px;
+  margin-top:2px;
   border-top:1px solid #444;
   display:flex;
   align-items:center;
@@ -124,18 +124,21 @@ html,body{
 }
 
 .status{
-  margin-top:5px;
-  font-size:10px;
-  color:#aaa;
-  min-height:13px;
-  line-height:13px;
+  margin-top:4px;
+  font-size:18px;
+  color:#fff;
+  font-weight:bold;
+  min-height:22px;
+  line-height:21px;
   white-space:pre-line;
+  overflow:hidden;
 }
 
 .help{
-  margin-top:4px;
-  font-size:9px;
-  color:#666;
+  margin-top:3px;
+  font-size:13px;
+  color:#aaa;
+  font-weight:bold;
 }
 </style>
 </head>
@@ -146,9 +149,9 @@ html,body{
 
 <script>
 
-/* =========================================
+/* ==================================================
    Supabase設定
-========================================= */
+================================================== */
 
 const SUPABASE_URL =
   "https://qujiuvxikrmphvfunngn.supabase.co";
@@ -159,152 +162,526 @@ const SUPABASE_TABLE =
 const KEY_STORE =
   "72golf_watch_supabase_key";
 
+const LOCAL_STORE =
+  "72golf_watch_data";
+
 
 let key =
   localStorage.getItem(KEY_STORE) || "";
 
 
-/* =========================================
+/* ==================================================
    ゴルフデータ
-========================================= */
+================================================== */
 
 let roundId = null;
 
-let pars = [
-  4,4,3,5,4,4,3,4,5,
-  4,4,3,5,4,4,3,4,5
-];
+let courseName = "";
 
-let names = [
-  "武田",
-  "Aさん",
-  "Bさん",
-  "Cさん"
-];
+let pars = Array(18).fill(4);
 
-let scores =
-  Array.from(
-    {length:4},
-    () => Array(18).fill(null)
-  );
+let names = [];
 
-let pats =
-  Array(18).fill(2);
+let scores = [];
+
+let pats = [];
 
 let person = 0;
 
 let hole = 0;
 
-let status = "";
+let status = "起動中…";
 
 let lastCloudData = "";
 
 let loading = false;
 
+let localChange = false;
 
-/* =========================================
+
+/* ==================================================
+   初期データ作成
+================================================== */
+
+function makeDefaultData(){
+
+  if(!names.length){
+
+    names = [
+      "武田",
+      "Aさん",
+      "Bさん",
+      "Cさん"
+    ];
+  }
+
+  if(!pars.length){
+
+    pars = [
+      4,4,3,5,4,4,3,4,5,
+      4,4,3,5,4,4,3,4,5
+    ];
+  }
+
+  while(scores.length < names.length){
+
+    scores.push(
+      Array(18).fill(null)
+    );
+  }
+
+  while(pats.length < names.length){
+
+    pats.push(
+      Array(18).fill(2)
+    );
+  }
+
+  for(let p=0;p<names.length;p++){
+
+    if(!Array.isArray(scores[p])){
+
+      scores[p] =
+        Array(18).fill(null);
+    }
+
+    if(!Array.isArray(pats[p])){
+
+      pats[p] =
+        Array(18).fill(2);
+    }
+
+    while(scores[p].length < 18){
+
+      scores[p].push(null);
+    }
+
+    while(pats[p].length < 18){
+
+      pats[p].push(2);
+    }
+  }
+}
+
+
+/* ==================================================
    Supabaseキー入力
-========================================= */
+================================================== */
 
 function askKey(force=false){
 
   if(key && !force){
+
     return true;
   }
 
   const k = prompt(
+
     "72ゴルフWatchをSupabaseに接続します。\n\n" +
+
     "Supabaseの「Publishable key」を入力してください。\n\n" +
-    "※ Secret keyは絶対に入力しないでください。\n" +
+
+    "※ Secret keyは入力しないでください。\n" +
+
     "※ iPhoneに入力したものと同じキーです。",
+
     key || ""
+
   );
 
+
   if(!k){
-    status = "Supabaseキー未設定";
+
+    key = "";
+
+    localStorage.removeItem(
+      KEY_STORE
+    );
+
+    status =
+      "Supabaseキー未設定";
+
     render();
+
     return false;
   }
 
-  key = k.trim();
+
+  key =
+    k.trim();
+
 
   if(!key){
-    status = "Supabaseキー未設定";
+
+    status =
+      "Supabaseキー未設定";
+
     render();
+
     return false;
   }
+
 
   localStorage.setItem(
     KEY_STORE,
     key
   );
 
+
+  status =
+    "キー設定済み・読込中…";
+
+  render();
+
   return true;
 }
 
 
-/* =========================================
+/* ==================================================
    Supabase通信
-========================================= */
+================================================== */
 
 async function supabaseRequest(
   path,
   options={}
 ){
 
-  if(!askKey()){
+  if(!key){
+
     throw new Error(
-      "Supabaseキーが設定されていません。"
+      "Supabaseキー未設定"
     );
   }
 
+
+  const headers = {
+
+    "apikey":key,
+
+    "Authorization":
+      "Bearer " + key,
+
+    "Content-Type":
+      "application/json",
+
+    ...(options.headers || {})
+  };
+
+
   const res =
     await fetch(
+
       SUPABASE_URL +
       "/rest/v1/" +
       path,
+
       {
         ...options,
-
-        headers:{
-          "apikey":key,
-          "Authorization":"Bearer "+key,
-          "Content-Type":"application/json",
-          ...(options.headers || {})
-        }
+        headers
       }
     );
+
 
   const text =
     await res.text();
 
+
   if(!res.ok){
 
-    throw new Error(
-      "HTTP " +
-      res.status +
-      "\n" +
-      text
-    );
+    const err =
+      new Error(
+        "HTTP " +
+        res.status +
+        "\n" +
+        text
+      );
+
+    err.status =
+      res.status;
+
+    throw err;
   }
 
-  return text
-    ? JSON.parse(text)
-    : null;
+
+  if(!text){
+
+    return null;
+  }
+
+
+  return JSON.parse(text);
 }
 
 
-/* =========================================
+/* ==================================================
+   SupabaseデータをWatch用に整理
+================================================== */
+
+function applyCloudData(d){
+
+  roundId =
+    Number(d.id);
+
+
+  courseName =
+    d.course_name ||
+    "";
+
+
+  /* -------------------------------
+     PAR
+  -------------------------------- */
+
+  if(
+    Array.isArray(d.pars) &&
+    d.pars.length
+  ){
+
+    pars =
+      d.pars.map(
+        v => Number(v) || 4
+      );
+  }
+
+
+  while(pars.length < 18){
+
+    pars.push(4);
+  }
+
+
+  if(pars.length > 18){
+
+    pars =
+      pars.slice(0,18);
+  }
+
+
+  /* -------------------------------
+     名前
+  -------------------------------- */
+
+  if(
+    Array.isArray(d.players_name) &&
+    d.players_name.length
+  ){
+
+    names =
+      d.players_name.map(
+        v => String(v || "")
+      );
+  }
+
+
+  /* -------------------------------
+     人数がいない場合
+  -------------------------------- */
+
+  if(!names.length){
+
+    names = [
+      "武田",
+      "Aさん",
+      "Bさん",
+      "Cさん"
+    ];
+  }
+
+
+  /* -------------------------------
+     スコア
+  -------------------------------- */
+
+  const cloudScores =
+    Array.isArray(d.scores)
+      ? d.scores
+      : [];
+
+
+  scores = [];
+
+
+  for(
+    let p=0;
+    p<names.length;
+    p++
+  ){
+
+    const row =
+      Array.isArray(cloudScores[p])
+        ? cloudScores[p]
+        : [];
+
+
+    const newRow =
+      Array(18).fill(null);
+
+
+    for(
+      let h=0;
+      h<18;
+      h++
+    ){
+
+      if(
+        row[h] !== null &&
+        row[h] !== undefined &&
+        row[h] !== ""
+      ){
+
+        newRow[h] =
+          Number(row[h]);
+      }
+    }
+
+
+    scores.push(newRow);
+  }
+
+
+  /* -------------------------------
+     PAT
+     
+     iPhone側が
+     [人][ホール]
+     
+     Watch側も
+     [人][ホール]
+     に統一
+  -------------------------------- */
+
+  const cloudPats =
+    Array.isArray(d.pats)
+      ? d.pats
+      : [];
+
+
+  pats = [];
+
+
+  for(
+    let p=0;
+    p<names.length;
+    p++
+  ){
+
+    const newPat =
+      Array(18).fill(2);
+
+
+    /*
+      iPhone側が2次元の場合
+    */
+
+    if(
+      Array.isArray(cloudPats[p])
+    ){
+
+      for(
+        let h=0;
+        h<18;
+        h++
+      ){
+
+        if(
+          cloudPats[p][h] !== null &&
+          cloudPats[p][h] !== undefined &&
+          cloudPats[p][h] !== ""
+        ){
+
+          newPat[h] =
+            Number(cloudPats[p][h]);
+        }
+      }
+    }
+
+    /*
+      旧データが1次元の場合
+      武田さんのPATとして利用
+    */
+
+    else if(
+      p === 0 &&
+      cloudPats.length === 18
+    ){
+
+      for(
+        let h=0;
+        h<18;
+        h++
+      ){
+
+        if(
+          cloudPats[h] !== null &&
+          cloudPats[h] !== undefined
+        ){
+
+          newPat[h] =
+            Number(cloudPats[h]);
+        }
+      }
+    }
+
+
+    pats.push(newPat);
+  }
+
+
+  /* -------------------------------
+     現在ホール
+  -------------------------------- */
+
+  if(
+    d.last_hole !== null &&
+    d.last_hole !== undefined
+  ){
+
+    hole =
+      Number(d.last_hole) || 0;
+  }
+
+
+  hole =
+    Math.max(
+      0,
+      Math.min(
+        17,
+        hole
+      )
+    );
+
+
+  /* -------------------------------
+     人を武田さんに戻す
+  -------------------------------- */
+
+  person = 0;
+
+
+  makeDefaultData();
+}
+
+
+/* ==================================================
    最新データ取得
-========================================= */
+================================================== */
 
 async function getLatest(){
 
   if(loading){
+
     return;
   }
 
+
+  if(!askKey()){
+
+    return;
+  }
+
+
   loading = true;
+
 
   try{
 
@@ -316,25 +693,31 @@ async function getLatest(){
 
     let data;
 
+
     try{
 
       data =
         await supabaseRequest(
+
           SUPABASE_TABLE +
-          "?select=*&order=id.desc&limit=1"
+          "?select=*&order=id.desc&limit=1",
+
+          {
+            method:"GET"
+          }
+
         );
 
     }catch(e){
 
       /*
-        401 / 403なら
-        古いキーの可能性があるため
-        もう一度キーを入力
+        401 / 403
+        → キー再入力
       */
 
       if(
-        String(e.message).includes("HTTP 401") ||
-        String(e.message).includes("HTTP 403")
+        e.status === 401 ||
+        e.status === 403
       ){
 
         key = "";
@@ -343,20 +726,31 @@ async function getLatest(){
           KEY_STORE
         );
 
+
         status =
-          "Supabaseキーを再入力してください";
+          "キーを再入力してください";
 
         render();
 
+
         if(!askKey(true)){
+
           loading=false;
+
           return;
         }
 
+
         data =
           await supabaseRequest(
+
             SUPABASE_TABLE +
-            "?select=*&order=id.desc&limit=1"
+            "?select=*&order=id.desc&limit=1",
+
+            {
+              method:"GET"
+            }
+
           );
 
       }else{
@@ -367,13 +761,12 @@ async function getLatest(){
 
 
     if(
-      !data ||
       !Array.isArray(data) ||
-      data.length===0
+      data.length === 0
     ){
 
       status =
-        "Supabaseに保存データがありません";
+        "Supabaseにデータがありません";
 
       render();
 
@@ -383,155 +776,47 @@ async function getLatest(){
     }
 
 
-    const d = data[0];
-
-
-    const newData =
-      JSON.stringify({
-        id:d.id,
-        players_name:d.players_name,
-        pars:d.pars,
-        scores:d.scores,
-        pats:d.pats,
-        last_hole:d.last_hole
-      });
+    const d =
+      data[0];
 
 
     /*
-      同じデータなら
-      画面を書き換えない
+      最新データそのものを比較
+    */
+
+    const cloudString =
+      JSON.stringify(d);
+
+
+    /*
+      Watch側で直前に変更した直後は
+      同じデータを再読込しない
     */
 
     if(
-      newData === lastCloudData
+      cloudString === lastCloudData &&
+      !localChange
     ){
 
+      status =
+        "iPhoneデータ：確認済";
+
+      render();
+
       loading=false;
+
       return;
     }
 
 
     lastCloudData =
-      newData;
+      cloudString;
 
 
-    /* ラウンドID */
-
-    roundId =
-      Number(d.id);
+    localChange = false;
 
 
-    /* PAR */
-
-    if(
-      Array.isArray(d.pars) &&
-      d.pars.length === 18
-    ){
-
-      pars =
-        d.pars.map(
-          v => Number(v)
-        );
-    }
-
-
-    /* 名前 */
-
-    if(
-      Array.isArray(d.players_name) &&
-      d.players_name.length === 4
-    ){
-
-      names =
-        d.players_name.map(
-          (v,i) =>
-            v ||
-            [
-              "武田",
-              "Aさん",
-              "Bさん",
-              "Cさん"
-            ][i]
-        );
-    }
-
-
-    /* スコア */
-
-    if(
-      Array.isArray(d.scores) &&
-      d.scores.length === 4
-    ){
-
-      scores =
-        d.scores.map(
-          row => {
-
-            const a =
-              Array(18).fill(null);
-
-            if(Array.isArray(row)){
-
-              for(
-                let i=0;
-                i<18;
-                i++
-              ){
-
-                a[i] =
-                  row[i] == null
-                    ? null
-                    : Number(row[i]);
-              }
-            }
-
-            return a;
-          }
-        );
-    }
-
-
-    /* PAT */
-
-    if(
-      Array.isArray(d.pats) &&
-      d.pats.length === 18
-    ){
-
-      pats =
-        d.pats.map(
-          v =>
-            v == null
-              ? 2
-              : Number(v)
-        );
-    }
-
-
-    /* 現在ホール */
-
-    if(
-      d.last_hole !== undefined &&
-      d.last_hole !== null
-    ){
-
-      hole =
-        Math.max(
-          0,
-          Math.min(
-            17,
-            Number(d.last_hole) || 0
-          )
-        );
-    }
-
-
-    /*
-      iPhoneから新しいデータを
-      受信したら武田さんを表示
-    */
-
-    person = 0;
+    applyCloudData(d);
 
 
     saveLocal();
@@ -543,15 +828,19 @@ async function getLatest(){
 
     render();
 
+
   }catch(e){
 
     console.error(e);
+
 
     status =
       "読込失敗\n" +
       e.message;
 
+
     render();
+
 
   }finally{
 
@@ -560,9 +849,9 @@ async function getLatest(){
 }
 
 
-/* =========================================
-   Watch → Supabase
-========================================= */
+/* ==================================================
+   Watch → Supabase保存
+================================================== */
 
 async function saveToCloud(){
 
@@ -580,7 +869,7 @@ async function saveToCloud(){
   try{
 
     status =
-      "Watchデータを保存中…";
+      "クラウド保存中…";
 
     render();
 
@@ -588,18 +877,38 @@ async function saveToCloud(){
     const body = {
 
       players_name:
-        [...names],
+        names.map(
+          v => String(v)
+        ),
 
       pars:
-        [...pars],
+        pars.map(
+          v => Number(v)
+        ),
 
       scores:
         scores.map(
-          row => [...row]
+          row =>
+            row.map(
+              v =>
+                v === null
+                  ? null
+                  : Number(v)
+            )
         ),
 
+      /*
+        iPhone側と合わせて
+        人×ホールの2次元
+      */
+
       pats:
-        [...pats],
+        pats.map(
+          row =>
+            row.map(
+              v => Number(v)
+            )
+        ),
 
       last_hole:
         Number(hole)
@@ -610,7 +919,9 @@ async function saveToCloud(){
 
       SUPABASE_TABLE +
       "?id=eq." +
-      encodeURIComponent(roundId),
+      encodeURIComponent(
+        roundId
+      ),
 
       {
 
@@ -624,192 +935,369 @@ async function saveToCloud(){
         body:
           JSON.stringify(body)
       }
+
     );
+
+
+    /*
+      保存したデータを
+      最新クラウドデータとして記録
+    */
+
+    lastCloudData =
+      JSON.stringify({
+
+        id:roundId,
+
+        players_name:
+          body.players_name,
+
+        pars:
+          body.pars,
+
+        scores:
+          body.scores,
+
+        pats:
+          body.pats,
+
+        last_hole:
+          body.last_hole
+      });
+
+
+    localChange = true;
+
+
+    saveLocal();
 
 
     status =
       "クラウド保存済";
 
+
+    render();
+
+
     return true;
+
 
   }catch(e){
 
     console.error(e);
 
+
     status =
       "保存失敗\n" +
       e.message;
 
+
     render();
+
 
     return false;
   }
 }
 
 
-/* =========================================
+/* ==================================================
    ローカル保存
-========================================= */
+================================================== */
 
 function saveLocal(){
 
   try{
 
     localStorage.setItem(
-      "72golf_watch_data",
+
+      LOCAL_STORE,
 
       JSON.stringify({
 
         roundId,
+
+        courseName,
+
         pars,
+
         names,
+
         scores,
+
         pats,
+
         person,
+
         hole
 
       })
+
     );
 
-  }catch(e){}
+  }catch(e){
+
+    console.error(e);
+  }
 }
 
 
-/* =========================================
+/* ==================================================
    ローカル読込
-========================================= */
+================================================== */
 
 function loadLocal(){
 
   try{
 
-    const d =
-      JSON.parse(
-        localStorage.getItem(
-          "72golf_watch_data"
-        ) || "null"
+    const raw =
+      localStorage.getItem(
+        LOCAL_STORE
       );
 
-    if(!d){
+
+    if(!raw){
+
+      makeDefaultData();
+
       return;
     }
 
 
+    const d =
+      JSON.parse(raw);
+
+
     if(
-      d.roundId !== undefined
+      d.roundId !== undefined &&
+      d.roundId !== null
     ){
-      roundId=d.roundId;
+
+      roundId =
+        d.roundId;
+    }
+
+
+    if(
+      typeof d.courseName === "string"
+    ){
+
+      courseName =
+        d.courseName;
     }
 
 
     if(
       Array.isArray(d.pars)
     ){
-      pars=d.pars;
+
+      pars =
+        d.pars;
     }
 
 
     if(
       Array.isArray(d.names)
     ){
-      names=d.names;
+
+      names =
+        d.names;
     }
 
 
     if(
       Array.isArray(d.scores)
     ){
-      scores=d.scores;
+
+      scores =
+        d.scores;
     }
 
 
     if(
       Array.isArray(d.pats)
     ){
-      pats=d.pats;
+
+      pats =
+        d.pats;
     }
 
 
     if(
       Number.isInteger(d.person)
     ){
-      person=d.person;
+
+      person =
+        d.person;
     }
 
 
     if(
       Number.isInteger(d.hole)
     ){
-      hole=d.hole;
+
+      hole =
+        d.hole;
     }
 
-  }catch(e){}
+
+    makeDefaultData();
+
+
+    person =
+      Math.max(
+        0,
+        Math.min(
+          names.length-1,
+          person
+        )
+      );
+
+
+    hole =
+      Math.max(
+        0,
+        Math.min(
+          17,
+          hole
+        )
+      );
+
+
+  }catch(e){
+
+    console.error(e);
+
+    makeDefaultData();
+  }
 }
 
 
-/* =========================================
+/* ==================================================
    現在の打数
-========================================= */
+================================================== */
 
 function getScore(){
 
-  const v =
+  makeDefaultData();
+
+
+  let v =
     scores[person][hole];
+
 
   if(
     v === null ||
-    v === undefined
+    v === undefined ||
+    isNaN(Number(v))
   ){
 
-    return pars[hole];
+    return Number(
+      pars[hole] || 4
+    );
   }
+
 
   return Number(v);
 }
 
 
-/* =========================================
-   現在ホールまでの合計
-========================================= */
+/* ==================================================
+   現在のPAT
+================================================== */
+
+function getPat(){
+
+  makeDefaultData();
+
+
+  let v =
+    pats[person][hole];
+
+
+  if(
+    v === null ||
+    v === undefined ||
+    isNaN(Number(v))
+  ){
+
+    return 2;
+  }
+
+
+  return Number(v);
+}
+
+
+/* ==================================================
+   合計打数
+================================================== */
 
 function getTotal(){
 
   let total = 0;
 
+
   for(
-    let i=0;
-    i<=hole;
-    i++
+    let h=0;
+    h<=hole;
+    h++
   ){
 
     const v =
-      scores[person][i];
+      scores[person][h];
 
-    total +=
+
+    if(
       v === null ||
-      v === undefined
-        ? pars[i]
-        : Number(v);
+      v === undefined ||
+      isNaN(Number(v))
+    ){
+
+      total +=
+        Number(
+          pars[h] || 4
+        );
+
+    }else{
+
+      total +=
+        Number(v);
+    }
   }
+
 
   return total;
 }
 
 
-/* =========================================
+/* ==================================================
    打数変更
-========================================= */
+================================================== */
 
 async function changeScore(delta){
 
-  scores[person][hole] =
+  makeDefaultData();
+
+
+  let value =
+    getScore() + delta;
+
+
+  value =
     Math.max(
       1,
       Math.min(
         12,
-        getScore()+delta
+        value
       )
     );
+
+
+  scores[person][hole] =
+    value;
+
+
+  localChange = true;
 
 
   saveLocal();
@@ -821,29 +1309,44 @@ async function changeScore(delta){
 }
 
 
-/* =========================================
+/* ==================================================
    PAT変更
-========================================= */
+================================================== */
 
 async function changePat(delta){
 
   /*
-    PATは武田さんだけ
+    武田さんだけ
   */
 
   if(person !== 0){
+
     return;
   }
 
 
-  pats[hole] =
+  makeDefaultData();
+
+
+  let value =
+    getPat() + delta;
+
+
+  value =
     Math.max(
       0,
       Math.min(
         10,
-        Number(pats[hole]) + delta
+        value
       )
     );
+
+
+  pats[person][hole] =
+    value;
+
+
+  localChange = true;
 
 
   saveLocal();
@@ -855,18 +1358,56 @@ async function changePat(delta){
 }
 
 
-/* =========================================
-   Watch画面表示
-========================================= */
+/* ==================================================
+   Watch画面
+================================================== */
 
 function render(){
 
-  const isTakeda =
-    person === 0;
+  makeDefaultData();
+
+
+  if(
+    person < 0 ||
+    person >= names.length
+  ){
+
+    person = 0;
+  }
+
+
+  if(
+    hole < 0 ||
+    hole >= 18
+  ){
+
+    hole = 0;
+  }
+
+
+  const currentName =
+    names[person] || "---";
+
+
+  const currentPar =
+    pars[hole] || 4;
+
+
+  const currentScore =
+    getScore();
+
+
+  const currentPat =
+    getPat();
+
+
+  const total =
+    getTotal();
 
 
   const patHtml =
-    isTakeda
+
+    person === 0
 
     ?
 
@@ -874,7 +1415,7 @@ function render(){
 <div class="input-row">
 
   <div class="label">
-    PAT数
+    PAT
   </div>
 
   <button
@@ -884,7 +1425,7 @@ function render(){
   </button>
 
   <div class="number">
-    ${pats[hole]}
+    ${currentPat}
   </div>
 
   <button
@@ -915,11 +1456,11 @@ function render(){
     </div>
 
     <div class="par">
-      PAR ${pars[hole]}
+      PAR ${currentPar}
     </div>
 
     <div class="person">
-      ${names[person]}
+      ${currentName}
     </div>
 
   </div>
@@ -938,7 +1479,7 @@ function render(){
     </button>
 
     <div class="number">
-      ${getScore()}
+      ${currentScore}
     </div>
 
     <button
@@ -960,7 +1501,7 @@ function render(){
     </span>
 
     <span class="total-number">
-      ${getTotal()}
+      ${total}
     </span>
 
   </div>
@@ -972,50 +1513,80 @@ function render(){
 
 
   <div class="help">
-    ↑↓ 人　← 次ホール　→ 前ホール
+    上下：人　　←：次ホール　→：前ホール
   </div>
 
 </div>
 `;
 
 
-  document.getElementById(
-    "scoreMinus"
-  ).onclick =
-    () => changeScore(-1);
-
-
-  document.getElementById(
-    "scorePlus"
-  ).onclick =
-    () => changeScore(1);
-
-
-  if(isTakeda){
-
+  const scoreMinus =
     document.getElementById(
-      "patMinus"
-    ).onclick =
-      () => changePat(-1);
+      "scoreMinus"
+    );
 
 
+  const scorePlus =
     document.getElementById(
-      "patPlus"
-    ).onclick =
-      () => changePat(1);
+      "scorePlus"
+    );
+
+
+  if(scoreMinus){
+
+    scoreMinus.onclick =
+      () => changeScore(-1);
+  }
+
+
+  if(scorePlus){
+
+    scorePlus.onclick =
+      () => changeScore(1);
+  }
+
+
+  if(person === 0){
+
+    const patMinus =
+      document.getElementById(
+        "patMinus"
+      );
+
+
+    const patPlus =
+      document.getElementById(
+        "patPlus"
+      );
+
+
+    if(patMinus){
+
+      patMinus.onclick =
+        () => changePat(-1);
+    }
+
+
+    if(patPlus){
+
+      patPlus.onclick =
+        () => changePat(1);
+    }
   }
 }
 
 
-/* =========================================
-   スワイプ操作
-========================================= */
+/* ==================================================
+   スワイプ
+================================================== */
 
 let startX = 0;
+
 let startY = 0;
 
 
 document.addEventListener(
+
   "touchstart",
 
   function(e){
@@ -1023,11 +1594,14 @@ document.addEventListener(
     if(
       e.touches.length !== 1
     ){
+
       return;
     }
 
+
     startX =
       e.touches[0].clientX;
+
 
     startY =
       e.touches[0].clientY;
@@ -1039,6 +1613,7 @@ document.addEventListener(
 
 
 document.addEventListener(
+
   "touchend",
 
   async function(e){
@@ -1046,12 +1621,14 @@ document.addEventListener(
     if(
       e.changedTouches.length !== 1
     ){
+
       return;
     }
 
 
     const endX =
       e.changedTouches[0].clientX;
+
 
     const endY =
       e.changedTouches[0].clientY;
@@ -1060,13 +1637,10 @@ document.addEventListener(
     const dx =
       endX - startX;
 
+
     const dy =
       endY - startY;
 
-
-    /*
-      小さな動きは無視
-    */
 
     if(
       Math.max(
@@ -1074,12 +1648,13 @@ document.addEventListener(
         Math.abs(dy)
       ) < 45
     ){
+
       return;
     }
 
 
     /*
-      左右スワイプ
+      左右
     */
 
     if(
@@ -1093,10 +1668,13 @@ document.addEventListener(
 
       if(
         dx < 0 &&
-        hole < 17
+        hole < pars.length-1
       ){
 
         hole++;
+
+        localChange = true;
+
       }
 
 
@@ -1110,13 +1688,15 @@ document.addEventListener(
       ){
 
         hole--;
+
+        localChange = true;
       }
 
     }
 
 
     /*
-      上下スワイプ
+      上下
     */
 
     else{
@@ -1127,10 +1707,11 @@ document.addEventListener(
 
       if(
         dy < 0 &&
-        person < 3
+        person < names.length-1
       ){
 
         person++;
+
       }
 
 
@@ -1145,6 +1726,7 @@ document.addEventListener(
 
         person--;
       }
+
     }
 
 
@@ -1154,10 +1736,14 @@ document.addEventListener(
 
 
     /*
-      現在ホールも保存
+      ホール変更の場合だけ
+      Supabaseへ現在ホールを保存
     */
 
-    await saveToCloud();
+    if(localChange){
+
+      await saveToCloud();
+    }
 
   },
 
@@ -1165,40 +1751,51 @@ document.addEventListener(
 );
 
 
-/* =========================================
+/* ==================================================
    起動
-========================================= */
+================================================== */
 
 loadLocal();
+
+makeDefaultData();
 
 render();
 
 
 /*
-  Supabaseから最新データを取得
+  起動後にSupabaseから取得
 */
 
 setTimeout(
-  function(){
 
-    getLatest();
+  async function(){
+
+    await getLatest();
 
   },
-  300
+
+  500
 );
 
 
 /*
-  3秒ごとに確認
+  5秒ごとにiPhone側の
+  新しいデータを確認
 */
 
 setInterval(
-  function(){
 
-    getLatest();
+  async function(){
+
+    if(!localChange){
+
+      await getLatest();
+
+    }
 
   },
-  3000
+
+  5000
 );
 
 </script>
