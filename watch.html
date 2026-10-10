@@ -226,16 +226,18 @@ const SUPABASE_URL =
 const SUPABASE_TABLE =
   "rounds";
 
-const KEY_STORE =
-  "72golf_watch_supabase_key";
+/* =========================================
+   Watch用 Supabase Publishable key
+   ※ここにiPhoneで使用している
+     Publishable keyを貼り付ける
+   ※Secret keyは絶対に貼らない
+========================================= */
 
-const LOCAL_STORE =
-  "72golf_watch_data";
-
+const SUPABASE_PUBLISHABLE_KEY =
+  "sb_publishable_09N1Fzj2K7p8kiwTLywU1Q_ujDdNsez";
 
 let key =
-  localStorage.getItem(KEY_STORE) || "";
-
+  SUPABASE_PUBLISHABLE_KEY.trim();
 
 /* ==================================================
    ゴルフデータ
