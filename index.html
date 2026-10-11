@@ -319,13 +319,19 @@ async function saveCurrentRound(showAlert=true){
         headers:{"Prefer":"resolution=merge-duplicates,return=minimal"},
         body:JSON.stringify(toCloudRound(r))
       });
-      if(showAlert) alert("ラウンドをSupabaseに保存しました。");
+      // 保存直後に同じIDを読み直して、Watchへ届く状態になったことを確認
+      const check=await supabaseRequest(SUPABASE_TABLE+"?select=id&id=eq."+encodeURIComponent(r.id));
+      if(!check || !check.length) throw new Error("Supabaseに保存されたデータを確認できませんでした。");
+      if(showAlert) alert("Supabaseへの保存が完了しました。\nWatchはこのデータを読み込みます。");
+      return true;
     }catch(e){
       console.error(e);
-      alert("Supabaseへの保存に失敗しました。\nローカルには保存されています。\n\n"+e.message);
+      if(showAlert) alert("Supabaseへの保存に失敗しました。\n\n"+e.message);
+      throw e;
     }
-  }else if(showAlert){
-    alert("ラウンドを保存しました。\n（現在はローカル保存です）");
+  }else{
+    if(showAlert) alert("SupabaseのPublishable keyが設定されていません。");
+    throw new Error("SupabaseのPublishable keyが設定されていません。");
   }
 }
 
@@ -588,12 +594,9 @@ async function loadFromWatch(){
       return;
     }
 
-    let path;
-    if(currentRoundId!==null){
-      path=SUPABASE_TABLE+"?select=*&id=eq."+encodeURIComponent(currentRoundId)+"&limit=1";
-    }else{
-      path=SUPABASE_TABLE+"?select=*&order=id.desc&limit=1";
-    }
+    // Watchは常にSupabaseの最新ラウンドを読み書きするため、
+    // iPhone側も「最新1件」を読み込みます。
+    const path=SUPABASE_TABLE+"?select=*&order=id.desc&limit=1";
 
     const data=await supabaseRequest(path);
     if(!data || !data.length){
@@ -650,12 +653,11 @@ async function sendToWatch(){
   const btn=document.querySelector('.watch-send');
   if(btn) btn.disabled=true;
   try{
-    // 現在のラウンドをSupabaseへ保存します。
     await saveCurrentRound(false);
-    alert("Watch用データをSupabaseに送信しました。\nApple Watchで72ゴルフWatchを開いてください。");
+    alert("Watchへ送るデータをSupabaseに保存しました。\nApple Watchで72ゴルフWatchを開いてください。");
   }catch(e){
     console.error(e);
-    alert("Watchへの送信に失敗しました。\n\n"+e.message);
+    alert("Watchへ送ることができませんでした。\n\n"+e.message);
   }finally{
     if(btn) btn.disabled=false;
   }
