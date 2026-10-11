@@ -142,11 +142,11 @@ const SUPABASE_URL =
 
 const SUPABASE_TABLE = "rounds";
 
-const KEY_STORE =
-  "72golf_watch_supabase_key";
+/* ここにSupabaseの「Publishable key」のAPIキーを貼り付けてください */
+const SUPABASE_PUBLISHABLE_KEY =
+  "ここにPublishable keyを貼り付け";
 
-let key =
-  localStorage.getItem(KEY_STORE) || "";
+let key = SUPABASE_PUBLISHABLE_KEY.trim();
 
 
 /* =========================================
@@ -190,23 +190,11 @@ let lastCloudData = "";
 
 function askKey(){
 
-  if(key) return true;
+  if(key && key !== "ここにPublishable keyを貼り付け"){
+    return true;
+  }
 
-  const k = prompt(
-    "Supabaseの「Publishable key」を入力してください。\n\n" +
-    "※ Secret keyは入力しないでください。",
-    ""
-  );
-
-  if(!k) return false;
-
-  key = k.trim();
-
-  if(!key) return false;
-
-  localStorage.setItem(KEY_STORE,key);
-
-  return true;
+  return false;
 }
 
 
