@@ -117,6 +117,14 @@ summary{cursor:pointer;font-weight:bold}
     <div class="info-date">日付：<input id="roundDate" type="date" onchange="updateRoundInfo()" style="width:145px;padding:4px"></div>
   </div>
 
+  <div style="display:flex;align-items:center;gap:8px;margin:6px 0 8px">
+    <strong style="white-space:nowrap">スタート</strong>
+    <select id="startHole" onchange="changeStartHole()" style="width:auto;flex:1">
+      <option value="0">OUT（1番）スタート</option>
+      <option value="9">IN（10番）スタート</option>
+    </select>
+  </div>
+
   <div class="course-grid">
     <input id="courseName" list="courseList" placeholder="ゴルフ場名">
     <datalist id="courseList"></datalist>
@@ -181,6 +189,7 @@ const STORAGE_KEY="72golf_rounds_v6";
 let rounds=[];
 let currentRoundId=null;
 let currentHole=0;
+let startHole=0; // 0=OUT(1番)スタート、9=IN(10番)スタート
 
 let pars=Array(18).fill(4);
 let scores=Array.from({length:4},()=>Array(18).fill(null));
@@ -303,7 +312,8 @@ async function saveCurrentRound(showAlert=true){
     pars:[...pars],
     scores:scores.map(a=>[...a]),
     pats:pats.map(v=>v==null?2:Number(v)),
-    lastHole:currentHole
+    lastHole:currentHole,
+    startHole:startHole
   };
   currentRoundId=r.id;
   const idx=rounds.findIndex(x=>x.id===r.id);
@@ -337,6 +347,7 @@ async function saveCurrentRound(showAlert=true){
 
 function newRound(showAlert=true){
   currentRoundId=null;
+  startHole=0;
   currentHole=0;
   pars=Array(18).fill(4);
   scores=Array.from({length:4},()=>Array(18).fill(null));
@@ -363,7 +374,8 @@ function loadRound(id){
   const r=rounds.find(x=>String(x.id)===String(id));
   if(!r)return;
   currentRoundId=r.id;
-  currentHole=Number.isInteger(r.lastHole)?r.lastHole:0;
+  startHole=(r.startHole===9)?9:0;
+  currentHole=Number.isInteger(r.lastHole)?r.lastHole:startHole;
   roundDate=r.date||"";
   courseName=r.courseName||"";
   pars=Array.isArray(r.pars)&&r.pars.length===18?[...r.pars]:Array(18).fill(4);
@@ -377,6 +389,7 @@ function loadRound(id){
 
   el("courseName").value=courseName;
   el("roundDate").value=roundDate;
+  if(el("startHole")) el("startHole").value=String(startHole);
   for(let i=0;i<4;i++) el("player"+i).value=players[i]||["Aさん","Bさん","Cさん","Dさん"][i];
   renderAll();
   updateRoundInfo();
@@ -419,11 +432,34 @@ async function deleteCurrentRound(){
   alert("ラウンドを削除しました。");
 }
 
+function changeStartHole(){
+  const newStart = Number(el("startHole").value)===9 ? 9 : 0;
+
+  // 既に入力したスコアは消さず、スタート位置だけ変更します。
+  startHole = newStart;
+  currentHole = startHole;
+
+  // 保存済みラウンドを変更中なら、端末側のラウンドにも反映。
+  if(currentRoundId!==null){
+    const r=rounds.find(x=>String(x.id)===String(currentRoundId));
+    if(r){
+      r.startHole=startHole;
+      r.lastHole=currentHole;
+      localStorage.setItem(STORAGE_KEY,JSON.stringify(rounds));
+    }
+  }
+
+  updateHoleDisplay();
+  renderScoreInputs();
+  showScoreList();
+}
+
 function updateRoundInfo(){
   roundDate=el("roundDate").value;
   courseName=el("courseName").value;
   for(let i=0;i<4;i++) players[i]=el("player"+i).value||["Aさん","Bさん","Cさん","Dさん"][i];
   el("roundStatus").textContent=(courseName||"コース未設定")+"　"+(roundDate||"日付未設定");
+  if(el("startHole")) el("startHole").value=String(startHole);
 
   const title=el("scoreListTitle");
   if(title) title.textContent=courseName||"コース名";
@@ -474,17 +510,28 @@ function updateHoleDisplay(){
   el("currentPar").textContent=pars[currentHole];
 }
 
+function holePosition(h){
+  const pos=h-startHole;
+  return pos>=0 ? pos : pos+18;
+}
+
+function holeAtPosition(pos){
+  return (startHole + pos + 18) % 18;
+}
+
 function prevHole(){
-  if(currentHole>0){
-    currentHole--;
+  const pos=holePosition(currentHole);
+  if(pos>0){
+    currentHole=holeAtPosition(pos-1);
     updateHoleDisplay();
     renderScoreInputs();
   }
 }
 
 function nextHole(){
-  if(currentHole<17){
-    currentHole++;
+  const pos=holePosition(currentHole);
+  if(pos<17){
+    currentHole=holeAtPosition(pos+1);
     updateHoleDisplay();
     renderScoreInputs();
   }
@@ -505,7 +552,10 @@ function changeScore(p,h,delta){
 
 function getRunningTotal(p,h){
   let total=0;
-  for(let i=0;i<=h;i++) total+=getScore(p,i);
+  const pos=holePosition(h);
+  for(let i=0;i<=pos;i++){
+    total+=getScore(p,holeAtPosition(i));
+  }
   return total;
 }
 
@@ -607,7 +657,7 @@ async function loadFromWatch(){
     const r=fromCloudRound(data[0]);
 
     currentRoundId=r.id;
-    currentHole=r.lastHole;
+    currentHole=Number.isInteger(r.lastHole)?r.lastHole:startHole;
     roundDate=r.date || roundDate;
     courseName=r.courseName || courseName;
     players=Array.isArray(r.players)&&r.players.length===4
