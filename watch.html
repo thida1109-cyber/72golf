@@ -114,9 +114,9 @@ html,body{
 
 .status{
   margin-top:7px;
-  font-size:10px;
-  color:#777;
-  min-height:12px;
+  font-size:18px;
+  color:#fff;
+  min-height:24px;
 }
 
 .help{
@@ -182,7 +182,6 @@ let hole = 0;
 let status = "";
 
 let lastCloudData = "";
-let cloudLoading = false;
 
 
 /* =========================================
@@ -215,24 +214,26 @@ function askKey(){
    Supabase共通処理
 ========================================= */
 
+function fetchWithTimeout(url, options={}, timeoutMs=8000){
+  const controller = new AbortController();
+  const timer = setTimeout(()=>controller.abort(), timeoutMs);
+  return fetch(url, {...options, signal:controller.signal})
+    .finally(()=>clearTimeout(timer));
+}
+
 async function supabaseRequest(path,options={}){
 
   if(!askKey()){
     throw new Error("Supabaseキーが設定されていません。");
   }
 
-  const controller = new AbortController();
-  const timer = setTimeout(()=>controller.abort(),8000);
-
-  let res;
-  try{
-    res = await fetch(
+  const res =
+    await fetch(
       SUPABASE_URL +
       "/rest/v1/" +
       path,
       {
         ...options,
-        signal:controller.signal,
         headers:{
           "apikey":key,
           "Authorization":"Bearer "+key,
@@ -241,12 +242,6 @@ async function supabaseRequest(path,options={}){
         }
       }
     );
-  }catch(e){
-    if(e.name==="AbortError") throw new Error("Supabase通信が8秒でタイムアウトしました。");
-    throw e;
-  }finally{
-    clearTimeout(timer);
-  }
 
   const text = await res.text();
 
@@ -350,9 +345,6 @@ async function saveToCloud(){
 ========================================= */
 
 async function getLatest(){
-
-  if(cloudLoading) return;
-  cloudLoading = true;
 
   if(!askKey()){
 
@@ -517,12 +509,11 @@ async function getLatest(){
 
     console.error(e);
 
-    status=
-      "読込失敗";
+    status = e && e.name === "AbortError"
+      ? "読込失敗：通信が8秒でタイムアウト"
+      : "読込失敗：" + (e.message || e);
 
     render();
-  }finally{
-    cloudLoading = false;
   }
 }
 
@@ -948,6 +939,7 @@ document.addEventListener(
 
 loadLocal();
 
+status="Supabase確認中…";
 render();
 
 
