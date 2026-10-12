@@ -869,19 +869,17 @@ document.addEventListener(
       Math.abs(dx)>Math.abs(dy)
     ){
 
-      if(
-        dx<0 &&
-        hole<17
-      ){
+      if(dx<0){
 
-        hole++;
+        // 次ホール：18番の次は1番へ戻る
+        // 内部番号は0～17なので、OUT/INどちらの開始でも
+        // 1→2→…→18→1 の循環になる。
+        hole = (hole + 1) % 18;
 
-      }else if(
-        dx>0 &&
-        hole>0
-      ){
+      }else if(dx>0){
 
-        hole--;
+        // 前ホール：1番の前は18番へ戻る
+        hole = (hole + 17) % 18;
       }
 
     }
