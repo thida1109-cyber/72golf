@@ -104,7 +104,7 @@ summary{cursor:pointer;font-weight:bold}
     </select>
     <button onclick="newRound()">新しいラウンド</button>
     <button onclick="saveCurrentRound()">保存</button>
-    <button onclick="sendToWatch()" class="watch-send">Watchへ送る</button>
+    <button onclick="sendToWatch()" class="watch-send">Watchへ送る（手動同期）</button>
     <button onclick="loadFromWatch()" class="watch-receive">Watchから読み込む</button>
     <button onclick="deleteCurrentRound()" class="danger">削除</button>
   </div>
@@ -248,7 +248,8 @@ function toCloudRound(r){
     pars:r.pars||[],
     scores:r.scores||[],
     pats:r.pats||[],
-    last_hole:Number.isInteger(r.lastHole)?r.lastHole:0
+    last_hole:Number.isInteger(r.lastHole)?r.lastHole:0,
+    start_hole:Number(r.startHole)===9?9:0
   };
 }
 
@@ -261,7 +262,8 @@ function fromCloudRound(r){
     pars:Array.isArray(r.pars)?r.pars:Array(18).fill(4),
     scores:Array.isArray(r.scores)?r.scores:Array.from({length:4},()=>Array(18).fill(null)),
     pats:Array.isArray(r.pats)?r.pats:Array(18).fill(2),
-    lastHole:Number.isInteger(r.last_hole)?r.last_hole:0
+    lastHole:Number.isInteger(r.last_hole)?r.last_hole:0,
+    startHole:Number(r.start_hole)===9?9:0
   };
 }
 
@@ -657,7 +659,9 @@ async function loadFromWatch(){
     const r=fromCloudRound(data[0]);
 
     currentRoundId=r.id;
+    startHole=Number(r.startHole)===9?9:0;
     currentHole=Number.isInteger(r.lastHole)?r.lastHole:startHole;
+    if(el("startHole")) el("startHole").value=String(startHole);
     roundDate=r.date || roundDate;
     courseName=r.courseName || courseName;
     players=Array.isArray(r.players)&&r.players.length===4
