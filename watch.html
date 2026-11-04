@@ -178,6 +178,7 @@ let pats =
 
 let person = 0;
 let hole = 0;
+let startHole = 0; // 0=OUT（1番）、9=IN（10番）
 
 let status = "";
 
@@ -267,7 +268,8 @@ function makeCloudData(){
 
     pats:[...pats],
 
-    last_hole:Number(hole)
+    last_hole:Number(hole),
+    start_hole:Number(startHole)===9?9:0
   };
 }
 
@@ -309,7 +311,8 @@ async function saveToCloud(){
           pars:data.pars,
           scores:data.scores,
           pats:data.pats,
-          last_hole:data.last_hole
+          last_hole:data.last_hole,
+          start_hole:data.start_hole
         })
       }
     );
@@ -371,7 +374,8 @@ async function getLatest(){
         pars:d.pars,
         scores:d.scores,
         pats:d.pats,
-        last_hole:d.last_hole
+        last_hole:d.last_hole,
+        start_hole:d.start_hole
       });
 
 
@@ -396,6 +400,9 @@ async function getLatest(){
     /* ラウンドID */
 
     roundId=Number(d.id);
+
+    /* OUT／INスタート位置 */
+    startHole=Number(d.start_hole)===9?9:0;
 
 
     /* PAR */
@@ -471,14 +478,10 @@ async function getLatest(){
 
     /* 現在ホール */
 
-    hole=
-      Math.max(
-        0,
-        Math.min(
-          17,
-          Number(d.last_hole)||0
-        )
-      );
+    const incomingHole = Number(d.last_hole);
+    hole = Number.isFinite(incomingHole)
+      ? Math.max(0, Math.min(17, incomingHole))
+      : startHole;
 
 
     /*
@@ -529,7 +532,8 @@ function saveLocal(){
         scores,
         pats,
         person,
-        hole
+        hole,
+        startHole
 
       })
     );
@@ -576,6 +580,9 @@ function loadLocal(){
     if(Number.isInteger(d.hole))
       hole=d.hole;
 
+    if(Number.isInteger(d.startHole))
+      startHole=d.startHole===9?9:0;
+
   }catch(e){}
 }
 
@@ -601,15 +608,16 @@ function total(){
 
   let t=0;
 
-  for(
-    let i=0;
-    i<=hole;
-    i++
-  ){
+  // スタート位置から現在ホールまで、実際のプレー順に累計する
+  const position = (hole - startHole + 18) % 18;
+
+  for(let i=0; i<=position; i++){
+
+    const h = (startHole + i) % 18;
 
     t +=
-      scores[person][i] ??
-      pars[i];
+      scores[person][h] ??
+      pars[h];
   }
 
   return t;
