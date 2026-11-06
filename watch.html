@@ -1,1000 +1,1993 @@
 <!DOCTYPE html>
+
 <html lang="ja">
+
 <head>
+
 <meta charset="UTF-8">
+
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+
 <title>72ゴルフ Watch</title>
 
+
+
 <style>
+
 *{box-sizing:border-box}
 
+
+
 html,body{
+
   margin:0;
+
   padding:0;
+
   width:100%;
+
   height:100%;
+
   background:#000;
+
   color:#fff;
+
   font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+
   overflow:hidden;
+
 }
 
-#screen{
+
+
+\#screen{
+
   width:100%;
+
   height:100vh;
+
   display:flex;
+
   align-items:flex-start;
+
   justify-content:center;
+
   touch-action:none;
+
 }
+
+
 
 .page{
+
   width:100%;
+
   max-width:380px;
+
   padding:10px 8px 6px;
+
   text-align:center;
+
 }
+
+
 
 .header{
+
   height:48px;
+
   display:flex;
+
   align-items:center;
+
   justify-content:center;
+
   gap:10px;
+
   font-weight:bold;
+
 }
+
+
 
 .hole{
+
   font-size:31px;
+
 }
+
+
 
 .par{
+
   font-size:22px;
+
 }
+
+
 
 .person{
+
   font-size:29px;
+
   min-width:76px;
+
   overflow:hidden;
+
   white-space:nowrap;
+
 }
+
+
 
 .input-row{
+
   height:70px;
+
   display:flex;
+
   align-items:center;
+
   justify-content:center;
+
   gap:7px;
+
 }
+
+
 
 .label{
+
   width:60px;
+
   text-align:left;
+
   font-size:19px;
+
   font-weight:bold;
+
 }
+
+
 
 .button{
+
   width:58px;
+
   height:58px;
+
   flex:0 0 58px;
+
   border:1px solid #666;
+
   border-radius:12px;
+
   background:#222;
+
   color:#fff;
+
   font-size:32px;
+
   font-weight:bold;
+
   padding:0;
+
   margin:0;
+
 }
+
+
 
 .number{
+
   width:52px;
+
   flex:0 0 52px;
+
   text-align:center;
+
   font-size:32px;
+
   font-weight:bold;
+
 }
+
+
 
 .total{
+
   height:55px;
+
   margin-top:2px;
+
   border-top:1px solid #444;
+
   display:flex;
+
   align-items:center;
+
   justify-content:center;
+
   gap:8px;
+
   font-size:19px;
+
   font-weight:bold;
+
 }
+
+
 
 .total-number{
+
   font-size:31px;
+
 }
+
+
 
 .status{
+
   margin-top:7px;
+
   font-size:18px;
+
   color:#fff;
+
   min-height:24px;
+
 }
+
+
 
 .help{
+
   margin-top:5px;
+
   font-size:10px;
+
   color:#666;
+
 }
 
+
+
 /* ===== 操作が分かるアニメーション ===== */
+
 .page.swipe-left{animation:swipeLeft .24s ease-out}
+
 .page.swipe-right{animation:swipeRight .24s ease-out}
+
 @keyframes swipeLeft{from{transform:translateX(28px);opacity:.4}to{transform:translateX(0);opacity:1}}
+
 @keyframes swipeRight{from{transform:translateX(-28px);opacity:.4}to{transform:translateX(0);opacity:1}}
+
 .header.player-change{animation:playerFlash .32s ease-out;border-radius:12px}
+
 @keyframes playerFlash{0%{background:#174b78}100%{background:transparent}}
+
 .number.score-change{animation:numberMove .25s ease-out;color:#7ee7ff}
+
 @keyframes numberMove{0%{transform:translateY(12px);opacity:.25}65%{transform:translateY(-3px);opacity:1}100%{transform:translateY(0);opacity:1}}
+
 .number.pat-change{animation:patFlash .35s ease-out;color:#ffd84d}
+
 @keyframes patFlash{0%{transform:translateY(8px);opacity:.3}55%{transform:translateY(-2px);opacity:1;color:#ffd84d}100%{transform:translateY(0);opacity:1;color:#fff}}
+
 .button{transition:background .12s ease,transform .12s ease}
+
 .button:active{background:#356b91;transform:scale(.94)}
 
+
+
 </style>
+
 </head>
+
+
 
 <body>
 
+
+
 <div id="screen"></div>
+
+
 
 <script>
 
+
+
 /* =========================================
+
    Supabase設定
-========================================= */
+
+\========================================= */
+
+
 
 const SUPABASE_URL =
-  "https://qujiuvxikrmphvfunngn.supabase.co";
+
+  "https\://qujiuvxikrmphvfunngn.supabase.co";
+
+
 
 const SUPABASE_TABLE = "rounds";
 
+
+
 /* ここにSupabaseの「Publishable key」のAPIキーを貼り付けてください */
+
 const SUPABASE_PUBLISHABLE_KEY =
+
   "sb_publishable_09N1Fzj2K7p8kiwTLywU1Q_ujDdNsez";
+
+
 
 let key = SUPABASE_PUBLISHABLE_KEY.trim();
 
 
+
+
+
 /* =========================================
+
    ゴルフデータ
-========================================= */
+
+\========================================= */
+
+
 
 let roundId = null;
 
+
+
 let pars = [
+
   4,4,3,5,4,4,3,4,5,
+
   4,4,3,5,4,4,3,4,5
+
 ];
+
+
 
 let names = [
+
   "武田",
+
   "Aさん",
+
   "Bさん",
+
   "Cさん"
+
 ];
 
+
+
 let scores =
+
   Array.from(
+
     {length:4},
+
     ()=>Array(18).fill(null)
+
   );
 
+
+
 let pats =
+
   Array(18).fill(2);
 
+
+
 let person = 0;
+
 let hole = 0;
+
 let startHole = 0; // 0=OUT（1番）、9=IN（10番）
+
+
 
 let status = "";
 
+
+
 let lastCloudData = "";
+
 let previousRoundId = null;
 
 
+
+
+
 /* =========================================
+
    Supabaseキー
-========================================= */
+
+\========================================= */
+
+
 
 function askKey(){
 
+
+
   if(key && key !== "ここにPublishable keyを貼り付け"){
+
     return true;
+
   }
 
+
+
   return false;
+
 }
+
+
+
 
 
 /* =========================================
+
    Supabase共通処理
-========================================= */
+
+\========================================= */
+
+
 
 function fetchWithTimeout(url, options={}, timeoutMs=8000){
+
   const controller = new AbortController();
+
   const timer = setTimeout(()=>controller.abort(), timeoutMs);
+
   return fetch(url, {...options, signal:controller.signal})
+
     .finally(()=>clearTimeout(timer));
+
 }
+
+
 
 async function supabaseRequest(path,options={}){
 
+
+
   if(!askKey()){
+
     throw new Error("Supabaseキーが設定されていません。");
+
   }
 
+
+
   const res =
+
     await fetchWithTimeout(
+
       SUPABASE_URL +
+
       "/rest/v1/" +
+
       path,
+
       {
+
         ...options,
+
         headers:{
+
           "apikey":key,
+
           "Authorization":"Bearer "+key,
+
           "Content-Type":"application/json",
+
           ...(options.headers||{})
+
         }
+
       }
+
     );
+
+
 
   const text = await res.text();
 
+
+
   if(!res.ok){
+
     throw new Error(
+
       "HTTP "+res.status+"\n"+text
+
     );
+
   }
 
+
+
   return text ? JSON.parse(text) : null;
+
 }
 
 
+
+
+
 /* =========================================
+
    WatchのデータをSupabase形式にする
-========================================= */
+
+\========================================= */
+
+
 
 function makeCloudData(){
 
+
+
   return {
+
     id:Number(roundId),
+
     date:new Date().toISOString().slice(0,10),
+
+
 
     course_name:"",
 
+
+
     players_name:[...names],
+
+
 
     pars:[...pars],
 
+
+
     scores:
+
       scores.map(
+
         a=>[...a]
+
       ),
+
+
 
     pats:[...pats],
 
+
+
     last_hole:Number(hole),
+
     start_hole:Number(startHole)===9?9:0
+
   };
+
 }
 
 
+
+
+
 /* =========================================
+
    Watch → Supabase保存
-========================================= */
+
+\========================================= */
+
+
 
 async function saveToCloud(){
 
+
+
   if(roundId===null){
 
+
+
     status="ラウンドID未取得";
+
     render();
 
+
+
     return false;
+
   }
+
+
 
   try{
 
-    status="Watchデータを保存中…";
-    render();
+
+
+    // 保存開始時は再描画しない（操作アニメーションを維持）
+
+
 
     const data=makeCloudData();
 
+
+
     await supabaseRequest(
+
       SUPABASE_TABLE+
+
       "?id=eq."+
+
       encodeURIComponent(roundId),
+
       {
+
         method:"PATCH",
 
+
+
         headers:{
+
           "Prefer":"return=minimal"
+
         },
 
+
+
         body:JSON.stringify({
+
           players_name:data.players_name,
+
           pars:data.pars,
+
           scores:data.scores,
+
           pats:data.pats,
+
           last_hole:data.last_hole,
+
           start_hole:data.start_hole
+
         })
+
       }
+
     );
+
+
 
     status="クラウド保存済";
 
+
+
     return true;
+
+
 
   }catch(e){
 
+
+
     console.error(e);
+
+
 
     status="保存失敗";
 
+
+
     return false;
+
   }
+
 }
 
 
+
+
+
 /* =========================================
+
    Supabase → Watch
-========================================= */
+
+\========================================= */
+
+
 
 async function getLatest(){
 
+
+
   if(!askKey()){
 
+
+
     status="キー未設定";
+
     render();
 
+
+
     return;
+
   }
+
+
 
   try{
 
+
+
     status="iPhoneデータを読込中…";
+
     render();
 
+
+
     const data =
+
       await supabaseRequest(
+
         SUPABASE_TABLE+
+
         "?select=*&order=id.desc&limit=1"
+
       );
+
+
 
     if(!data || !data.length){
 
+
+
       status="保存データなし";
+
       render();
 
+
+
       return;
+
     }
+
+
 
     const d=data[0];
 
+
+
     const newData =
+
       JSON.stringify({
+
         id:d.id,
+
         players_name:d.players_name,
+
         pars:d.pars,
+
         scores:d.scores,
+
         pats:d.pats,
+
         last_hole:d.last_hole,
+
         start_hole:d.start_hole
+
       });
 
 
+
+
+
     /*
+
       まったく同じデータなら
+
       Watch画面を書き換えない
+
     */
+
+
 
     if(newData===lastCloudData){
 
+
+
       return;
+
     }
 
 
+
+
+
     /*
+
       今回のクラウドデータを記憶
+
     */
+
+
 
     lastCloudData=newData;
 
 
+
+
+
     /* ラウンドID */
+
+
 
     roundId=Number(d.id);
 
+
+
     /* OUT／INスタート位置 */
+
     startHole=Number(d.start_hole)===9?9:0;
+
+
+
 
 
     /* PAR */
 
+
+
     if(
+
       Array.isArray(d.pars) &&
+
       d.pars.length===18
+
     ){
 
+
+
       pars=d.pars.map(
+
         v=>Number(v)
+
       );
+
     }
+
+
+
 
 
     /* スコア */
 
+
+
     if(
+
       Array.isArray(d.scores) &&
+
       d.scores.length===4
+
     ){
+
+
 
       scores=d.scores.map(row=>{
 
+
+
         const z=Array(18).fill(null);
+
+
 
         if(Array.isArray(row)){
 
+
+
           for(let i=0;i<18;i++){
 
+
+
             z[i]=
+
               row[i]==null
+
                 ?null
+
                 :Number(row[i]);
+
           }
+
         }
 
+
+
         return z;
+
       });
+
     }
+
+
+
 
 
     /* PAT */
 
+
+
     if(
+
       Array.isArray(d.pats) &&
+
       d.pats.length===18
+
     ){
 
+
+
       pats=d.pats.map(
+
         v=>v==null
+
           ?2
+
           :Number(v)
+
       );
+
     }
+
+
+
 
 
     /* 名前 */
 
+
+
     if(
+
       Array.isArray(d.players_name) &&
+
       d.players_name.length===4
+
     ){
 
+
+
       names=
+
         d.players_name.map(
+
           (v,i)=>
+
             v ||
+
             ["武田","Aさん","Bさん","Cさん"][i]
+
         );
+
     }
+
+
+
 
 
     /* 現在ホール */
 
+
+
     const incomingHole = Number(d.last_hole);
+
     hole = Number.isFinite(incomingHole)
+
       ? Math.max(0, Math.min(17, incomingHole))
+
       : startHole;
 
 
+
+
+
     /*
+
       iPhoneから新しいラウンドを受け取った時だけ
+
       武田さんから表示する。
+
       同じラウンドの更新では現在の人を維持する。
+
     */
 
+
+
     if(previousRoundId !== roundId){
+
       person=0;
+
       previousRoundId=roundId;
+
     }
+
+
 
     saveLocal();
 
+
+
     status="iPhoneデータ：更新済";
 
+
+
     render();
+
+
 
   }catch(e){
 
+
+
     console.error(e);
 
+
+
     status = e && e.name === "AbortError"
+
       ? "読込失敗：通信が8秒でタイムアウト"
+
       : "読込失敗：" + (e.message || e);
 
+
+
     render();
+
   }
+
 }
 
 
+
+
+
 /* =========================================
+
    ローカル保存
-========================================= */
+
+\========================================= */
+
+
 
 function saveLocal(){
 
+
+
   try{
 
+
+
     localStorage.setItem(
+
       "72golf_watch_v16",
+
       JSON.stringify({
 
+
+
         roundId,
+
         pars,
+
         names,
+
         scores,
+
         pats,
+
         person,
+
         hole,
+
         startHole
 
+
+
       })
+
     );
 
+
+
   }catch(e){}
+
 }
 
 
+
+
+
 /* =========================================
+
    ローカル読込
-========================================= */
+
+\========================================= */
+
+
 
 function loadLocal(){
 
+
+
   try{
 
+
+
     const d=
+
       JSON.parse(
+
         localStorage.getItem(
+
           "72golf_watch_v16"
+
         )||"null"
+
       );
+
+
 
     if(!d) return;
 
+
+
     if(d.roundId!==undefined)
+
       roundId=d.roundId;
 
+
+
     if(d.pars)
+
       pars=d.pars;
 
+
+
     if(d.names)
+
       names=d.names;
 
+
+
     if(d.scores)
+
       scores=d.scores;
 
+
+
     if(d.pats)
+
       pats=d.pats;
 
+
+
     if(Number.isInteger(d.person))
+
       person=d.person;
 
+
+
     if(Number.isInteger(d.hole))
+
       hole=d.hole;
 
+
+
     if(Number.isInteger(d.startHole))
+
       startHole=d.startHole===9?9:0;
 
+
+
   }catch(e){}
+
 }
 
 
+
+
+
 /* =========================================
+
    スコア取得
-========================================= */
+
+\========================================= */
+
+
 
 function score(){
 
+
+
   return (
+
     scores[person][hole] ??
+
     pars[hole]
+
   );
+
 }
 
 
+
+
+
 /* =========================================
+
    合計
-========================================= */
+
+\========================================= */
+
+
 
 function total(){
 
+
+
   let t=0;
 
+
+
   // スタート位置から現在ホールまで、実際のプレー順に累計する
+
   const position = (hole - startHole + 18) % 18;
+
+
 
   for(let i=0; i<=position; i++){
 
+
+
     const h = (startHole + i) % 18;
 
+
+
     t +=
+
       scores[person][h] ??
+
       pars[h];
+
   }
 
+
+
   return t;
+
 }
 
 
+
+
+
 /* =========================================
+
    スコア変更
-========================================= */
+
+\========================================= */
+
+
 
 async function changeScore(d){
 
+
+
   scores[person][hole]=
+
     Math.max(
+
       1,
+
       Math.min(
+
         12,
+
         score()+d
+
       )
+
     );
+
+
 
   saveLocal();
 
+
+
   displayEffect = "score";
+
   render();
 
+
+
   /*
+
     Watchで変更したら
+
     Supabaseへ保存
+
   */
 
+
+
   await saveToCloud();
+
 }
 
 
+
+
+
 /* =========================================
+
    PAT変更
-========================================= */
+
+\========================================= */
+
+
 
 async function changePat(d){
 
+
+
   if(person!==0) return;
 
+
+
   pats[hole]=
+
     Math.max(
+
       0,
+
       Math.min(
+
         10,
+
         pats[hole]+d
+
       )
+
     );
+
+
 
   saveLocal();
 
+
+
   displayEffect = "pat";
+
   render();
 
+
+
   await saveToCloud();
+
 }
 
 
+
+
+
 /* =========================================
+
    Watch画面
-========================================= */
+
+\========================================= */
+
+
 
 let displayEffect = "";
 
+
+
 function render(){
 
+
+
   const pat =
+
     person===0;
 
+
+
   const effect = displayEffect;
+
   displayEffect = "";
+
   const pageEffect = effect === "next" ? "swipe-left" :
+
                      effect === "previous" ? "swipe-right" : "";
+
   const playerEffect = effect === "player" ? "player-change" : "";
+
   const scoreEffect = effect === "score" ? "score-change" : "";
+
   const patEffect = effect === "pat" ? "pat-change" : "";
 
+
+
   document.getElementById(
+
     "screen"
+
   ).innerHTML=
+
+
 
   `<div class="page ${pageEffect}">
 
+
+
     <div class="header ${playerEffect}">
 
+
+
       <div class="hole">
+
         ${hole+1}番
+
       </div>
+
+
 
       <div class="par">
+
         PAR ${pars[hole]}
+
       </div>
+
+
 
       <div class="person">
+
         ${names[person]}
+
       </div>
 
+
+
     </div>
+
+
+
 
 
     <div class="input-row">
 
+
+
       <div class="label">
+
         打数
+
       </div>
 
+
+
       <button
+
         class="button"
+
         id="sm">
+
         −
+
       </button>
+
+
 
       <div class="number ${scoreEffect}">
+
         ${score()}
+
       </div>
 
+
+
       <button
+
         class="button"
+
         id="sp">
+
         ＋
+
       </button>
+
+
 
     </div>
 
 
+
+
+
     ${
+
       pat
+
       ?
+
       `
+
       <div class="input-row">
 
+
+
         <div class="label">
+
           PAT数
+
         </div>
 
+
+
         <button
+
           class="button"
+
           id="pm">
+
           −
+
         </button>
 
-        <div class="number">
+
+
+        <div class="number ${patEffect}">
           ${pats[hole]}
+
         </div>
 
+
+
         <button
+
           class="button"
+
           id="pp">
+
           ＋
+
         </button>
+
+
 
       </div>
+
       `
+
       :
+
       ""
+
     }
+
+
+
 
 
     <div class="total">
 
+
+
       <span>
+
         合計打数
+
       </span>
+
+
 
       <span class="total-number">
+
         ${total()}
+
       </span>
 
+
+
     </div>
+
+
+
 
 
     <div class="status">
+
       ${status || "自動保存"}
+
     </div>
+
+
+
 
 
     <div class="help">
+
       ↑↓ 人　← 次ホール　→ 前ホール
+
     </div>
+
+
 
   </div>`;
 
 
+
+
+
   document.getElementById(
+
     "sm"
+
   ).onclick=
+
     ()=>changeScore(-1);
 
 
+
+
+
   document.getElementById(
+
     "sp"
+
   ).onclick=
+
     ()=>changeScore(1);
+
+
+
 
 
   if(pat){
 
+
+
     document.getElementById(
+
       "pm"
+
     ).onclick=
+
       ()=>changePat(-1);
 
 
+
+
+
     document.getElementById(
+
       "pp"
+
     ).onclick=
+
       ()=>changePat(1);
+
   }
+
 }
 
 
+
+
+
 /* =========================================
+
    スワイプ操作
-========================================= */
+
+\========================================= */
+
+
 
 let sx=0;
+
 let sy=0;
 
+
+
 document.addEventListener(
+
   "touchstart",
+
   e=>{
+
+
 
     if(e.touches.length===1){
 
+
+
       sx=
+
         e.touches[0].clientX;
 
+
+
       sy=
+
         e.touches[0].clientY;
+
     }
 
+
+
   },
+
   {passive:true}
+
 );
 
 
+
+
+
 document.addEventListener(
+
   "touchend",
+
   async e=>{
 
+
+
     if(e.changedTouches.length!==1)
+
       return;
 
+
+
     const dx=
+
       e.changedTouches[0].clientX-sx;
 
+
+
     const dy=
+
       e.changedTouches[0].clientY-sy;
 
 
+
+
+
     if(
+
       Math.max(
+
         Math.abs(dx),
+
         Math.abs(dy)
+
       )<45
+
     )
+
       return;
 
 
+
+
+
     /*
+
       左スワイプ
+
       → 次ホール
+
     */
 
+
+
     if(
+
       Math.abs(dx)>Math.abs(dy)
+
     ){
+
+
 
       if(dx<0){
 
+
+
         // 次ホール：18番の次は1番へ戻る
+
         // 内部番号は0～17なので、OUT/INどちらの開始でも
+
         // 1→2→…→18→1 の循環になる。
+
         hole = (hole + 1) % 18;
+
+
 
       }else if(dx>0){
 
+
+
         // 前ホール：1番の前は18番へ戻る
+
         hole = (hole + 17) % 18;
+
       }
 
+
+
     }
+
+
+
 
 
     /*
+
       上下スワイプ
+
       → 人を変更
+
     */
+
+
 
     else{
 
+
+
       if(
+
         dy<0 &&
+
         person<3
+
       ){
+
+
 
         person++;
 
+
+
       }else if(
+
         dy>0 &&
+
         person>0
+
       ){
 
+
+
         person--;
+
       }
+
     }
+
+
+
 
 
     saveLocal();
 
+
+
     if(Math.abs(dx)>Math.abs(dy)){
+
       displayEffect = dx<0 ? "next" : "previous";
+
     }else{
+
       displayEffect = "player";
+
     }
+
+
 
     render();
 
+
+
     /*
+
       ホール変更もクラウドへ保存
+
     */
+
+
 
     await saveToCloud();
 
+
+
   },
+
   {passive:true}
+
 );
 
 
+
+
+
 /* =========================================
+
    初期処理
-========================================= */
+
+\========================================= */
+
+
 
 loadLocal();
 
+
+
 previousRoundId=roundId;
+
 status="Supabase確認中…";
+
 render();
 
 
+
+
+
 /*
+
   最初にSupabaseから取得
+
 */
+
+
 
 getLatest();
 
 
+
+
+
 /*
+
   3秒ごとに最新データを確認
+
 */
 
+
+
 setInterval(
+
   getLatest,
+
   3000
+
 );
+
+
 
 </script>
 
-</body>
-</html>
 
+
+</body>
+
+</html>
 
