@@ -124,6 +124,21 @@ html,body{
   font-size:10px;
   color:#666;
 }
+
+/* ===== 操作が分かるアニメーション ===== */
+.page.swipe-left{animation:swipeLeft .24s ease-out}
+.page.swipe-right{animation:swipeRight .24s ease-out}
+@keyframes swipeLeft{from{transform:translateX(28px);opacity:.4}to{transform:translateX(0);opacity:1}}
+@keyframes swipeRight{from{transform:translateX(-28px);opacity:.4}to{transform:translateX(0);opacity:1}}
+.header.player-change{animation:playerFlash .32s ease-out;border-radius:12px}
+@keyframes playerFlash{0%{background:#174b78}100%{background:transparent}}
+.number.score-change{animation:numberMove .25s ease-out;color:#7ee7ff}
+@keyframes numberMove{0%{transform:translateY(12px);opacity:.25}65%{transform:translateY(-3px);opacity:1}100%{transform:translateY(0);opacity:1}}
+.number.pat-change{animation:patFlash .35s ease-out;color:#ffd84d}
+@keyframes patFlash{0%{transform:translateY(8px);opacity:.3}55%{transform:translateY(-2px);opacity:1;color:#ffd84d}100%{transform:translateY(0);opacity:1;color:#fff}}
+.button{transition:background .12s ease,transform .12s ease}
+.button:active{background:#356b91;transform:scale(.94)}
+
 </style>
 </head>
 
@@ -641,6 +656,7 @@ async function changeScore(d){
 
   saveLocal();
 
+  displayEffect = "score";
   render();
 
   /*
@@ -671,6 +687,7 @@ async function changePat(d){
 
   saveLocal();
 
+  displayEffect = "pat";
   render();
 
   await saveToCloud();
@@ -681,18 +698,28 @@ async function changePat(d){
    Watch画面
 ========================================= */
 
+let displayEffect = "";
+
 function render(){
 
   const pat =
     person===0;
 
+  const effect = displayEffect;
+  displayEffect = "";
+  const pageEffect = effect === "next" ? "swipe-left" :
+                     effect === "previous" ? "swipe-right" : "";
+  const playerEffect = effect === "player" ? "player-change" : "";
+  const scoreEffect = effect === "score" ? "score-change" : "";
+  const patEffect = effect === "pat" ? "pat-change" : "";
+
   document.getElementById(
     "screen"
   ).innerHTML=
 
-  `<div class="page">
+  `<div class="page ${pageEffect}">
 
-    <div class="header">
+    <div class="header ${playerEffect}">
 
       <div class="hole">
         ${hole+1}番
@@ -721,7 +748,7 @@ function render(){
         −
       </button>
 
-      <div class="number">
+      <div class="number ${scoreEffect}">
         ${score()}
       </div>
 
@@ -919,6 +946,12 @@ document.addEventListener(
 
     saveLocal();
 
+    if(Math.abs(dx)>Math.abs(dy)){
+      displayEffect = dx<0 ? "next" : "previous";
+    }else{
+      displayEffect = "player";
+    }
+
     render();
 
     /*
@@ -963,3 +996,4 @@ setInterval(
 
 </body>
 </html>
+
