@@ -8,7 +8,7 @@
 
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 
-<title>72ゴルフ Watch</title>
+<title>72ゴルフ Watch 色分け修正版</title>
 
 
 
@@ -40,23 +40,38 @@ html,body{
 
 
 
-\#screen{
-
+#screen{
   width:100%;
-
   height:100vh;
-
+  min-height:100vh;
   display:flex;
-
   align-items:flex-start;
-
   justify-content:center;
-
   touch-action:none;
-
+  background:#000;
+  transition:background .22s ease;
 }
 
+/* プレーヤーごとに画面全体の色を固定 */
+#screen.theme-takeda{background:#08294b}
+#screen.theme-a{background:#073b2b}
+#screen.theme-b{background:#482508}
+#screen.theme-c{background:#32104d}
 
+#screen.theme-takeda .person{color:#70c4ff}
+#screen.theme-a .person{color:#71e3a5}
+#screen.theme-b .person{color:#ffb15c}
+#screen.theme-c .person{color:#d6a0ff}
+
+#screen.theme-takeda .button{background:#123d63;border-color:#3978a8}
+#screen.theme-a .button{background:#14533d;border-color:#368765}
+#screen.theme-b .button{background:#704016;border-color:#b87936}
+#screen.theme-c .button{background:#51236f;border-color:#8650a6}
+
+#screen.theme-takeda .total{border-top-color:#3978a8}
+#screen.theme-a .total{border-top-color:#368765}
+#screen.theme-b .total{border-top-color:#b87936}
+#screen.theme-c .total{border-top-color:#8650a6}
 
 .page{
 
@@ -264,7 +279,7 @@ html,body{
 
 .header.player-change{animation:playerFlash .32s ease-out;border-radius:12px}
 
-@keyframes playerFlash{0%{background:#174b78}100%{background:transparent}}
+@keyframes playerFlash{0%{background:rgba(255,255,255,.22)}100%{background:transparent}}
 
 .number.score-change{animation:numberMove .25s ease-out;color:#7ee7ff}
 
@@ -302,13 +317,13 @@ html,body{
 
    Supabase設定
 
-\========================================= */
+========================================= */
 
 
 
 const SUPABASE_URL =
 
-  "https\://qujiuvxikrmphvfunngn.supabase.co";
+  "https://qujiuvxikrmphvfunngn.supabase.co";
 
 
 
@@ -334,7 +349,7 @@ let key = SUPABASE_PUBLISHABLE_KEY.trim();
 
    ゴルフデータ
 
-\========================================= */
+========================================= */
 
 
 
@@ -408,7 +423,7 @@ let previousRoundId = null;
 
    Supabaseキー
 
-\========================================= */
+========================================= */
 
 
 
@@ -436,7 +451,7 @@ function askKey(){
 
    Supabase共通処理
 
-\========================================= */
+========================================= */
 
 
 
@@ -526,7 +541,7 @@ async function supabaseRequest(path,options={}){
 
    WatchのデータをSupabase形式にする
 
-\========================================= */
+========================================= */
 
 
 
@@ -584,7 +599,7 @@ function makeCloudData(){
 
    Watch → Supabase保存
 
-\========================================= */
+========================================= */
 
 
 
@@ -698,7 +713,7 @@ async function saveToCloud(){
 
    Supabase → Watch
 
-\========================================= */
+========================================= */
 
 
 
@@ -1062,7 +1077,7 @@ async function getLatest(){
 
    ローカル保存
 
-\========================================= */
+========================================= */
 
 
 
@@ -1118,7 +1133,7 @@ function saveLocal(){
 
    ローカル読込
 
-\========================================= */
+========================================= */
 
 
 
@@ -1208,7 +1223,7 @@ function loadLocal(){
 
    スコア取得
 
-\========================================= */
+========================================= */
 
 
 
@@ -1234,7 +1249,7 @@ function score(){
 
    合計
 
-\========================================= */
+========================================= */
 
 
 
@@ -1282,7 +1297,7 @@ function total(){
 
    スコア変更
 
-\========================================= */
+========================================= */
 
 
 
@@ -1340,7 +1355,7 @@ async function changeScore(d){
 
    PAT変更
 
-\========================================= */
+========================================= */
 
 
 
@@ -1392,7 +1407,7 @@ async function changePat(d){
 
    Watch画面
 
-\========================================= */
+========================================= */
 
 
 
@@ -1426,11 +1441,10 @@ function render(){
 
 
 
-  document.getElementById(
-
-    "screen"
-
-  ).innerHTML=
+    const themeClasses = ["theme-takeda", "theme-a", "theme-b", "theme-c"];
+  const screen = document.getElementById("screen");
+  screen.className = themeClasses[person] || themeClasses[0];
+  screen.innerHTML=
 
 
 
@@ -1697,7 +1711,7 @@ function render(){
 
    スワイプ操作
 
-\========================================= */
+========================================= */
 
 
 
@@ -1933,7 +1947,7 @@ document.addEventListener(
 
    初期処理
 
-\========================================= */
+========================================= */
 
 
 
@@ -1990,4 +2004,3 @@ setInterval(
 </body>
 
 </html>
-
