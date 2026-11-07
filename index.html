@@ -71,6 +71,17 @@ summary{cursor:pointer;font-weight:bold}
 }
 .watch-send{background:#e8f0ff !important;border-color:#7aa2e8 !important;color:#174a9c !important;font-weight:600 !important}
 .watch-receive{background:#e8f7e8 !important;border-color:#79b879 !important;color:#216b21 !important;font-weight:600 !important}
+
+/* プレーヤー別スコア色分け */
+.score-table th.player-0,.score-table td.player-0{background:#dbeafe;color:#174a9c;font-weight:700}
+.score-table th.player-1,.score-table td.player-1{background:#dcfce7;color:#176534;font-weight:700}
+.score-table th.player-2,.score-table td.player-2{background:#ffedd5;color:#9a4d08;font-weight:700}
+.score-table th.player-3,.score-table td.player-3{background:#f3e8ff;color:#6b3294;font-weight:700}
+.score-table tr.summary td.player-0{background:#bfdbfe}
+.score-table tr.summary td.player-1{background:#bbf7d0}
+.score-table tr.summary td.player-2{background:#fed7aa}
+.score-table tr.summary td.player-3{background:#e9d5ff}
+
 </style>
 
 <style id="player-name-color">
@@ -104,7 +115,6 @@ summary{cursor:pointer;font-weight:bold}
     </select>
     <button onclick="newRound()">新しいラウンド</button>
     <button onclick="saveCurrentRound()">保存</button>
-    <button onclick="sendToWatch()" class="watch-send">Watchへ送る（手動同期）</button>
     <button onclick="loadFromWatch()" class="watch-receive">Watchから読み込む</button>
     <button onclick="deleteCurrentRound()" class="danger">削除</button>
   </div>
@@ -175,7 +185,7 @@ summary{cursor:pointer;font-weight:bold}
   <div class="table-wrap">
     <table class="score-table">
       <thead>
-        <tr><th>H</th><th>PAR</th><th>PAT</th><th id="listPlayer0">Aさん</th><th id="listPlayer1">Bさん</th><th id="listPlayer2">Cさん</th><th id="listPlayer3">Dさん</th></tr>
+        <tr><th>H</th><th>PAR</th><th>PAT</th><th id="listPlayer0" class="player-0">Aさん</th><th id="listPlayer1" class="player-1">Bさん</th><th id="listPlayer2" class="player-2">Cさん</th><th id="listPlayer3" class="player-3">Dさん</th></tr>
       </thead>
       <tbody id="scoreList"></tbody>
     </table>
@@ -320,6 +330,7 @@ async function saveCurrentRound(showAlert=true){
   currentRoundId=r.id;
   const idx=rounds.findIndex(x=>x.id===r.id);
   if(idx>=0) rounds[idx]=r; else rounds.push(r);
+  rounds.sort((a,b)=>String(b.date||"").localeCompare(String(a.date||"")) || Number(b.id||0)-Number(a.id||0));
   localStorage.setItem(STORAGE_KEY,JSON.stringify(rounds));
   refreshRoundSelect();
   updateRoundInfo();
@@ -608,10 +619,10 @@ function showScoreList(){
       '<td>'+(h+1)+'</td>'+
       '<td>'+pars[h]+'</td>'+
       '<td>'+getPat(h)+'</td>'+
-      '<td>'+getScore(0,h)+'</td>'+
-      '<td>'+getScore(1,h)+'</td>'+
-      '<td>'+getScore(2,h)+'</td>'+
-      '<td>'+getScore(3,h)+'</td>';
+      '<td class="player-0">'+getScore(0,h)+'</td>'+
+      '<td class="player-1">'+getScore(1,h)+'</td>'+
+      '<td class="player-2">'+getScore(2,h)+'</td>'+
+      '<td class="player-3">'+getScore(3,h)+'</td>';
     body.appendChild(tr);
   }
   addSummaryRow(body,"OUT",0,9);
@@ -648,7 +659,7 @@ async function loadFromWatch(){
 
     // Watchは常にSupabaseの最新ラウンドを読み書きするため、
     // iPhone側も「最新1件」を読み込みます。
-    const path=SUPABASE_TABLE+"?select=*&order=id.desc&limit=1";
+    const path=SUPABASE_TABLE+"?select=*&order=date.desc,id.desc&limit=1";
 
     const data=await supabaseRequest(path);
     if(!data || !data.length){
@@ -701,22 +712,6 @@ async function loadFromWatch(){
 }
 
 
-// ===== Watchへ送る（iPhone→Supabase→Watch） =====
-async function sendToWatch(){
-  updateRoundInfo();
-  const btn=document.querySelector('.watch-send');
-  if(btn) btn.disabled=true;
-  try{
-    await saveCurrentRound(false);
-    alert("Watchへ送るデータをSupabaseに保存しました。\nApple Watchで72ゴルフWatchを開いてください。");
-  }catch(e){
-    console.error(e);
-    alert("Watchへ送ることができませんでした。\n\n"+e.message);
-  }finally{
-    if(btn) btn.disabled=false;
-  }
-}
-
 function init(){
   ["courseName","roundDate","player0","player1","player2","player3"].forEach(id=>{
     el(id).addEventListener("change",updateRoundInfo);
@@ -729,3 +724,4 @@ init();
 </script>
 </body>
 </html>
+
