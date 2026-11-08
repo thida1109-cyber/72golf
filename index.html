@@ -69,19 +69,7 @@ summary{cursor:pointer;font-weight:bold}
  .running{font-size:21px}
  .info-date{font-size:13px}
 }
-.watch-send{background:#e8f0ff !important;border-color:#7aa2e8 !important;color:#174a9c !important;font-weight:600 !important}
 .watch-receive{background:#e8f7e8 !important;border-color:#79b879 !important;color:#216b21 !important;font-weight:600 !important}
-
-/* プレーヤー別スコア色分け */
-.score-table th.player-0,.score-table td.player-0{background:#dbeafe;color:#174a9c;font-weight:700}
-.score-table th.player-1,.score-table td.player-1{background:#dcfce7;color:#176534;font-weight:700}
-.score-table th.player-2,.score-table td.player-2{background:#ffedd5;color:#9a4d08;font-weight:700}
-.score-table th.player-3,.score-table td.player-3{background:#f3e8ff;color:#6b3294;font-weight:700}
-.score-table tr.summary td.player-0{background:#bfdbfe}
-.score-table tr.summary td.player-1{background:#bbf7d0}
-.score-table tr.summary td.player-2{background:#fed7aa}
-.score-table tr.summary td.player-3{background:#e9d5ff}
-
 </style>
 
 <style id="player-name-color">
@@ -185,7 +173,7 @@ summary{cursor:pointer;font-weight:bold}
   <div class="table-wrap">
     <table class="score-table">
       <thead>
-        <tr><th>H</th><th>PAR</th><th>PAT</th><th id="listPlayer0" class="player-0">Aさん</th><th id="listPlayer1" class="player-1">Bさん</th><th id="listPlayer2" class="player-2">Cさん</th><th id="listPlayer3" class="player-3">Dさん</th></tr>
+        <tr><th>H</th><th>PAR</th><th>PAT</th><th id="listPlayer0" class="player-color-0">Aさん</th><th id="listPlayer1" class="player-color-1">Bさん</th><th id="listPlayer2" class="player-color-2">Cさん</th><th id="listPlayer3" class="player-color-3">Dさん</th></tr>
       </thead>
       <tbody id="scoreList"></tbody>
     </table>
@@ -330,7 +318,13 @@ async function saveCurrentRound(showAlert=true){
   currentRoundId=r.id;
   const idx=rounds.findIndex(x=>x.id===r.id);
   if(idx>=0) rounds[idx]=r; else rounds.push(r);
-  rounds.sort((a,b)=>String(b.date||"").localeCompare(String(a.date||"")) || Number(b.id||0)-Number(a.id||0));
+  // 保存ラウンド一覧は日付の新しい順。同日ならIDの大きい順。
+  rounds.sort((a,b)=>{
+    const ad=String(a.date||"");
+    const bd=String(b.date||"");
+    if(ad!==bd) return bd.localeCompare(ad);
+    return Number(b.id||0)-Number(a.id||0);
+  });
   localStorage.setItem(STORAGE_KEY,JSON.stringify(rounds));
   refreshRoundSelect();
   updateRoundInfo();
@@ -619,10 +613,10 @@ function showScoreList(){
       '<td>'+(h+1)+'</td>'+
       '<td>'+pars[h]+'</td>'+
       '<td>'+getPat(h)+'</td>'+
-      '<td class="player-0">'+getScore(0,h)+'</td>'+
-      '<td class="player-1">'+getScore(1,h)+'</td>'+
-      '<td class="player-2">'+getScore(2,h)+'</td>'+
-      '<td class="player-3">'+getScore(3,h)+'</td>';
+      '<td class="player-color-0">'+getScore(0,h)+'</td>'+
+      '<td class="player-color-1">'+getScore(1,h)+'</td>'+
+      '<td class="player-color-2">'+getScore(2,h)+'</td>'+
+      '<td class="player-color-3">'+getScore(3,h)+'</td>';
     body.appendChild(tr);
   }
   addSummaryRow(body,"OUT",0,9);
@@ -640,7 +634,10 @@ function addSummaryRow(body,label,start,end){
     for(let p=0;p<4;p++) sc[p]+=getScore(p,h);
   }
   tr.innerHTML='<td>'+label+'</td><td>'+par+'</td><td>'+pat+'</td>'+
-    '<td>'+sc[0]+'</td><td>'+sc[1]+'</td><td>'+sc[2]+'</td><td>'+sc[3]+'</td>';
+    '<td class="player-color-0">'+sc[0]+'</td>'+
+    '<td class="player-color-1">'+sc[1]+'</td>'+
+    '<td class="player-color-2">'+sc[2]+'</td>'+
+    '<td class="player-color-3">'+sc[3]+'</td>';
   body.appendChild(tr);
 }
 
@@ -710,6 +707,7 @@ async function loadFromWatch(){
     if(btn) btn.disabled=false;
   }
 }
+
 
 
 function init(){
